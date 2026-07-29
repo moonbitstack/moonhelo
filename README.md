@@ -37,6 +37,7 @@ flowchart LR
 | server | [mooncat](https://github.com/Lfan-ke/mooncat) | serves the assembled app over native HTTP |
 | SEAM | [moonasgi](https://github.com/Lfan-ke/moonasgi) | the Scope/Receive/Send contract every layer shares |
 | gRPC | [moonrpc](https://github.com/Lfan-ke/moonrpc) | serves greet.Greeter over h2c with Server Reflection (`rpc/`) |
+| GraphQL | [moongql](https://github.com/Lfan-ke/moongql) | serves `Query.greeting` at `/graphql` (`gql/`, separate module) |
 
 Routes are hand-written — the ordinary goctl workflow, where generated
 scaffolding is the starting point and the business logic is filled in — but the
@@ -58,6 +59,19 @@ Server Reflection registered. The test drives it the way `grpcurl` does — over
 real `@socket.Tcp`, through the in-process `Channel` client: `ListServices` sees
 `greet.Greeter`, `FileContainingSymbol` returns its `FileDescriptorProto`, and a
 unary `SayHello("Ada")` answers `"Hello, Ada"`.
+
+## GraphQL leg
+
+`gql/` serves `type Query { greeting(name: String!): String! }` through moongql's
+executor. Its test POSTs `{ greeting(name: "Ada") }` with a real HTTP client and
+asserts the exact `{"data":{"greeting":"Hello, Ada"}}`.
+
+It is a **separate module** with its own `moon.mod`: moongql is built against
+`moonasgi@0.5.0`, while the HTTP core's server (mooncat) is built against
+`moonasgi@0.1.0`, and a single module resolves one moonasgi version for all of
+its packages. The two are irreconcilable today, so the GraphQL leg lives in its
+own module (its own CI job) and bridges the moongql handler onto
+`moonbitlang/async`'s HTTP server directly rather than through mooncat.
 
 ## Run it
 
