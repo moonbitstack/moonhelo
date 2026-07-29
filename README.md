@@ -37,7 +37,7 @@ flowchart LR
 | server | [mooncat](https://github.com/Lfan-ke/mooncat) | serves the assembled app over native HTTP |
 | SEAM | [moonasgi](https://github.com/Lfan-ke/moonasgi) | the Scope/Receive/Send contract every layer shares |
 | gRPC | [moonrpc](https://github.com/Lfan-ke/moonrpc) | serves greet.Greeter over h2c with Server Reflection (`rpc/`) |
-| GraphQL | [moongql](https://github.com/Lfan-ke/moongql) | serves `Query.greeting` at `/graphql` (`gql/`, separate module) |
+| GraphQL | [moongql](https://github.com/Lfan-ke/moongql) | serves `Query.greeting` at `/graphql`, mounted on the same mooncat server |
 
 Routes are hand-written — the ordinary goctl workflow, where generated
 scaffolding is the starting point and the business logic is filled in — but the
@@ -45,11 +45,11 @@ generated `User` model stays the persistence layer, so a request still
 round-trips through the exact model the spec produced.
 
 mctl also generates a moonapi route scaffold (`@moonctl.generate`), and `gen`
-runs it, but that output is not compiled here: the published `moonctl@0.6.0`
-targets a pre-0.10.5 compiler where a pure named handler coerces to the raising
-`ApiHandler`; under `moonc 0.10.5` that coercion is gone, so the scaffold's
-`app.get(path, handler)` stubs no longer type-check. The routes are written by
-hand instead.
+runs it. `moonctl@0.6.1` emits 0.10.5-safe arrow-closure registration
+(`app.get(path, ctx => handler(ctx))`), so the scaffold type-checks; greet still
+writes its routes by hand because they carry the real business logic — the
+ordinary goctl workflow where the scaffold is the starting point and the logic is
+filled in.
 
 ## gRPC leg
 
@@ -62,16 +62,17 @@ unary `SayHello("Ada")` answers `"Hello, Ada"`.
 
 ## GraphQL leg
 
-`gql/` serves `type Query { greeting(name: String!): String! }` through moongql's
-executor. Its test POSTs `{ greeting(name: "Ada") }` with a real HTTP client and
-asserts the exact `{"data":{"greeting":"Hello, Ada"}}`.
+`server/gql.mbt` defines `type Query { greeting(name: String!): String! }` and
+mounts moongql's handler as `GET`/`POST /graphql` on the same moonapi app mooncat
+serves. The end-to-end test POSTs `{ greeting(name: "Ada") }` to that one server
+and asserts the exact `{"data":{"greeting":"Hello, Ada"}}` — GraphQL rides the
+shared moonasgi transport alongside the REST routes, not a second HTTP server.
 
-It is a **separate module** with its own `moon.mod`: moongql is built against
-`moonasgi@0.5.0`, while the HTTP core's server (mooncat) is built against
-`moonasgi@0.1.0`, and a single module resolves one moonasgi version for all of
-its packages. The two are irreconcilable today, so the GraphQL leg lives in its
-own module (its own CI job) and bridges the moongql handler onto
-`moonbitlang/async`'s HTTP server directly rather than through mooncat.
+This used to be a separate module: moongql pinned `moonasgi@0.5.0` while the HTTP
+core pinned `moonasgi@0.1.0`, and one module resolves a single moonasgi for all
+its packages. Aligning the whole suite on `moonasgi@0.6.1` removed the skew, so
+the leg folds back into the main module and the same server answers REST,
+OpenAPI, and GraphQL on one port.
 
 ## Run it
 
@@ -84,6 +85,8 @@ $ curl -s -XPOST localhost:8080/users -d '{"name":"Ada"}'
 {"id":1,"name":"Ada"}
 $ curl -s localhost:8080/users/1         # -> {"id":1,"name":"Ada"}
 $ curl -s localhost:8080/openapi.json    # -> the OpenAPI document
+$ curl -s -XPOST localhost:8080/graphql -d '{"query":"{ greeting(name: \"Ada\") }"}'
+{"data":{"greeting":"Hello, Ada"}}
 ```
 
 ## Layout

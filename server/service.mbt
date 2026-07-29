@@ -136,6 +136,9 @@ fn build_app(sess : @moonorm.Session) -> @moonapi.App {
     ctx => handle_get_user(sess, ctx),
     summary="fetch a user by id",
   )
+  let gql = gql_handler()
+  app.post("/graphql", ctx => gql(ctx.request), summary="GraphQL query")
+  app.get("/graphql", ctx => gql(ctx.request), summary="GraphiQL")
   let doc = app.openapi(title="greet", api_version="0.1.0")
   app.get("/openapi.json", _ctx => @moonapi.json(200, doc), summary="OpenAPI")
   app

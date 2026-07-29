@@ -14,6 +14,7 @@ import {
   "Lfan-ke/moondb",
   "Lfan-ke/moon-sqlite" @sqlite,
   "Lfan-ke/mooncat",
+  "Lfan-ke/moongql" @gql,
   "Lfan-ke/greet/genmodel",
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",

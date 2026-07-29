@@ -1,11 +1,10 @@
 ///|
 /// Run the published mctl over greet.api: write the moonorm model to genmodel/
 /// (compiled, and what the running server persists through), and also run the
-/// moonapi scaffold generator to prove it works. The scaffold is not compiled
-/// here: the published moonctl targets a pre-0.10.5 compiler where a pure named
-/// handler coerces to the raising `ApiHandler`; under moonc 0.10.5 that coercion
-/// is gone, so its `app.get(path, handler)` stubs no longer type-check. greet
-/// hand-writes the routes instead (the goctl fill-in-the-logic workflow), so only
+/// moonapi scaffold generator to prove it works. mctl 0.6.1 emits 0.10.5-safe
+/// arrow-closure route registration (`app.get(path, ctx => handler(ctx))`), so
+/// the scaffold type-checks; greet still hand-writes its routes because they
+/// carry the real business logic (the goctl fill-in-the-logic workflow), so only
 /// the model is generated into the build.
 async fn main {
   try {
@@ -18,7 +17,7 @@ async fn main {
     println("gen: wrote genmodel/greet_model.mbt")
     let bytes = @moonctl.generate(spec).length()
     println(
-      "gen: mctl also produced a \{bytes}-byte moonapi scaffold (not compiled under moonc 0.10.5; routes are hand-written)",
+      "gen: mctl also produced a \{bytes}-byte moonapi scaffold (routes are hand-written for the business logic)",
     )
   } catch {
     e => println("gen: error: " + e.to_string())

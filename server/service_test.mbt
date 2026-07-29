@@ -78,6 +78,15 @@ async test "greet e2e: assembled server answers over the wire and persists to SQ
       }
       _ => abort("openapi document is not a JSON object")
     }
+
+    // POST /graphql -> the greeting, executed by moongql on the SAME mooncat
+    // server as the REST routes. The greeting text is mutation-guarded: break the
+    // resolver and this assertion goes red.
+    let (gql, gqlbody) = @http.post(
+      "http://127.0.0.1:18096/graphql", "{\"query\":\"{ greeting(name: \\\"Ada\\\") }\"}",
+    )
+    assert_eq(gql.code, 200)
+    assert_eq(gqlbody.json(), { "data": { "greeting": "Hello, Ada" } })
     task.cancel()
   })
 }

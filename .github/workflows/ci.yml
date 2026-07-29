@@ -62,42 +62,11 @@ jobs:
           DOC=$(curl -sf http://127.0.0.1:8080/openapi.json)
           echo "$DOC" | grep -q '"/ping"'
           echo "$DOC" | grep -q '"/users"'
+          echo "--- POST /graphql ---"
+          GQL=$(curl -sf -X POST http://127.0.0.1:8080/graphql --data '{"query":"{ greeting(name: \"Curl\") }"}')
+          echo "$GQL"
+          echo "$GQL" | grep -q '"greeting":"Hello, Curl"'
           kill "$SRV" || true
-
-      - name: lint (fmt is clean)
-        run: |
-          moon fmt
-          git diff --exit-code
-
-  gql:
-    name: greet gql leg (native, separate module on moonasgi 0.5.0)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: gql
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: install moon
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: post install
-        run: |
-          moon version --all
-          moon update
-
-      - name: moon check
-        run: moon check --target native --deny-warn
-
-      - name: moon build
-        run: moon build --target native
-
-      - name: moon test (a real @http client POSTs a query to /graphql over the wire)
-        run: moon test --target native
 
       - name: lint (fmt is clean)
         run: |
