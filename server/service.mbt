@@ -125,7 +125,7 @@ fn build_app(sess : @moonorm.Session) -> @moonapi.App {
     }
   }
   app.middleware(request_id)
-  app.get("/ping", _ctx => @moonapi.text(200, "pong"), summary="health check")
+  app.get("/ping", _ctx => @moonapi.text(200, "PONG"), summary="health check")
   app.post(
     "/users",
     ctx => handle_create_user(sess, ctx),
