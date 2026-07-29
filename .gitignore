@@ -1,0 +1,6 @@
+.*
+!.git*
+
+target/
+_build/
+*.db

@@ -1,0 +1,17 @@
+// greet — the end-to-end slice of the moon* full-stack web suite.
+//
+// One goctl-style .api spec drives the whole chain: mctl (moonctl) turns the
+// service block into a moonapi scaffold and the type block into a moonorm model,
+// the handlers are filled in against that model, moonzero assembles the app with
+// middleware, moonorm persists to SQLite, and mooncat serves it over native HTTP.
+
+service greet {
+  get  /ping        ping        "health check"
+  post /users       create_user "create a user"
+  get  /users/:id   get_user    "fetch a user by id"
+}
+
+type User {
+  id:   int
+  name: string
+}

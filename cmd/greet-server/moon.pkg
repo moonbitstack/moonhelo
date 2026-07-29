@@ -1,0 +1,11 @@
+// The greet server binary. Native-only: it serves over async HTTP and links the
+// SQLite driver. CI runs it in the background and curls it, which is the
+// external-client half of the end-to-end proof.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+import {
+  "Lfan-ke/greet/server" @server,
+  "moonbitlang/async",
+}

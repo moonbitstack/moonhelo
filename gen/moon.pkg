@@ -1,0 +1,14 @@
+// The greet code generator: it runs the published moonctl (mctl) over greet.api
+// and writes the moonapi scaffold (genapi/) and the moonorm model (genmodel/).
+// File IO rides moonbitlang/async, so it is native-only. `moon run --target
+// native gen` regenerates both, which is how CI proves mctl's output is what the
+// rest of the module compiles against.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+import {
+  "Lfan-ke/moonctl",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+}

@@ -1,0 +1,28 @@
+// The assembled greet service: moonapi routing with an ergonomic request-id
+// middleware, wrapped by a moonzero Server that adds go-zero-style request
+// logging, wired to a moonorm Session over a real SQLite database (moon-sqlite),
+// and served by mooncat. The mctl-generated User model (genmodel) is the
+// persistence layer, so a request round-trips through the same declarative model
+// the spec produced. Native-only: it serves over async HTTP and links SQLite.
+supported_targets = "native"
+
+import {
+  "Lfan-ke/moonapi",
+  "Lfan-ke/moonasgi",
+  "Lfan-ke/moonzero" @zero,
+  "Lfan-ke/moonorm",
+  "Lfan-ke/moondb",
+  "Lfan-ke/moon-sqlite" @sqlite,
+  "Lfan-ke/mooncat",
+  "Lfan-ke/greet/genmodel",
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
+}
+
+// The end-to-end test drives the running server with a real async HTTP client,
+// and separately boots the mctl-generated scaffold to prove it serves over HTTP.
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/http",
+  "Lfan-ke/greet/genapi",
+} for "test"
