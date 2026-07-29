@@ -36,8 +36,7 @@ async test "greet e2e: assembled server answers over the wire and persists to SQ
 
     // POST /users {name} -> 201 created; capture the assigned id.
     let (created, cbody) = @http.post(
-      "http://127.0.0.1:18096/users",
-      "{\"name\":\"Ada\"}",
+      "http://127.0.0.1:18096/users", "{\"name\":\"Ada\"}",
     )
     assert_eq(created.code, 201)
     let created_json = cbody.json()

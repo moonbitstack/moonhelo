@@ -6,6 +6,6 @@ supported_targets = "native"
 pkgtype(kind: "executable")
 
 import {
-  "Lfan-ke/greet/server" @server,
+  "Lfan-ke/greet/server",
   "moonbitlang/async",
 }

@@ -16,11 +16,9 @@ async fn main {
       create_mode=CreateOrTruncate,
     )
     println("gen: wrote genmodel/greet_model.mbt")
-    let scaffold = @moonctl.generate(spec)
+    let bytes = @moonctl.generate(spec).length()
     println(
-      "gen: mctl also produced a " +
-      scaffold.length().to_string() +
-      "-byte moonapi scaffold (not compiled under moonc 0.10.5; routes are hand-written)",
+      "gen: mctl also produced a \{bytes}-byte moonapi scaffold (not compiled under moonc 0.10.5; routes are hand-written)",
     )
   } catch {
     e => println("gen: error: " + e.to_string())

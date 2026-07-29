@@ -26,12 +26,16 @@ pub let user_table : @moonorm.Table = user_model.table_descriptor()
 
 ///|
 /// Migration up: create the `user` table (idempotent).
-pub fn user_up(sess : @moonorm.Session) -> @moondb.ExecResult raise @moondb.DbError {
+pub fn user_up(
+  sess : @moonorm.Session,
+) -> @moondb.ExecResult raise @moondb.DbError {
   sess.create_table(user_model, if_not_exists=true)
 }
 
 ///|
 /// Migration down: drop the `user` table.
-pub fn user_down(sess : @moonorm.Session) -> @moondb.ExecResult raise @moondb.DbError {
+pub fn user_down(
+  sess : @moonorm.Session,
+) -> @moondb.ExecResult raise @moondb.DbError {
   sess.execute("DROP TABLE IF EXISTS user", [])
 }

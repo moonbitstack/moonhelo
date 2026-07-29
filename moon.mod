@@ -8,14 +8,7 @@ repository = "https://github.com/Lfan-ke/greet"
 
 license = "Apache-2.0"
 
-keywords = [
-  "goctl",
-  "codegen",
-  "end-to-end",
-  "web",
-  "moonbit",
-  "example",
-]
+keywords = [ "goctl", "codegen", "end-to-end", "web", "moonbit", "example" ]
 
 description = "The greet end-to-end slice of the moon* full-stack web suite: one .api spec flows mctl (moonctl) code generation -> moonapi routing -> moonzero assembly -> moonorm/moon-sqlite persistence -> mooncat native server, answered over the wire by a real HTTP client. The DoD-F acceptance that the whole stack boots and cooperates."
 

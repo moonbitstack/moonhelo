@@ -38,7 +38,10 @@ fn parse_int(s : String) -> Int? {
 ///|
 /// A `{id, name}` JSON object for a user.
 fn user_json(id : Int, name : String) -> Json {
-  let m : Map[String, Json] = Map([("id", id.to_json()), ("name", name.to_json())])
+  let m : Map[String, Json] = Map([
+    ("id", id.to_json()),
+    ("name", name.to_json()),
+  ])
   m.to_json()
 }
 
@@ -61,9 +64,9 @@ fn handle_create_user(
     Some(n) => n
     None => return error_json(422, "field required: name")
   }
-  let res = try sess.execute("INSERT INTO user (name) VALUES (?)", [
-      @moondb.Text(name),
-    ]) catch {
+  let res = try
+    sess.execute("INSERT INTO user (name) VALUES (?)", [@moondb.Text(name)])
+  catch {
     e => return error_json(500, "insert failed: " + e.to_string())
   } noraise {
     v => v
@@ -87,10 +90,12 @@ fn handle_get_user(
       }
     None => return error_json(400, "missing id")
   }
-  let rows = try sess.fetch_as(
+  let rows = try
+    sess.fetch_as(
       @genmodel.user_model,
       @genmodel.user_model.select().eq("id", @moondb.Int(id)),
-    ) catch {
+    )
+  catch {
     e => return error_json(500, "query failed: " + e.to_string())
   } noraise {
     v => v
@@ -152,7 +157,7 @@ pub async fn serve_greet(
   host? : String = "127.0.0.1",
   port? : Int = 8080,
   db_path? : String = "greet.db",
-) -> Unit raise {
+) -> Unit {
   let db = @sqlite.SqliteDriver::open(db_path)
   let sess = @moonorm.Session::new(db)
   @genmodel.user_up(sess) |> ignore
