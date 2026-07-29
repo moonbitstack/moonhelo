@@ -1,0 +1,14 @@
+// The gRPC leg: a greet.Greeter service (SayHello) served over moonrpc's
+// self-built h2c transport with Server Reflection, plus the in-process Channel
+// client the test drives over a real TCP socket to list, describe, and call it.
+// Native-only: real sockets have no JS/Wasm backend.
+supported_targets = "native"
+
+import {
+  "Lfan-ke/moonrpc",
+  "Lfan-ke/moonrpc/net",
+}
+
+import {
+  "moonbitlang/async",
+} for "test"

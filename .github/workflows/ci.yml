@@ -37,7 +37,7 @@ jobs:
       - name: moon build
         run: moon build --target native
 
-      - name: moon test (in-process @http e2e + SQLite persistence + generated-scaffold boot)
+      - name: moon test (HTTP @http e2e + SQLite persistence + gRPC reflection/SayHello over h2c)
         run: moon test --target native
 
       - name: e2e over the wire (a real HTTP client curls the running server)

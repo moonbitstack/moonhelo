@@ -1,6 +1,6 @@
 name = "Lfan-ke/greet"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.md"
 
@@ -21,5 +21,6 @@ import {
   "Lfan-ke/moon-sqlite@0.1.3",
   "Lfan-ke/mooncat@0.6.0",
   "Lfan-ke/moonzero@0.6.0",
+  "Lfan-ke/moonrpc@0.6.1",
   "moonbitlang/async@0.20.3",
 }

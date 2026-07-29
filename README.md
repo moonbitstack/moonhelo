@@ -36,6 +36,7 @@ flowchart LR
 | driver | [moon-sqlite](https://github.com/Lfan-ke/moon-sqlite) | a real SQLite file behind the Session |
 | server | [mooncat](https://github.com/Lfan-ke/mooncat) | serves the assembled app over native HTTP |
 | SEAM | [moonasgi](https://github.com/Lfan-ke/moonasgi) | the Scope/Receive/Send contract every layer shares |
+| gRPC | [moonrpc](https://github.com/Lfan-ke/moonrpc) | serves greet.Greeter over h2c with Server Reflection (`rpc/`) |
 
 Routes are hand-written — the ordinary goctl workflow, where generated
 scaffolding is the starting point and the business logic is filled in — but the
@@ -48,6 +49,15 @@ targets a pre-0.10.5 compiler where a pure named handler coerces to the raising
 `ApiHandler`; under `moonc 0.10.5` that coercion is gone, so the scaffold's
 `app.get(path, handler)` stubs no longer type-check. The routes are written by
 hand instead.
+
+## gRPC leg
+
+`greet.proto` defines `Greeter.SayHello(HelloRequest) -> HelloReply`. `rpc/`
+serves it over moonrpc's self-built HTTP/2 (h2c) transport with `grpc.reflection.v1`
+Server Reflection registered. The test drives it the way `grpcurl` does — over a
+real `@socket.Tcp`, through the in-process `Channel` client: `ListServices` sees
+`greet.Greeter`, `FileContainingSymbol` returns its `FileDescriptorProto`, and a
+unary `SayHello("Ada")` answers `"Hello, Ada"`.
 
 ## Run it
 

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package greet;
+
+// The gRPC leg of the greet end-to-end slice: a Greeter served over moonrpc's
+// self-built h2c transport with Server Reflection, so a reflection client
+// (grpcurl, or the in-process Channel client the test uses) can list, describe,
+// and call it.
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply);
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
