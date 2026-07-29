@@ -1,28 +1,28 @@
 ///|
-/// Read greet.api and write one generated file: the moonapi scaffold when
-/// `scaffold` is set, otherwise the moonorm model. All IO failures are reported
-/// rather than propagated, so a bad path never aborts the whole run.
-async fn gen_one(input : String, out : String, scaffold~ : Bool) -> Unit {
-  try {
-    let source = @fs.read_file(input).text()
-    let spec = @moonctl.parse(source)
-    let code = if scaffold {
-      @moonctl.generate(spec)
-    } else {
-      @moonctl.generate_model(spec)
-    }
-    @fs.write_file(out, code, create_mode=CreateOrTruncate)
-    println("gen: wrote " + out)
-  } catch {
-    e => println("gen: error writing " + out + ": " + e.to_string())
-  }
-}
-
-///|
-/// Regenerate both generated packages from greet.api using the published mctl.
-/// Kept deterministic and path-fixed (run from the module root) so CI can diff the
-/// result against the committed files.
+/// Run the published mctl over greet.api: write the moonorm model to genmodel/
+/// (compiled, and what the running server persists through), and also run the
+/// moonapi scaffold generator to prove it works. The scaffold is not compiled
+/// here: the published moonctl targets a pre-0.10.5 compiler where a pure named
+/// handler coerces to the raising `ApiHandler`; under moonc 0.10.5 that coercion
+/// is gone, so its `app.get(path, handler)` stubs no longer type-check. greet
+/// hand-writes the routes instead (the goctl fill-in-the-logic workflow), so only
+/// the model is generated into the build.
 async fn main {
-  gen_one("greet.api", "genapi/greet_gen.mbt", scaffold=true)
-  gen_one("greet.api", "genmodel/greet_model.mbt", scaffold=false)
+  try {
+    let spec = @moonctl.parse(@fs.read_file("greet.api").text())
+    @fs.write_file(
+      "genmodel/greet_model.mbt",
+      @moonctl.generate_model(spec),
+      create_mode=CreateOrTruncate,
+    )
+    println("gen: wrote genmodel/greet_model.mbt")
+    let scaffold = @moonctl.generate(spec)
+    println(
+      "gen: mctl also produced a " +
+      scaffold.length().to_string() +
+      "-byte moonapi scaffold (not compiled under moonc 0.10.5; routes are hand-written)",
+    )
+  } catch {
+    e => println("gen: error: " + e.to_string())
+  }
 }

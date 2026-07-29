@@ -82,20 +82,3 @@ async test "greet e2e: assembled server answers over the wire and persists to SQ
     task.cancel()
   })
 }
-
-///|
-/// The mctl-generated scaffold is not just compilable, it runs: mooncat serves
-/// `genapi.build_app()` (the untouched moonctl output) on a real socket and a
-/// real HTTP GET reaches its `ping` stub. This is the "生成物运行" proof for the
-/// generated code, distinct from the hand-filled service above.
-async test "greet: the mctl-generated scaffold boots and routes over real HTTP" {
-  @async.with_task_group(g => {
-    let app = @genapi.build_app()
-    let task = g.spawn(() => @mooncat.serve(app.to_asgi(), port=18097))
-    @async.sleep(300)
-    let (resp, body) = @http.get("http://127.0.0.1:18097/ping")
-    assert_eq(resp.code, 200)
-    assert_eq(body.text(), "TODO: ping")
-    task.cancel()
-  })
-}

@@ -16,10 +16,8 @@ and cooperate — that is the point of it.
 
 ```mermaid
 flowchart LR
-  api["greet.api"] -->|mctl gen| scaffold["moonapi scaffold<br/>(genapi)"]
-  api -->|mctl gen| model["moonorm model<br/>(genmodel)"]
-  scaffold --> app["moonapi App<br/>+ handlers"]
-  model --> app
+  api["greet.api"] -->|mctl gen| model["moonorm model<br/>(genmodel)"]
+  model --> app["moonapi App<br/>+ hand-written routes"]
   app -->|moonzero assemble<br/>+ middleware| asgi["AsgiApp"]
   asgi -->|mooncat serve| http["native HTTP"]
   http -->|curl / async @http| client["real client"]
@@ -31,7 +29,7 @@ flowchart LR
 | stage | repo | what it does here |
 |-------|------|-------------------|
 | spec | — | `greet.api`: a `service` with `/ping`, `POST /users`, `GET /users/:id`, and a `type User` |
-| generate | [moonctl](https://github.com/Lfan-ke/moonctl) (`mctl`) | `genapi/` (routes + handler stubs) and `genmodel/` (the `User` model + migration) |
+| generate | [moonctl](https://github.com/Lfan-ke/moonctl) (`mctl`) | `genmodel/`: the `User` model, columns, Row decoder, and migration |
 | framework | [moonapi](https://github.com/Lfan-ke/moonapi) | routing, the OpenAPI document, the request-id middleware |
 | assembly | [moonzero](https://github.com/Lfan-ke/moonzero) | wraps the app with go-zero-style request logging |
 | ORM | [moonorm](https://github.com/Lfan-ke/moonorm) + [moondb](https://github.com/Lfan-ke/moondb) | the `Session` that persists and reads users |
@@ -39,15 +37,22 @@ flowchart LR
 | server | [mooncat](https://github.com/Lfan-ke/mooncat) | serves the assembled app over native HTTP |
 | SEAM | [moonasgi](https://github.com/Lfan-ke/moonasgi) | the Scope/Receive/Send contract every layer shares |
 
-The mctl stubs are replaced with real handlers — the ordinary goctl workflow,
-where generated scaffolding is the starting point and the business logic is
-filled in — but the generated `User` model stays the persistence layer, so a
-request still round-trips through the exact model the spec produced.
+Routes are hand-written — the ordinary goctl workflow, where generated
+scaffolding is the starting point and the business logic is filled in — but the
+generated `User` model stays the persistence layer, so a request still
+round-trips through the exact model the spec produced.
+
+mctl also generates a moonapi route scaffold (`@moonctl.generate`), and `gen`
+runs it, but that output is not compiled here: the published `moonctl@0.6.0`
+targets a pre-0.10.5 compiler where a pure named handler coerces to the raising
+`ApiHandler`; under `moonc 0.10.5` that coercion is gone, so the scaffold's
+`app.get(path, handler)` stubs no longer type-check. The routes are written by
+hand instead.
 
 ## Run it
 
 ```console
-$ moon run --target native gen           # regenerate genapi/ and genmodel/ from greet.api
+$ moon run --target native gen           # regenerate genmodel/ from greet.api
 $ moon test --target native              # in-process end-to-end: real @http client over a live socket
 $ moon run --target native cmd/greet-server &
 $ curl -s localhost:8080/ping            # -> pong
@@ -60,9 +65,9 @@ $ curl -s localhost:8080/openapi.json    # -> the OpenAPI document
 ## Layout
 
 - `greet.api` — the spec.
-- `gen/` — runs mctl over the spec and writes the two generated packages.
-- `genapi/` / `genmodel/` — mctl output, committed so the diff is visible and
-  regenerated in CI so it stays honest.
+- `gen/` — runs mctl over the spec and writes the generated model.
+- `genmodel/` — mctl output, committed so the diff is visible and regenerated in
+  CI so it stays honest.
 - `server/` — the assembled service and the end-to-end test.
 - `cmd/greet-server/` — the binary CI runs and curls.
 

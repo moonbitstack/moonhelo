@@ -19,10 +19,8 @@ import {
   "moonbitlang/core/encoding/utf8",
 }
 
-// The end-to-end test drives the running server with a real async HTTP client,
-// and separately boots the mctl-generated scaffold to prove it serves over HTTP.
+// The end-to-end test drives the running server with a real async HTTP client.
 import {
   "moonbitlang/async",
   "moonbitlang/async/http",
-  "Lfan-ke/greet/genapi",
 } for "test"
