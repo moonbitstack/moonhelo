@@ -24,4 +24,6 @@ import {
   "Lfan-ke/moonrpc@0.6.1",
   "Lfan-ke/moongql@0.6.2",
   "moonbitlang/async@0.20.3",
+  "DC-Z-lab/moonllm@0.1.0",
+  "Lfan-ke/moonkoog@0.2.0",
 }

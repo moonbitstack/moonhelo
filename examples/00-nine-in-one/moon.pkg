@@ -1,0 +1,15 @@
+import {
+  "Lfan-ke/moonasgi",
+  "Lfan-ke/mooncat",
+  "Lfan-ke/moonapi",
+  "Lfan-ke/moonctl",
+  "Lfan-ke/moonorm",
+  "Lfan-ke/moondb",
+  "Lfan-ke/moonrpc",
+  "Lfan-ke/moongql",
+  "Lfan-ke/moonzero",
+  "Lfan-ke/moonkoog/prompt",
+  "moonbitlang/core/encoding/utf8",
+}
+
+pkgtype(kind: "executable")
