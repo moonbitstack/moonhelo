@@ -11,3 +11,5 @@
   ```
   moon run examples/00-nine-in-one --target native
   ```
+
+| 01 | [`lifecycle`](01-lifecycle/) | Shutting down: an app's lifespan hooks, a gRPC GOAWAY naming the last accepted stream, and an agent stopping between nodes | `App::on_startup`/`on_shutdown`, `H2Server::goaway`/`highest_stream`, `RunHandle::stop` |

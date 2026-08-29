@@ -16,7 +16,7 @@ pub let user_model : @moonorm.Model[User] = @moonorm.Model::new(
     @moonorm.column("id", @moonorm.IntType, primary_key=true),
     @moonorm.column("name", @moonorm.TextType),
   ],
-  row => { id: row.int(0), name: row.text(1) },
+  row => { id: row.int(0), name: row.text(1), },
   r => [("id", @moondb.Int(r.id)), ("name", @moondb.Text(r.name))],
 )
 
