@@ -1,6 +1,6 @@
 name = "Lfan-ke/greet"
 
-version = "0.3.0"
+version = "0.4.0"
 
 readme = "README.md"
 
@@ -16,14 +16,14 @@ import {
   "Lfan-ke/moonasgi@0.8.0",
   "Lfan-ke/moonapi@0.7.0",
   "Lfan-ke/moonctl@0.6.2",
-  "Lfan-ke/moonorm@0.7.1",
-  "Lfan-ke/moondb@0.1.6",
-  "Lfan-ke/moon-sqlite@0.2.1",
+  "Lfan-ke/moonorm@0.8.0",
+  "Lfan-ke/moondb@0.1.7",
+  "Lfan-ke/moon-sqlite@0.2.2",
   "Lfan-ke/mooncat@0.7.0",
-  "Lfan-ke/moonzero@0.6.3",
-  "Lfan-ke/moonrpc@0.9.0",
-  "Lfan-ke/moongql@0.7.0",
+  "Lfan-ke/moonzero@0.7.1",
+  "Lfan-ke/moonrpc@0.10.0",
+  "Lfan-ke/moongql@0.8.0",
   "moonbitlang/async@0.20.3",
   "DC-Z-lab/moonllm@0.1.0",
-  "Lfan-ke/moonkoog@0.3.1",
+  "Lfan-ke/moonkoog@0.4.0",
 }

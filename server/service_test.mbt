@@ -81,9 +81,13 @@ async test "greet e2e: assembled server answers over the wire and persists to SQ
 
     // POST /graphql -> the greeting, executed by moongql on the SAME mooncat
     // server as the REST routes. The greeting text is mutation-guarded: break the
-    // resolver and this assertion goes red.
+    // resolver and this assertion goes red. The content-type is not decoration:
+    // since 0.8.0 moongql follows GraphQL-over-HTTP and answers a POST without one
+    // with a 415 rather than guessing what the bytes are.
     let (gql, gqlbody) = @http.post(
-      "http://127.0.0.1:18096/graphql", "{\"query\":\"{ greeting(name: \\\"Ada\\\") }\"}",
+      "http://127.0.0.1:18096/graphql",
+      "{\"query\":\"{ greeting(name: \\\"Ada\\\") }\"}",
+      headers={ "content-type": "application/json" },
     )
     assert_eq(gql.code, 200)
     assert_eq(gqlbody.json(), { "data": { "greeting": "Hello, Ada" } })
