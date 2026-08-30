@@ -63,7 +63,7 @@ jobs:
           echo "$DOC" | grep -q '"/ping"'
           echo "$DOC" | grep -q '"/users"'
           echo "--- POST /graphql ---"
-          GQL=$(curl -sf -X POST http://127.0.0.1:8080/graphql --data '{"query":"{ greeting(name: \"Curl\") }"}')
+          GQL=$(curl -sf -X POST http://127.0.0.1:8080/graphql -H 'content-type: application/json' --data '{"query":"{ greeting(name: \"Curl\") }"}')
           echo "$GQL"
           echo "$GQL" | grep -q '"greeting":"Hello, Curl"'
           kill "$SRV" || true
