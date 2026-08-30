@@ -9,8 +9,12 @@
 /// it (moonkoog). Everything runs in-process, no socket, no database.
 ///
 ///     moon run examples/00-nine-in-one --target native
+///
+/// `raise` because since 0.7.0 moonctl reports a malformed spec instead of quietly
+/// parsing less of it, and a demo that swallowed that would be demonstrating the old
+/// behaviour.
 #coverage.skip
-fn main {
+fn main raise {
   let who = "heke1228"
 
   // 1. moonctl (<- goctl): the .api spec that declares the greet service.
