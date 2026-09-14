@@ -4,7 +4,7 @@
 
 **The end-to-end slice of the moon\* full-stack web suite.**
 
-[![Check and Test](https://github.com/Lfan-ke/greet/actions/workflows/ci.yml/badge.svg)](https://github.com/Lfan-ke/greet/actions/workflows/ci.yml)
+[![Check and Test](https://github.com/moonbitstack/moonhelo/actions/workflows/ci.yml/badge.svg)](https://github.com/moonbitstack/moonhelo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
 </div>
@@ -21,7 +21,7 @@ flowchart LR
   app -->|moonzero assemble<br/>+ middleware| asgi["AsgiApp"]
   asgi -->|mooncat serve| http["native HTTP"]
   http -->|curl / async @http| client["real client"]
-  model -.->|Session| sqlite[("SQLite<br/>moon-sqlite")]
+  model -.->|Session| sqlite[("SQLite<br/>moonsqlite")]
 ```
 
 ## The chain
@@ -29,15 +29,15 @@ flowchart LR
 | stage | repo | what it does here |
 |-------|------|-------------------|
 | spec | — | `greet.api`: a `service` with `/ping`, `POST /users`, `GET /users/:id`, and a `type User` |
-| generate | [moonctl](https://github.com/Lfan-ke/moonctl) (`mctl`) | `genmodel/`: the `User` model, columns, Row decoder, and migration |
-| framework | [moonapi](https://github.com/Lfan-ke/moonapi) | routing, the OpenAPI document, the request-id middleware |
-| assembly | [moonzero](https://github.com/Lfan-ke/moonzero) | wraps the app with go-zero-style request logging |
-| ORM | [moonorm](https://github.com/Lfan-ke/moonorm) + [moondb](https://github.com/Lfan-ke/moondb) | the `Session` that persists and reads users |
-| driver | [moon-sqlite](https://github.com/Lfan-ke/moon-sqlite) | a real SQLite file behind the Session |
-| server | [mooncat](https://github.com/Lfan-ke/mooncat) | serves the assembled app over native HTTP |
-| SEAM | [moonasgi](https://github.com/Lfan-ke/moonasgi) | the Scope/Receive/Send contract every layer shares |
-| gRPC | [moonrpc](https://github.com/Lfan-ke/moonrpc) | serves greet.Greeter over h2c with Server Reflection (`rpc/`) |
-| GraphQL | [moongql](https://github.com/Lfan-ke/moongql) | serves `Query.greeting` at `/graphql`, mounted on the same mooncat server |
+| generate | [moonctl](https://github.com/moonbitstack/moonctl) (`mctl`) | `genmodel/`: the `User` model, columns, Row decoder, and migration |
+| framework | [moonapi](https://github.com/moonbitstack/moonapi) | routing, the OpenAPI document, the request-id middleware |
+| assembly | [moonzero](https://github.com/moonbitstack/moonzero) | wraps the app with go-zero-style request logging |
+| ORM | [moonorm](https://github.com/moonbitstack/moonorm) + [moondb](https://github.com/moonbitstack/moonorm/tree/master/db) | the `Session` that persists and reads users |
+| driver | [moonsqlite](https://github.com/moonbitstack/moonorm/tree/master/drivers/sqlite) | a real SQLite file behind the Session |
+| server | [mooncat](https://github.com/moonbitstack/mooncat) | serves the assembled app over native HTTP |
+| SEAM | [moonasgi](https://github.com/moonbitstack/moonasgi) | the Scope/Receive/Send contract every layer shares |
+| gRPC | [moonrpc](https://github.com/moonbitstack/moonrpc) | serves greet.Greeter over h2c with Server Reflection (`rpc/`) |
+| GraphQL | [moongql](https://github.com/moonbitstack/moongql) | serves `Query.greeting` at `/graphql`, mounted on the same mooncat server |
 
 Routes are hand-written — the ordinary goctl workflow, where generated
 scaffolding is the starting point and the business logic is filled in — but the

@@ -4,7 +4,7 @@ version = "0.5.0"
 
 readme = "README.md"
 
-repository = "https://github.com/Lfan-ke/greet"
+repository = "https://github.com/moonbitstack/moonhelo"
 
 license = "Apache-2.0"
 
@@ -18,7 +18,7 @@ import {
   "Lfan-ke/moonctl@0.7.0",
   "Lfan-ke/moonorm@0.8.0",
   "Lfan-ke/moondb@0.1.7",
-  "Lfan-ke/moon-sqlite@0.2.2",
+  "Lfan-ke/moonsqlite@0.3.0",
   "Lfan-ke/mooncat@0.8.0",
   "Lfan-ke/moonzero@0.7.2",
   "Lfan-ke/moonrpc@0.10.0",
