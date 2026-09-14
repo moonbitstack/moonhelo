@@ -1,12 +1,12 @@
 supported_targets = "native"
 
 import {
-  "Lfan-ke/moonasgi",
-  "Lfan-ke/moonapi",
-  "Lfan-ke/moonrpc",
-  "Lfan-ke/moonkoog/agent",
-  "Lfan-ke/moonkoog/llm",
-  "Lfan-ke/moonkoog/prompt",
+  "moonbitstack/moonasgi",
+  "moonbitstack/moonapi",
+  "moonbitstack/moonrpc",
+  "moonbitstack/moonkoog/agent",
+  "moonbitstack/moonkoog/llm",
+  "moonbitstack/moonkoog/prompt",
   "moonbitlang/async",
 }
 

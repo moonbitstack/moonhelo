@@ -8,7 +8,7 @@ supported_targets = "native"
 pkgtype(kind: "executable")
 
 import {
-  "Lfan-ke/moonctl",
+  "moonbitstack/moonctl",
   "moonbitlang/async",
   "moonbitlang/async/fs",
 }

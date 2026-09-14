@@ -7,14 +7,14 @@
 supported_targets = "native"
 
 import {
-  "Lfan-ke/moonapi",
-  "Lfan-ke/moonasgi",
-  "Lfan-ke/moonzero" @zero,
-  "Lfan-ke/moonorm",
-  "Lfan-ke/moondb",
-  "Lfan-ke/moonsqlite" @sqlite,
-  "Lfan-ke/mooncat",
-  "Lfan-ke/moongql" @gql,
+  "moonbitstack/moonapi",
+  "moonbitstack/moonasgi",
+  "moonbitstack/moonzero" @zero,
+  "moonbitstack/moonorm",
+  "moonbitstack/moondb",
+  "moonbitstack/moonsqlite" @sqlite,
+  "moonbitstack/mooncat",
+  "moonbitstack/moongql" @gql,
   "Lfan-ke/greet/genmodel",
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
