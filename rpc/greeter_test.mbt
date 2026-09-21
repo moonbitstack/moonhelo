@@ -6,7 +6,7 @@
 /// assertion is mutation-guarded in the test below.
 async test "greet rpc: reflection lists+describes and SayHello answers over h2c" {
   @async.with_task_group(g => {
-    let task = g.spawn(() => serve_greet_grpc(port=18076))
+    let task = g.spawn(() => @rpc.serve_greet_grpc(port=18076))
     @async.sleep(400)
     let ch = @net.Channel::connect("127.0.0.1", 18076)
     let refl_path = "/grpc.reflection.v1.ServerReflection/ServerReflectionInfo"
@@ -37,9 +37,9 @@ async test "greet rpc: reflection lists+describes and SayHello answers over h2c"
     assert_eq(described.services[0].name, "Greeter")
 
     // unary SayHello over the wire.
-    let reply = ch.unary("/greet.Greeter/SayHello", hello_request("Ada"))
+    let reply = ch.unary("/greet.Greeter/SayHello", @rpc.hello_request("Ada"))
     assert_eq(reply.grpc_status, 0)
-    let message = parse_hello_reply(reply.messages[0]) catch {
+    let message = @rpc.parse_hello_reply(reply.messages[0]) catch {
       _ => abort("could not decode HelloReply")
     }
     assert_eq(message, "Hello, Ada")

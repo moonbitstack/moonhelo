@@ -25,7 +25,7 @@ async test "greet e2e: assembled server answers over the wire and persists to SQ
     let setup = @sqlite.SqliteDriver::open(db_path)
     setup.exec_script("DROP TABLE IF EXISTS user;")
     setup.close()
-    let task = g.spawn(() => serve_greet(port=18096, db_path~))
+    let task = g.spawn(() => @server.serve_greet(port=18096, db_path~))
     @async.sleep(300)
 
     // GET /ping -> 200 "pong", with the request-id middleware header.
