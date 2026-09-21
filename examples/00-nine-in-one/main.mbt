@@ -56,7 +56,7 @@ fn main raise {
   println("moonapi : \{resp.status} \{body}")
 
   // 5. mooncat (<- uvicorn): where the native server would bind this app.
-  let cfg = @mooncat.Config::new(host="127.0.0.1", port=8000)
+  let cfg = @mooncat.Config::new(host="127.0.0.1", port=12000)
   println("mooncat : would serve on http://\{cfg.bind()}")
 
   // 6. moonorm (<- SQLAlchemy): the SQL that persists the greeting.
