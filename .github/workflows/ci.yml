@@ -46,24 +46,24 @@ jobs:
           moon run --target native cmd/greet-server &
           SRV=$!
           for i in $(seq 1 30); do
-            if curl -sf http://127.0.0.1:8080/ping >/dev/null 2>&1; then break; fi
+            if curl -sf http://127.0.0.1:12000/ping >/dev/null 2>&1; then break; fi
             sleep 1
           done
           echo "--- GET /ping ---"
-          test "$(curl -sf http://127.0.0.1:8080/ping)" = "pong"
+          test "$(curl -sf http://127.0.0.1:12000/ping)" = "pong"
           echo "--- POST /users ---"
-          CREATED=$(curl -sf -X POST http://127.0.0.1:8080/users --data '{"name":"Curl"}')
+          CREATED=$(curl -sf -X POST http://127.0.0.1:12000/users --data '{"name":"Curl"}')
           echo "$CREATED"
           echo "$CREATED" | grep -q '"name":"Curl"'
           ID=$(echo "$CREATED" | grep -o '"id":[0-9]*' | grep -o '[0-9]*')
           echo "--- GET /users/$ID ---"
-          curl -sf "http://127.0.0.1:8080/users/$ID" | grep -q '"name":"Curl"'
+          curl -sf "http://127.0.0.1:12000/users/$ID" | grep -q '"name":"Curl"'
           echo "--- GET /openapi.json ---"
-          DOC=$(curl -sf http://127.0.0.1:8080/openapi.json)
+          DOC=$(curl -sf http://127.0.0.1:12000/openapi.json)
           echo "$DOC" | grep -q '"/ping"'
           echo "$DOC" | grep -q '"/users"'
           echo "--- POST /graphql ---"
-          GQL=$(curl -sf -X POST http://127.0.0.1:8080/graphql -H 'content-type: application/json' --data '{"query":"{ greeting(name: \"Curl\") }"}')
+          GQL=$(curl -sf -X POST http://127.0.0.1:12000/graphql -H 'content-type: application/json' --data '{"query":"{ greeting(name: \"Curl\") }"}')
           echo "$GQL"
           echo "$GQL" | grep -q '"greeting":"Hello, Curl"'
           kill "$SRV" || true

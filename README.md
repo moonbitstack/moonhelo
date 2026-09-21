@@ -80,12 +80,12 @@ OpenAPI, and GraphQL on one port.
 $ moon run --target native gen           # regenerate genmodel/ from greet.api
 $ moon test --target native              # in-process end-to-end: real @http client over a live socket
 $ moon run --target native cmd/greet-server &
-$ curl -s localhost:8080/ping            # -> pong
-$ curl -s -XPOST localhost:8080/users -d '{"name":"Ada"}'
+$ curl -s localhost:12000/ping            # -> pong
+$ curl -s -XPOST localhost:12000/users -d '{"name":"Ada"}'
 {"id":1,"name":"Ada"}
-$ curl -s localhost:8080/users/1         # -> {"id":1,"name":"Ada"}
-$ curl -s localhost:8080/openapi.json    # -> the OpenAPI document
-$ curl -s -XPOST localhost:8080/graphql -d '{"query":"{ greeting(name: \"Ada\") }"}'
+$ curl -s localhost:12000/users/1         # -> {"id":1,"name":"Ada"}
+$ curl -s localhost:12000/openapi.json    # -> the OpenAPI document
+$ curl -s -XPOST localhost:12000/graphql -d '{"query":"{ greeting(name: \"Ada\") }"}'
 {"data":{"greeting":"Hello, Ada"}}
 ```
 
