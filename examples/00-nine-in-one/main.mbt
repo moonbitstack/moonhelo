@@ -68,14 +68,10 @@ fn main raise {
   ignore(params)
   println("moonorm : \{sql}")
 
-  // 7. moonrpc (<- gRPC): the greeting as a DATA frame on the HTTP/2 wire.
-  let frame = @moonrpc.Frame::Data(
-    stream_id=1,
-    data=@utf8.encode(body),
-    end_stream=true,
-    padding=0,
-  )
-  println("moonrpc : DATA frame \{frame.encode().length()} octets on stream 1")
+  // 7. moonrpc (<- gRPC): the greeting as a length-prefixed gRPC message, the
+  //    payload an HTTP/2 DATA frame carries.
+  let message = @moonrpc.encode_message(@utf8.encode(body))
+  println("moonrpc : gRPC message \{message.length()} octets")
 
   // 8. moongql (<- strawberry): the same greeting as a GraphQL field.
   let schema = @moongql.Schema::new()
