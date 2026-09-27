@@ -1,6 +1,6 @@
 name = "Lfan-ke/greet"
 
-version = "0.6.0"
+version = "0.6.1"
 
 readme = "README.md"
 
@@ -14,14 +14,14 @@ description = "The greet end-to-end slice of the moon* full-stack web suite: one
 
 import {
   "moonbitstack/moonasgi@0.10.0",
-  "moonbitstack/moonapi@0.12.0",
+  "moonbitstack/moonapi@0.13.1",
   "moonbitstack/moonctl@0.10.0",
   "moonbitstack/moonorm@0.10.0",
   "moonbitstack/moondb@0.2.0",
   "moonbitstack/moonsqlite@0.3.1",
-  "moonbitstack/mooncat@0.14.4",
+  "moonbitstack/mooncat@0.14.5",
   "moonbitstack/moonzero@0.11.2",
-  "moonbitstack/moonrpc@0.19.2",
+  "moonbitstack/moonrpc@0.19.3",
   "moonbitstack/moongql@0.9.0",
   "moonbitlang/async@0.20.3",
   "DC-Z-lab/moonllm@0.1.0",

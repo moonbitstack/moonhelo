@@ -5,8 +5,9 @@
   `.api` spec, moonasgi frames the request, moonzero mounts the route group on moonapi
   which answers it, mooncat names the address it would bind, moonorm renders the SQL
   that persists it, moonrpc packs it into a length-prefixed gRPC message, moongql serves it as a
-  GraphQL field, and moonkoog builds the agent prompt that speaks it. In-process, no
-  socket, no database.
+  GraphQL field, and moonkoog builds the agent prompt that speaks it. moonapi gets a
+  second line: the same route asked for twice, where the second answer is a 304 rather
+  than a body. In-process, no socket, no database.
 
   ```
   moon run examples/00-nine-in-one --target native

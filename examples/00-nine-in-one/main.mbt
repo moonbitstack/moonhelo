@@ -50,10 +50,29 @@ fn main raise {
   api.get("/greet/:name", ctx => {
     @moonapi.text(200, "Bonjour, " + ctx.param("name").unwrap() + "!")
   })
+  api.get("/greet/:name/card", ctx => {
+    ctx.serve(
+      @utf8.encode("Bonjour, " + ctx.param("name").unwrap() + "!"),
+      filename="card.txt",
+    )
+  })
   let resp = app.handle(req)
   let body = @utf8.decode_lossy(resp.body[:])
   println("moonzero: group /api/v1 mounted the route")
   println("moonapi : \{resp.status} \{body}")
+
+  // The same route asked for twice. `serve` weighs the conditional fields, so
+  // the second answer is a header rather than a body.
+  let card = app.handle({ ..req, path: req.path + "/card", })
+  let tag = card.header("etag").unwrap()
+  let again = app.handle({
+    ..req,
+    path: req.path + "/card",
+    headers: [("if-none-match", tag)],
+  })
+  println(
+    "moonapi : \{card.status} then \{again.status} — \{again.body.length()} octets the second time",
+  )
 
   // 5. mooncat (<- uvicorn): where the native server would bind this app.
   let cfg = @mooncat.Config::new(host="127.0.0.1", port=12000)
