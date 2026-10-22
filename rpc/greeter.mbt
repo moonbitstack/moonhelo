@@ -92,8 +92,8 @@ fn greet_descriptor() -> @moonrpc.FileDescriptor {
 /// Serve greet.Greeter over h2c with Server Reflection registered, blocking in
 /// the accept loop until the running task is cancelled.
 pub async fn serve_greet_grpc(
-  host? : String = "127.0.0.1",
-  port? : Int = 12001,
+  host~ : String = "127.0.0.1",
+  port~ : Int32 = 12001,
 ) -> Unit {
   let server = @net.GrpcServer::new()
   server.register("/greet.Greeter/SayHello", say_hello)

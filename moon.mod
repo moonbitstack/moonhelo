@@ -21,7 +21,7 @@ import {
   "moonbitstack/moonsqlite@0.3.1",
   "moonbitstack/mooncat@0.14.5",
   "moonbitstack/moonzero@0.11.2",
-  "moonbitstack/moonrpc@0.19.3",
+  "moonbitstack/moonrpc@0.20.0",
   "moonbitstack/moongql@0.9.0",
   "moonbitlang/async@0.20.3",
   "DC-Z-lab/moonllm@0.1.0",

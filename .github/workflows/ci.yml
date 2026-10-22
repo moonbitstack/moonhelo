@@ -28,7 +28,7 @@ jobs:
           moon version --all
           moon update
 
-      - name: mctl gen (run the published moonctl over greet.api)
+      - name: mctl gen (run the published moonctl over spec/greet.api)
         run: moon run --target native gen
 
       - name: moon check

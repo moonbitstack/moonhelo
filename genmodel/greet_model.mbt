@@ -3,7 +3,7 @@
 ///|
 /// `User` model (generated from the `.api` `type` block).
 pub(all) struct User {
-  id : Int
+  id : Int32
   name : String
 }
 

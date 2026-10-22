@@ -16,7 +16,7 @@ and cooperate — that is the point of it.
 
 ```mermaid
 flowchart LR
-  api["greet.api"] -->|mctl gen| model["moonorm model<br/>(genmodel)"]
+  api["spec/greet.api"] -->|mctl gen| model["moonorm model<br/>(genmodel)"]
   model --> app["moonapi App<br/>+ hand-written routes"]
   app -->|moonzero assemble<br/>+ middleware| asgi["AsgiApp"]
   asgi -->|mooncat serve| http["native HTTP"]
@@ -28,7 +28,7 @@ flowchart LR
 
 | stage | repo | what it does here |
 |-------|------|-------------------|
-| spec | — | `greet.api`: a `service` with `/ping`, `POST /users`, `GET /users/:id`, and a `type User` |
+| spec | — | `spec/greet.api`: a `service` with `/ping`, `POST /users`, `GET /users/:id`, and a `type User` |
 | generate | [moonctl](https://github.com/moonbitstack/moonctl) (`mctl`) | `genmodel/`: the `User` model, columns, Row decoder, and migration |
 | framework | [moonapi](https://github.com/moonbitstack/moonapi) | routing, the OpenAPI document, the request-id middleware |
 | assembly | [moonzero](https://github.com/moonbitstack/moonzero) | wraps the app with go-zero-style request logging |
@@ -53,7 +53,7 @@ filled in.
 
 ## gRPC leg
 
-`greet.proto` defines `Greeter.SayHello(HelloRequest) -> HelloReply`. `rpc/`
+`spec/greet.proto` defines `Greeter.SayHello(HelloRequest) -> HelloReply`. `rpc/`
 serves it over moonrpc's self-built HTTP/2 (h2c) transport with `grpc.reflection.v1`
 Server Reflection registered. The test drives it the way `grpcurl` does — over a
 real `@socket.Tcp`, through the in-process `Channel` client: `ListServices` sees
@@ -77,7 +77,7 @@ OpenAPI, and GraphQL on one port.
 ## Run it
 
 ```console
-$ moon run --target native gen           # regenerate genmodel/ from greet.api
+$ moon run --target native gen           # regenerate genmodel/ from spec/greet.api
 $ moon test --target native              # in-process end-to-end: real @http client over a live socket
 $ moon run --target native cmd/greet-server &
 $ curl -s localhost:12000/ping            # -> pong
@@ -91,7 +91,7 @@ $ curl -s -XPOST localhost:12000/graphql -d '{"query":"{ greeting(name: \"Ada\")
 
 ## Layout
 
-- `greet.api` — the spec.
+- `spec/greet.api` — the spec.
 - `gen/` — runs mctl over the spec and writes the generated model.
 - `genmodel/` — mctl output, committed so the diff is visible and regenerated in
   CI so it stays honest.

@@ -20,7 +20,7 @@ fn parse_name(body : Bytes) -> String? {
 ///|
 /// Parse a decimal id path segment. Rejects anything that is not all digits so a
 /// bad `:id` answers 400 rather than reaching the database.
-fn parse_int(s : String) -> Int? {
+fn parse_int(s : String) -> Int32? {
   if s.length() == 0 {
     return None
   }
@@ -37,7 +37,7 @@ fn parse_int(s : String) -> Int? {
 
 ///|
 /// A `{id, name}` JSON object for a user.
-fn user_json(id : Int, name : String) -> Json {
+fn user_json(id : Int32, name : String) -> Json {
   let m : Map[String, Json] = Map([
     ("id", id.to_json()),
     ("name", name.to_json()),
@@ -47,7 +47,7 @@ fn user_json(id : Int, name : String) -> Json {
 
 ///|
 /// A `{detail}` JSON error response with an explicit status.
-fn error_json(status : Int, detail : String) -> @moonasgi.Response {
+fn error_json(status : Int32, detail : String) -> @moonasgi.Response {
   let m : Map[String, Json] = Map([("detail", detail.to_json())])
   @moonapi.json(status, m.to_json())
 }
@@ -157,9 +157,9 @@ pub fn assemble(sess : @moonorm.Session) -> @moonasgi.AsgiApp {
 /// assemble the app, and serve it over native HTTP with mooncat. Blocks in the
 /// accept loop until the running task is cancelled.
 pub async fn serve_greet(
-  host? : String = "127.0.0.1",
-  port? : Int = 12000,
-  db_path? : String = "greet.db",
+  host~ : String = "127.0.0.1",
+  port~ : Int32 = 12000,
+  db_path~ : String = "greet.db",
 ) -> Unit {
   let db = @sqlite.SqliteDriver::open(db_path)
   let sess = @moonorm.Session::new(db)
