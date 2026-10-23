@@ -12,9 +12,9 @@ permissions:
 jobs:
   greet-e2e:
     name: greet end-to-end (native, published moon* stack)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
