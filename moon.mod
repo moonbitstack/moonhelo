@@ -48,6 +48,7 @@ import {
   "moonbitstack/moonzero@0.15.0",
   "moonbitstack/moonrpc@0.22.2",
   "moonbitstack/moongql@0.11.0",
+  "moonbitstack/moonhttp@0.16.0",
   "moonbitstack/moonjson@0.5.0",
   "moonbitstack/moonmuse@0.2.0",
   "moonbitstack/moonstate@0.2.0",

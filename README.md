@@ -103,6 +103,7 @@ src/
     02-three-styles/    the same two routes as functions, as a type, as annotations
     03-three-ways-data/ the same row read through a written model, an annotated one, and generated SQL
     04-access-log/      the assembly seam, and one access-log line per call
+    05-production/      token, declared body, page, transaction, queue, stream, metrics
   gen/                  runs moonctl over the spec
   genmodel/             what moonctl wrote — committed, and regenerated in CI
   rpc/                  greet.Greeter over h2c, with Server Reflection

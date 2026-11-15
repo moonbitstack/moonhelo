@@ -1,0 +1,24 @@
+// What a service needs once it works: a token on one route, a declared body, a
+// page of rows, a transaction, a stream, a metric, and work that outlives the
+// response it was started by. Every piece is registered where a request meets it,
+// and the test below drives all of them through the assembled application with no
+// socket and no database file.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moonapi",
+  "moonbitstack/moonapi/endpoint",
+  "moonbitstack/moonapi/schema",
+  "moonbitstack/moonasgi",
+  "moonbitstack/moonasgi/testing",
+  "moonbitstack/moonzero" @zero,
+  "moonbitstack/moonorm",
+  "moonbitstack/moondb",
+  "moonbitstack/moonsqlite" @sqlite,
+  "moonbitstack/moonjson",
+  "moonbitstack/moonhttp/sse",
+  "moonbitlang/async",
+  "moonbitlang/core/encoding/utf8",
+}
