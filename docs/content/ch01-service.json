@@ -41,7 +41,7 @@
               "style": "function",
               "file": "src/server/service.mbt",
               "lang": "moonbit",
-              "code": "/// Open the database, run the migration, serve until the task is cancelled.\npub async fn serve_greet(\n  host~ : String = \"127.0.0.1\",\n  port~ : Int32 = 12000,\n  db_path~ : String = \"greet.db\",\n) -> Unit raise {\n  let db = @sqlite.SqliteDriver::open(db_path)\n  let sess = @moonorm.Session::new(db)\n  @genmodel.user_up(sess) |> ignore\n  @mooncat.serve(assemble(sess), host~, port~)\n}"
+              "code": "/// Open the database, run the migration, serve until the task is cancelled.\npub async fn serve_greet(\n  host~ : String = \"127.0.0.1\",\n  port~ : Int32 = 12000,\n  db_path~ : String = \"greet.db\",\n) -> Unit {\n  let db = @sqlite.SqliteDriver::open(db_path)\n  let sess = @moonorm.Session::new(db)\n  @genmodel.user_up(sess) |> ignore\n  @mooncat.serve(assemble(sess), host~, port~)\n}"
             }
           ]
         },
@@ -85,13 +85,13 @@
               "style": "type",
               "file": "src/examples/02-three-styles/view_form.mbt",
               "lang": "moonbit",
-              "code": "// A value answers the path, and carries what the handler needs.\nstruct Greeter {\n  greeting : String\n}\n\nimpl @moonapi.View for Greeter with get(self) {\n  Some(ctx => @moonapi.text(200, self.greeting + \", \" + ctx.param(\"id\").unwrap_or(\"?\")))\n}\n\npub fn view_app(greeting : String) -> @moonapi.App {\n  let app = @moonapi.App::new()\n  app.get(\"/ping\", _ctx => @moonapi.text(200, \"pong\"), summary=\"health check\")\n  app.view(\"/greet/{id}\", Greeter::{ greeting })\n  app\n}"
+              "code": "// A value answers the path, and carries what the handler needs.\nstruct Greeter {\n  greeting : String\n}\n\nfn greet_with(greeting : String, ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, greeting + \", \" + ctx.param(\"id\").unwrap_or(\"?\"))\n}\n\nimpl @moonapi.View for Greeter with fn get(self) {\n  Some(ctx => greet_with(self.greeting, ctx))\n}\n\npub fn view_app(greeting : String) -> @moonapi.App {\n  let app = @moonapi.App::new()\n  app.get(\"/ping\", _ctx => @moonapi.text(200, \"pong\"), summary=\"health check\")\n  app.view(\"/greet/{id}\", Greeter::{ greeting, })\n  app\n}"
             },
             {
               "style": "annotation",
               "file": "src/examples/02-three-styles/routes.mbt",
               "lang": "moonbit",
-              "code": "// The registration is generated: `moonx moonbitstack/moonapi/cmd/routes`\n// reads these two functions and writes register(app) into routes.g.mbt.\n#app.get(\"/ping\", summary=\"health check\")\nfn ping_route(_ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, \"pong\")\n}\n\n#app.get(\"/greet/{id}\", summary=\"greet one name\")\nfn greet_route(ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, \"hello, \" + ctx.param(\"id\").unwrap_or(\"?\"))\n}\n\npub fn annotation_app() -> @moonapi.App {\n  let app = @moonapi.App::new()\n  register(app)\n  app\n}"
+              "code": "// The registration is generated: `moonx moonbitstack/moonapi/cmd/routes`\n// reads these two functions and writes register(app) into routes.g.mbt.\n#app.get(\"/ping\", summary=\"health check\")\nfn ping_route(_ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, \"pong\")\n}\n\n#app.get(\"/greet/{id}\", summary=\"greet one name\")\nfn greet_route(ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, \"hello, \" + ctx.param(\"id\").unwrap_or(\"?\"))\n}"
             }
           ]
         },
@@ -322,6 +322,48 @@
             {
               "en": "Ask for `DELETE /ping`. It answers 405, not 404, and carries an `Allow` header. Work out which layer decided that, and why a client cares about the difference.",
               "zh": "请求 `DELETE /ping`。它返回 405 而不是 404，还带一个 `Allow` 头。想想是哪一层决定的，以及客户端为什么在意这个区别。"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "note": {
+            "en": "The route the first exercise asks for. `scripts/check_site_code.py` compiles this block with the two lines above it, so the page cannot teach code that does not build.",
+            "zh": "第一道练习要加的路由。`scripts/check_site_code.py` 会把它和上面的两行一起编译，所以页面上不会出现编不过的代码。"
+          },
+          "variants": [
+            {
+              "style": "function",
+              "file": "",
+              "lang": "moonbit",
+              "check": "compile",
+              "context": "let app = @moonapi.App::new()",
+              "code": "app.get(\n  \"/health\",\n  _ctx => @moonapi.text(200, \"{\\\"ok\\\":true}\"),\n  summary=\"health check\",\n)"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Run the service, call it over a real socket, and read the answer.",
+              "zh": "把服务跑起来、用真实端口调用它，并读懂返回。"
+            },
+            {
+              "en": "Say which of the four layers handled one request, and what each of them did.",
+              "zh": "说出一次请求经过了哪四层，每层各做了什么。"
+            },
+            {
+              "en": "Write the same route three ways, and say why you would reach for each.",
+              "zh": "把同一条路由用三种写法写出来，并说出各自该在什么时候用。"
+            },
+            {
+              "en": "Find the test that a one-word change breaks.",
+              "zh": "改一个字，找出因此变红的那个测试。"
             }
           ]
         },

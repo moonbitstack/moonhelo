@@ -106,3 +106,9 @@ jobs:
       - name: the course pages are up to date
         if: runner.os == 'Linux'
         run: python3 scripts/gen_site.py --check
+
+      # Every block on a page is a claim: a quoted one must still be a line of its
+      # file, and a standalone one is compiled here with the context the page gives it.
+      - name: the code on the course pages checks out
+        if: runner.os == 'Linux'
+        run: python3 scripts/check_site_code.py

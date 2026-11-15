@@ -23,22 +23,20 @@
   // ---------- language ----------
 
   const languages = ["en", "zh"];
-  const browser = (navigator.language || "en").toLowerCase();
-  let lang = store.get("moonhelo.lang", "");
-  if (!languages.includes(lang)) lang = browser.startsWith("zh") ? "zh" : "en";
+  const select = document.querySelector("[data-lang-select]");
+  let lang = store.get("moonhelo.lang", "en");
+  if (!languages.includes(lang)) lang = "en";
 
   const applyLang = (next) => {
     root.dataset.lang = next;
     root.lang = next === "zh" ? "zh-CN" : "en-US";
-    for (const b of document.querySelectorAll("[data-set-lang]")) {
-      b.setAttribute("aria-pressed", String(b.dataset.setLang === next));
-    }
+    if (select) select.value = next;
   };
   applyLang(lang);
 
-  for (const b of document.querySelectorAll("[data-set-lang]")) {
-    b.addEventListener("click", () => {
-      lang = b.dataset.setLang;
+  if (select) {
+    select.addEventListener("change", () => {
+      lang = select.value;
       store.set("moonhelo.lang", lang);
       applyLang(lang);
     });
@@ -59,6 +57,30 @@
       root.dataset.theme = next;
       store.set("moonhelo.theme", next);
     });
+  }
+
+  // ---------- which chapters this reader has been through ----------
+
+  const mark = document.querySelector("[data-read-count]");
+  if (mark) {
+    let read = [];
+    try {
+      read = JSON.parse(store.get("moonhelo.read", "[]"));
+      if (!Array.isArray(read)) read = [];
+    } catch {
+      read = [];
+    }
+    const here = document.body.dataset.slug;
+    if (here && !read.includes(here)) read.push(here);
+    store.set("moonhelo.read", JSON.stringify(read));
+
+    for (const li of document.querySelectorAll(".sidebar li[data-slug]")) {
+      if (read.includes(li.dataset.slug)) li.classList.add("done");
+    }
+    const total = Number(mark.dataset.total || 0) || 1;
+    mark.textContent = `${Math.min(read.length, total)} / ${total}`;
+    const bar = document.querySelector("[data-read-bar]");
+    if (bar) bar.style.width = `${Math.min(100, (read.length / total) * 100)}%`;
   }
 
   // ---------- API style: the same sample in three shapes ----------

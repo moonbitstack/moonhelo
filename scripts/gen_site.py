@@ -274,6 +274,18 @@ def render_block(block: dict) -> str:
         return (
             f'<div class="try"><h3>{bi(block["title"])}</h3><ol>{items}</ol></div>'
         )
+    if kind == "know":
+        items = "".join(
+            f'<li><span class="know__tick" aria-hidden="true"><svg width="12" height="12" '
+            'viewBox="0 0 12 12"><path d="M2 6.4 4.6 9 10 3.4" fill="none" stroke="currentColor" '
+            'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+            f"<span>{bi(i)}</span></li>"
+            for i in block["items"]
+        )
+        return (
+            f'<div class="know"><h3>{bi(block["title"])}</h3>'
+            f'<ul>{items}</ul></div>'
+        )
     if kind == "list":
         items = "".join(f"<li>{bi(i)}</li>" for i in block["items"])
         return f"<ul>{items}</ul>"
@@ -304,6 +316,9 @@ UI = {
     "prev": {"en": "Previous", "zh": "上一章"},
     "next": {"en": "Next", "zh": "下一章"},
     "courselink": {"en": "The course", "zh": "课程首页"},
+    "progress": {"en": "Your progress", "zh": "阅读进度"},
+    "edit": {"en": "Edit this page", "zh": "改进这一页"},
+    "know": {"en": "You can now", "zh": "你现在会了"},
 }
 
 
@@ -366,7 +381,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{css_prefix}assets/site.css">
 </head>
-<body>
+<body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") else ""}>
 <a class="skip" href="#content">Skip to content</a>
 <header class="topbar">
   <button class="icon-btn menu" type="button" data-menu aria-label="Contents" aria-expanded="false">
@@ -381,10 +396,13 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
     <a href="{site["repo"]}/tree/master/src/examples">{ui("examples")}</a>
   </nav>
   <div class="topbar__end">
-    <div class="seg" role="group" aria-label="Language">
-      <button type="button" data-set-lang="en">EN</button>
-      <button type="button" data-set-lang="zh">中文</button>
-    </div>
+    <span class="lang">
+      <select data-lang-select aria-label="Language">
+        <option value="en">en</option>
+        <option value="zh">zh</option>
+      </select>
+      <svg class="lang__chev" width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
     <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme">{SUN}{MOON}</button>
     <a class="icon-btn" href="{site["repo"]}" aria-label="Source on GitHub">{GITHUB}</a>
   </div>
@@ -394,6 +412,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 
 def sidebar(site: dict, page: dict, prefix: str) -> str:
     groups = []
+    ready = len([c for c in site["chapters"] if c.get("ready")])
     for part in site["parts"]:
         items = []
         for ch in site["chapters"]:
@@ -402,8 +421,12 @@ def sidebar(site: dict, page: dict, prefix: str) -> str:
             current = ' class="on" aria-current="page"' if ch["slug"] == page.get("slug") else ""
             if ch.get("ready"):
                 items.append(
-                    f'<li><a{current} href="{prefix}{ch["slug"]}.html">'
-                    f'<span class="n">{ch["num"]}</span>{bi(ch["title"])}</a></li>'
+                    f'<li data-slug="{ch["slug"]}"><a{current} href="{prefix}{ch["slug"]}.html">'
+                    f'<span class="n">{ch["num"]}</span>{bi(ch["title"])}'
+                    '<span class="tick" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 12 12">'
+                    '<path d="M2 6.4 4.6 9 10 3.4" fill="none" stroke="currentColor" '
+                    'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+                    "</a></li>"
                 )
             else:
                 items.append(
@@ -414,7 +437,16 @@ def sidebar(site: dict, page: dict, prefix: str) -> str:
             f'<div class="side__group"><div class="side__label">{bi(part["title"])}</div>'
             f'<ul>{"".join(items)}</ul></div>'
         )
-    return f'<aside class="sidebar" data-sidebar><nav aria-label="Chapters">{"".join(groups)}</nav></aside>'
+    head = (
+        '<div class="side__head">'
+        f'<span>{ui("progress")}</span><span class="side__count" data-read-count data-total="{ready}">0 / {ready}</span>'
+        '<span class="side__bar" aria-hidden="true"><span data-read-bar></span></span>'
+        "</div>"
+    )
+    return (
+        f'<aside class="sidebar" data-sidebar><nav aria-label="Chapters">{head}'
+        f'{"".join(groups)}</nav></aside>'
+    )
 
 
 def toc(page: dict) -> str:
@@ -457,9 +489,16 @@ def pager(site: dict, page: dict, prefix: str) -> str:
 
 
 def footer(site: dict, page: dict, prefix: str = "") -> str:
+    edit = ""
+    if page.get("slug"):
+        edit = (
+            f'<a class="foot__edit" href="{site["repo"]}/edit/master/docs/content/'
+            f'{page["slug"]}.json">{ui("edit")}</a>'
+        )
     return (
         '<footer class="foot"><span>Apache-2.0</span>'
         f'<a href="{site["repo"]}">github.com/moonbitstack/moonhelo</a>'
+        f"{edit}"
         f'<span class="foot__end">{bi(page.get("foot", {"en": "", "zh": ""}))}</span></footer>'
     )
 
