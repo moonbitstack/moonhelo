@@ -394,8 +394,18 @@ MOON = (
 )
 
 
+def plain(node: dict) -> str:
+    """The words of a string that may carry markup.
+
+    A cover title is written for the page — `<br>` for the line break, `<em>` for
+    the one word that should lean — and neither belongs in `<title>`, where it
+    would be read out as angle brackets.
+    """
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", node["en"])).strip()
+
+
 def head(site: dict, page: dict, css_prefix: str = "") -> str:
-    title = page["title"]["en"]
+    title = plain(page["title"])
     return f"""<!DOCTYPE html>
 <html lang="en" data-lang="en">
 <head>
