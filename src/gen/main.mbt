@@ -8,9 +8,9 @@
 /// the model is generated into the build.
 async fn main {
   try {
-    let spec = @moonctl.parse(@fs.read_file("spec/greet.api").text())
+    let spec = @moonctl.parse(@fs.read_file("src/spec/greet.api").text())
     @fs.write_file(
-      "genmodel/greet_model.mbt",
+      "src/genmodel/greet_model.mbt",
       @moonctl.generate_model(spec),
       create_mode=CreateOrTruncate,
     )
