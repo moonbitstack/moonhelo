@@ -522,12 +522,15 @@ li { margin-bottom: 0.4em; }
 }
 
 .tabs button {
-  padding: 8px 12px;
+  padding: 8px 11px;
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--muted);
-  font: 500 12.5px/1 var(--sans);
+  /* the same mono the rest of the chrome uses for labels, so a tab and a
+     filename read as two parts of one bar rather than two typefaces */
+  font: 500 11.5px/1 var(--mono);
+  letter-spacing: 0.03em;
   cursor: pointer;
 }
 
@@ -574,6 +577,17 @@ pre {
 }
 
 pre code { font: inherit; white-space: pre; }
+
+/* Code is read character by character, so it keeps its characters: no `|>` drawn
+   as a triangle, no `->` drawn as an arrow. The `font` shorthand above resets the
+   variant, so this has to come after it. */
+pre,
+code,
+kbd,
+samp {
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" 0, "liga" 0, "clig" 0, "dlig" 0;
+}
 
 .code__note {
   padding: 9px 14px;

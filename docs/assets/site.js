@@ -153,18 +153,29 @@
 
   // ---------- API style: the same sample in three shapes ----------
 
-  const styles = ["function", "class", "annotation"];
+  // the five spellings a library can offer, which is what the tabs render
+  const styles = ["function", "type", "annotation", "config", "spec"];
   let style = store.get("moonhelo.style", "function");
   if (!styles.includes(style)) style = "function";
+
+  // what each block shows when the chosen spelling is not one of its own: the
+  // block's own default, not whichever pane happens to come first
+  const fallbacks = new Map();
+  for (const block of document.querySelectorAll("[data-code]")) {
+    const chosen = block.querySelector('[data-style][aria-selected="true"]');
+    if (chosen) fallbacks.set(block, chosen.dataset.style);
+  }
 
   const applyStyle = (next) => {
     for (const block of document.querySelectorAll("[data-code]")) {
       const panes = [...block.querySelectorAll(".pane")];
       if (!panes.length) continue;
       const has = panes.some((p) => p.dataset.style === next);
-      const chosen = has ? next : panes[0].dataset.style;
+      const chosen = has ? next : fallbacks.get(block) || panes[0].dataset.style;
       for (const pane of panes) pane.hidden = pane.dataset.style !== chosen;
-      for (const tab of block.querySelectorAll("[data-style]")) {
+      // only the tabs are options; the panes carry data-style too, and marking a
+      // pane as selected is an aria-selected on something that is not in a tablist
+      for (const tab of block.querySelectorAll('[role="tab"]')) {
         tab.setAttribute("aria-selected", String(tab.dataset.style === chosen));
       }
     }

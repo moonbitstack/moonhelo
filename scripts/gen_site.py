@@ -429,6 +429,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 <link rel="icon" href="{FAVICON}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="{FONTS}">
 <link rel="stylesheet" href="{css_prefix}assets/site.css">
 </head>
 <body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") and not page.get("standalone") else ""}>
