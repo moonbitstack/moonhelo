@@ -173,7 +173,7 @@
       "slug": "ch09-edges",
       "num": "09",
       "part": "edges",
-      "ready": false,
+      "ready": true,
       "title": {
         "en": "What production adds",
         "zh": "上生产还缺什么"
@@ -184,7 +184,7 @@
       },
       "tags": [
         "moonapi",
-        "moonmcp",
+        "moonzero",
         "moonp8s"
       ]
     },
@@ -192,7 +192,7 @@
       "slug": "ch10-map",
       "num": "10",
       "part": "edges",
-      "ready": false,
+      "ready": true,
       "title": {
         "en": "The map",
         "zh": "地图"

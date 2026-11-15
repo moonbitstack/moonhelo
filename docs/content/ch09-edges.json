@@ -1,0 +1,533 @@
+{
+  "num": "09",
+  "title": {
+    "en": "What production adds",
+    "zh": "上生产还缺什么"
+  },
+  "lead": {
+    "en": "The service answers. A deployed service also refuses what it should not accept, bounds what it hands back, brackets what must not half-happen, defers what can wait, streams what cannot, and counts all of it. Seven things, one program, and no new framework — every one of them is a value this stack already had.",
+    "zh": "服务已经会回答了。能上生产的服务还要会：拒绝不该收的、限定该给的、把不能只做一半的事括起来、把可以等的交出去、把不能等的改成流、并且把这些都数出来。七件事、一个程序、不加新框架 —— 每一件都是这一栈本来就有的值。"
+  },
+  "foot": {
+    "en": "Chapter 09 of 10",
+    "zh": "第 09 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "run",
+      "title": {
+        "en": "One run, seven answers",
+        "zh": "一次运行，七个回答"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "`moon run src/examples/05-production --target native`. A ledger of four wallets in memory, and a client that never opens a socket: every line below is the assembled application answering one request.",
+            "zh": "`moon run src/examples/05-production --target native`。内存里一个有四个钱包的账本，一个从不开 socket 的客户端：下面每一行都是装配好的应用在回答一次请求。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/examples/05-production --target native",
+              "out": [
+                "page         -> 200 2 of 4, next 3",
+                "create       -> 201 {\"id\":5,\"owner\":\"eve\",\"cents\":0}",
+                "create/short -> 422 string_too_short",
+                "admin/none   -> 401 401 Unauthorized",
+                "admin/token  -> 200 {\"id\":1,\"owner\":\"ada\",\"cents\":60000}",
+                "move         -> 200 {\"moved\":5000,\"from\":{\"id\":1,\"owner\":\"ada\",\"cents\":55000}}",
+                "move/cap     -> 409 {\"detail\":\"the move would break a rule of the ledger\"}",
+                "balances     -> 1=55000 2=90000 3=5100 4=250",
+                "events       -> 200 data: wallet 1 · id: owner · event: owner · data: ada · id: balance",
+                "metrics      -> 200 http_server_requests_code 1",
+                "--- audit, written by the other task ---",
+                "transfer 1 -> 3 5000"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Read the transcript as a checklist, not as a demo. A `422` came from a descriptor, a `401` from a token, a `409` from a constraint in the table; one line is a page that says what comes after it, one is three frames instead of a document, one is a counter a scrape can read, and the last was written after the response had already been sent.",
+            "zh": "把这份回放当清单读，而不是当演示：`422` 来自描述符，`401` 来自令牌，`409` 来自表上的约束；有一行是一页数据顺带说明后面还有没有，有一行是三帧而不是一份文档，有一行是一个能被抓取的计数器，最后一行是在响应发出去之后才写下的。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "refuse",
+      "title": {
+        "en": "Refused before the handler",
+        "zh": "在处理器之前就被拒"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Two of the seven happen where a request enters, and neither handler knows it is being protected. The body is a schema registered with the route: the same tree becomes the OpenAPI document and the check that enforces it, so a document promising `owner` is at least two characters cannot be a lie.",
+            "zh": "七件里有两件发生在请求进来的地方，两个处理器都不知道自己被护着。请求体是随路由一起登记的一份 schema：同一棵树既变成 OpenAPI 文档，又变成执行它的校验，所以「`owner` 至少两个字符」这种承诺不可能是谎话。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/app.mbt",
+              "lang": "moonbit",
+              "code": "fn new_wallet_body() -> @schema.Schema {\n  @schema.Schema::object(\"NewWallet\", [\n    @schema.Field::new(\"owner\", @schema.SStr, constraints=[\n      @schema.MinLength(2),\n      @schema.MaxLength(32),\n    ]),\n    @schema.Field::new(\"cents\", @schema.SInt, constraints=[@schema.Minimum(0.0)]),\n  ])\n}"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/app.mbt",
+              "lang": "moonbit",
+              "code": "  // A body descriptor is registered on the app rather than through the group: a\n  // group carries a prefix and route options, a descriptor carries a schema, and\n  // the two are not the same kind of setting.\n  app.post(\n    \"/api/v1/wallets\",\n    ctx => handle_create(deps, ctx),\n    endpoint=@endpoint.Endpoint::new(request_body=new_wallet_body()),\n    summary=\"open a wallet\",\n  )\n  app.post(\n    \"/api/v1/transfers\",\n    ctx => handle_transfer(deps, ctx),\n    endpoint=@endpoint.Endpoint::new(request_body=transfer_body()),\n    summary=\"move money\",\n  )"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The token is a route option rather than a middleware, so it is attached to the one group that needs it: a public route cannot inherit it by accident, and the admin route cannot forget it. `secret~` is the parameter's own name — the group takes the string this process was started with, and `prev_secret` is how a rotation keeps working while the old token is still out there.",
+            "zh": "令牌是路由选项而不是全局中间件，因此它只挂在那一个需要它的分组上：公开路由不会误继承，管理路由也不会漏。`secret~` 就是参数自己的名字 —— 分组拿到的就是进程启动时给的那个字符串；`prev_secret` 则是轮换期间旧令牌还能用的那个口子。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/app.mbt",
+              "lang": "moonbit",
+              "code": "  let admin = api.sub(\"/admin\").options_(@zero.RouteOptions::new().jwt(secret~))\n  admin.get(\n    \"/wallets/{id}\",\n    ctx => handle_one(deps, ctx),\n    summary=\"one wallet, if the token says so\",\n  )"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": {
+            "en": "A 422 is data; a 401 is not",
+            "zh": "422 是数据，401 不是"
+          },
+          "text": {
+            "en": "The descriptor refuses with a JSON list of violations, because whoever sent the body is a form that can render them. The token refuses with a status and a `WWW-Authenticate` header, because the other side is not a form and the fix is not a field.",
+            "zh": "描述符用一份 JSON 违规清单拒绝，因为发来请求体的是一个能把这些渲染出来的表单。令牌用一个状态码加 `WWW-Authenticate` 头拒绝，因为对面不是表单，要改的也不是某个字段。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "page",
+      "title": {
+        "en": "A page, and knowing there is another",
+        "zh": "一页，以及知道后面还有"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A list endpoint that returns everything works until the table is large. Two numbers make it a page — how many to take, where to start — and both are clamped where they arrive, so the bound belongs to the server. A client asking for ten thousand rows gets a hundred and has no error to handle.",
+            "zh": "把整张表都返回的列表接口，在表变大之前都能用。两个数字把它变成一页 —— 取多少、从哪开始 —— 两个都在进入处被夹住，所以界限属于服务端：客户端要一万行，拿到一百行，也没有错误要处理。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/wallets.mbt",
+              "lang": "moonbit",
+              "code": "pub fn page(\n  sess : @moonorm.Session,\n  limit : Int32,\n  offset : Int32,\n) -> Array[Wallet] raise @moondb.DbError {\n  let take = if limit < 1 { 1 } else if limit > 100 { 100 } else { limit }\n  let skip = if offset < 0 { 0 } else { offset }\n  sess.fetch_as(\n    wallet_model,\n    wallet_model.select().order_by(\"id\", Asc).limit(take).offset(skip),\n  )\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The count is a second statement, written as SQL rather than through the builder, and for a reason worth knowing: `COUNT(*)` is one number about a table, while a projected select carries the model's columns with it. The page needs the first and not the second.",
+            "zh": "计数是第二条语句，手写 SQL 而不是走构造器，理由值得记住：`COUNT(*)` 是「这张表有几行」这一个数，而带投影的查询会把模型的列一起带上来。这一页要前者，不要后者。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/wallets.mbt",
+              "lang": "moonbit",
+              "code": "pub fn count(sess : @moonorm.Session) -> Int64 raise @moondb.DbError {\n  let rows = sess.query(\"SELECT COUNT(*) FROM wallet\", [])\n  if rows.length() == 0 {\n    0L\n  } else {\n    rows[0].int64(0)\n  }\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "With both numbers in hand the response can answer `next`: the offset of the following page, or `null` when this one was the last. A client that pages until `next` is `null` never has to guess how many requests the list will take.",
+            "zh": "两个数到手，响应就能回答 `next`：下一页的起点，最后一页则为 `null`。一直翻到 `next` 为空的客户端，不必猜这个列表要发多少次请求。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bracket",
+      "title": {
+        "en": "One bracket",
+        "zh": "一个括号"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Moving money is two statements, and the case worth designing for is the second one failing. The rules live in the table — a balance may not go below zero, and may not hold more than a thousand units — so SQLite itself can refuse the credit, after the debit has already run. The DDL is a multi-line literal (`#|`), which is how the two CHECKs get lines of their own instead of running off the right edge.",
+            "zh": "转账是两条语句，真正要设计的是第二条失败的时候。规则写在表上 —— 余额不能为负，也不能超过一千个单位 —— 所以入账可能被 SQLite 自己拒掉，而扣款那时已经执行过了。建表语句用多行字面量（`#|`）写，两条 CHECK 因此各占一行，而不是一路挤到右边界外。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/wallets.mbt",
+              "lang": "moonbit",
+              "code": "pub fn migrate(sess : @moonorm.Session) -> Unit raise @moondb.DbError {\n  let ddl =\n    #|CREATE TABLE IF NOT EXISTS wallet (\n    #|  id INTEGER PRIMARY KEY AUTOINCREMENT,\n    #|  owner TEXT NOT NULL,\n    #|  cents INTEGER NOT NULL CHECK (cents >= 0),\n    #|  CHECK (cents <= 100000)\n    #|)\n  sess.execute(ddl, []) |> ignore\n}"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/wallets.mbt",
+              "lang": "moonbit",
+              "code": "pub fn transfer_funds(\n  sess : @moonorm.Session,\n  from : Int64,\n  to : Int64,\n  cents : Int64,\n) -> Unit raise @moondb.DbError {\n  sess.transaction(() => {\n    sess.execute(\"UPDATE wallet SET cents = cents - ? WHERE id = ?\", [\n      @moondb.Int64(cents),\n      @moondb.Int64(from),\n    ])\n    |> ignore\n    sess.execute(\"UPDATE wallet SET cents = cents + ? WHERE id = ?\", [\n      @moondb.Int64(cents),\n      @moondb.Int64(to),\n    ])\n    |> ignore\n  })\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The transcript is the proof: 20000 into a wallet already at the cap answers `409`, and the sender still reads 55000 rather than 35000. The bracket is the whole difference. Put the same two statements in a handler without `transaction` and the loss is real, silent, and visible only in a balance nobody thought to check.",
+            "zh": "回放就是证明：往一个已经到顶的钱包转 20000，答案是 `409`，付款方读出来仍然是 55000 而不是 35000。差别就在那个括号。把同样两条语句放进处理器、不用 `transaction`，这笔损失是真的、无声的，只在某个没人想到去查的余额里看得见。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "after",
+      "title": {
+        "en": "Work that outlives the answer",
+        "zh": "活过这次回答的活"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The audit line is not part of the answer. Writing it inside the handler would put a second write between the commit and the response, and a slow one would become the client's problem. So the handler hands the line to a queue and returns; one consumer task drains it.",
+            "zh": "审计那一行不属于这次回答。写在处理器里，就是在提交和响应之间再插一次写，慢的那一次会变成客户端的问题。于是处理器把这一行交给队列就返回，由一个消费任务去排空。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/app.mbt",
+              "lang": "moonbit",
+              "code": "      // Handed over, not written here: the response does not wait for it.\n      ignore(deps.audit.try_push(\"transfer \\{from} -> \\{to} \\{cents}\"))"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/main.mbt",
+              "lang": "moonbit",
+              "code": "  let (deps, client) = open()\n  let lines : Array[String] = []\n  @async.with_task_group(group => {\n    // One consumer, in its own task: the request hands the line over and returns.\n    ignore(group.spawn(() => deps.audit.run(line => lines.push(line))))\n    let page_resp = client.get(\"/api/v1/wallets?limit=2&offset=1\")"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The queue is the seam, and `close` is the shutdown: the consumer finishes what is already in it and returns, which is how the test waits for the line instead of sleeping. A refused transfer never reaches the push, so the audit records what happened rather than what was attempted.",
+            "zh": "队列就是那条缝，`close` 就是收尾：消费者排完手上已有的东西然后返回，测试因此可以等这一行而不必 sleep。被拒的转账根本走不到 push，所以审计记的是发生过的事，不是尝试过的事。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "frames",
+      "title": {
+        "en": "Frames, not a document",
+        "zh": "是帧，不是文档"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "An event stream is a response whose body keeps writing. `@moonapi.sse` builds the response around it: one chunk per `send`, a `content-type` that tells every proxy on the way not to buffer, and a body the app cancels when the client goes.",
+            "zh": "事件流是一条正文一直在写的响应。`@moonapi.sse` 负责把它包起来：每次 `send` 一帧、一个让沿途代理不要缓冲的 `content-type`、以及一个客户端走开时由应用取消的正文。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/app.mbt",
+              "lang": "moonbit",
+              "code": "fn handle_events(deps : Deps, ctx : @moonapi.Context) -> @moonapi.Stream {\n  let id = match ctx.param(\"id\") {\n    Some(s) =>\n      match parse_id(s) {\n        Some(n) => n\n        None => 0L\n      }\n    None => 0L\n  }\n  match find_or_none(deps.sess, id) {\n    None =>\n      @moonapi.sse(e => {\n        e.send(@sse.Event::new(data=\"no such wallet\", kind=\"gone\"))\n      })\n    Some(w) =>\n      @moonapi.sse(e => {\n        e.send(@sse.Event::of(\"wallet \\{w.id}\"))\n        e.send(@sse.Event::new(data=w.owner, kind=\"owner\", id=\"owner\"))\n        e.send(\n          @sse.Event::new(\n            data=w.cents.to_string(),\n            kind=\"balance\",\n            id=\"balance\",\n          ),\n        )\n      })\n  }\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Each frame carries a type and an id, so a client that reconnects can say how far it got; that request arrives at `ctx.last_event_id()`. What a stream cannot do is change its status: by the time the handler learns the row is gone, `200` has gone out, and the bad news has to travel as a frame. That is not a compromise, it is what an event stream is.",
+            "zh": "每一帧都带类型和 id，重连的客户端因此能说出自己看到了哪一帧，那个请求落在 `ctx.last_event_id()` 上。事件流做不到的是改状态码：等处理器发现这一行不在，`200` 已经发出去了，坏消息只能坐一帧过去。这不是妥协，这就是事件流。"
+          }
+        },
+        {
+          "type": "note",
+          "title": {
+            "en": "The one import this chapter adds",
+            "zh": "本章唯一多出来的 import"
+          },
+          "text": {
+            "en": "The frames themselves are `moonhttp/sse`'s, and moonhttp is not new: it is the package whose request and response values have been passed between every layer since chapter 1. It is imported directly here for the first time, which is the whole of what this chapter adds to `moon.mod`.",
+            "zh": "帧的编码来自 `moonhttp/sse`，而 moonhttp 并不新：从第 1 章起，各层之间传的请求值和响应值就出自这个包。这里只是第一次直接 import 它 —— 本章对 `moon.mod` 的全部改动就是这一行。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "numbers",
+      "title": {
+        "en": "The numbers",
+        "zh": "数字"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The metric set is one value the process owns and two layers share: the middleware records on the way out, the `/metrics` route renders the same set. Neither the handler nor that route knows the other exists.",
+            "zh": "指标集是进程持有的一个值，被两层共用：中间件在出去的路径上记录，`/metrics` 路由渲染同一个集合。处理器和那条路由都不知道对方存在。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/05-production/app.mbt",
+              "lang": "moonbit",
+              "code": "pub fn build_server(deps : Deps, secret : String) -> @moonasgi.AsgiApp {\n  let conf = @zero.ServiceConf::new(name=\"greet\")\n  let clock = @zero.Clock::new(() => 0L)\n  @zero.Server::new(conf, build_app(deps, secret))\n  .use_(@zero.request_id())\n  .use_(@zero.recovery)\n  .use_(@zero.metrics(deps.metrics, clock))\n  .to_asgi()\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "`request_count(path, verb, code)` reads back the same number a scrape shows, which is what lets a test assert on a metric without parsing the exposition. One thing to know before pointing an alert at it: the label is the path that was requested, not the route template, so a `/wallets/1` and a `/wallets/2` are two series.",
+            "zh": "`request_count(path, verb, code)` 读回来的就是抓取里看到的那个数，测试因此可以断言指标而不必解析 exposition。拿它配告警之前要知道一件事：标签是实际请求的路径，不是路由模板，所以 `/wallets/1` 和 `/wallets/2` 是两条序列。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cost",
+      "title": {
+        "en": "What each one costs",
+        "zh": "每一件要付什么"
+      },
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "The thing",
+              "zh": "这一件"
+            },
+            {
+              "en": "Where it lives",
+              "zh": "住在哪"
+            },
+            {
+              "en": "What it costs",
+              "zh": "代价"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "Token",
+                "zh": "令牌"
+              },
+              {
+                "en": "a route option on a group",
+                "zh": "分组上的路由选项"
+              },
+              {
+                "en": "a secret to keep, and a clock you trust",
+                "zh": "一个要保管的密钥，一个你信得过的时钟"
+              }
+            ],
+            [
+              {
+                "en": "Declared body",
+                "zh": "声明的请求体"
+              },
+              {
+                "en": "an endpoint descriptor",
+                "zh": "路由上的 endpoint 描述符"
+              },
+              {
+                "en": "a schema to maintain — unless it is the same tree the document comes from, which it is here",
+                "zh": "一份要维护的 schema —— 除非它和文档出自同一棵树，这里正是"
+              }
+            ],
+            [
+              {
+                "en": "Page",
+                "zh": "分页"
+              },
+              {
+                "en": "two clamped numbers, one count",
+                "zh": "两个夹住的数字，一次计数"
+              },
+              {
+                "en": "one more query per page",
+                "zh": "每页多一次查询"
+              }
+            ],
+            [
+              {
+                "en": "Transaction",
+                "zh": "事务"
+              },
+              {
+                "en": "`sess.transaction`",
+                "zh": "`sess.transaction`"
+              },
+              {
+                "en": "a connection held for the length of the bracket",
+                "zh": "括号开多久，连接就被占多久"
+              }
+            ],
+            [
+              {
+                "en": "Background work",
+                "zh": "后台的活"
+              },
+              {
+                "en": "a `TaskRunner` and one consumer task",
+                "zh": "一个 `TaskRunner` 和一个消费任务"
+              },
+              {
+                "en": "ordering belongs to the queue, and shutdown has to close it",
+                "zh": "顺序由队列决定，收尾时必须关掉它"
+              }
+            ],
+            [
+              {
+                "en": "Stream",
+                "zh": "流"
+              },
+              {
+                "en": "`@moonapi.sse` on a stream route",
+                "zh": "流路由上的 `@moonapi.sse`"
+              },
+              {
+                "en": "the status is spent at the start; errors become frames",
+                "zh": "状态码在开头就用掉了，错误只能变成帧"
+              }
+            ],
+            [
+              {
+                "en": "Metrics",
+                "zh": "指标"
+              },
+              {
+                "en": "a `ServerMetrics` and one scrape route",
+                "zh": "一个 `ServerMetrics` 加一条抓取路由"
+              },
+              {
+                "en": "label cardinality: the path is a label",
+                "zh": "标签基数：路径就是标签"
+              }
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "None of these is a framework. Each is a value the stack already had, registered at the seam where it belongs — which is why the handlers in this chapter are the same shape as the ones in chapter 1: a function from a request to a response, with no idea what is wrapped around it.",
+            "zh": "这些没有一个是框架。每一件都是这一栈本来就有的值，登记在它该在的那条缝上 —— 所以这一章的处理器和第 1 章是同一个形状：从请求到响应的一个函数，不知道自己外面裹了什么。"
+          }
+        },
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes",
+            "zh": "三处改动"
+          },
+          "items": [
+            {
+              "en": "Raise the cap in `migrate` to 200000 and run the program again. The transfer into the full wallet now succeeds, the audit gets a second line, and the balances move the way you expected them to all along.",
+              "zh": "把 `migrate` 里的上限改成 200000 再跑一遍。转进那个满的钱包现在会成功，审计多出一行，余额按你一直预期的方向动。"
+            },
+            {
+              "en": "Take `.jwt(secret~)` off the group. The admin route answers without a token and nothing else changes: the protection was exactly one option wide.",
+              "zh": "把 `.jwt(secret~)` 从分组上拿掉。管理路由不带令牌也能答，别处什么都没变：这层保护正好只有一个选项那么宽。"
+            },
+            {
+              "en": "Add a read of the sender after the refused transfer. The number is the one in the table rather than the one the session remembers — `find` goes back to the table on purpose, because a ledger read after a write must not be answered from a cache.",
+              "zh": "在被拒的那次转账之后再读一次付款方。读到的是表里的数，不是会话记住的数 —— `find` 是故意回表读的，因为写完再读的账本不能由缓存来回答。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Say which refusals come from a descriptor, a token and a constraint, and where each one runs.",
+              "zh": "说出哪些拒绝来自描述符、令牌和约束，以及各自在哪一步跑。"
+            },
+            {
+              "en": "Bound a page where the number arrives, and say what the count costs.",
+              "zh": "在数字进来的地方给分页定界，并说出那次计数的代价。"
+            },
+            {
+              "en": "Put two statements in one bracket, and prove that a failure takes both.",
+              "zh": "把两条语句放进一个括号，并证明失败时两条都不算。"
+            },
+            {
+              "en": "Move a write off the request with a queue, and say how it ends.",
+              "zh": "用队列把一次写挪出请求，并说出它怎么收尾。"
+            },
+            {
+              "en": "Read a metric through `request_count` without parsing the exposition.",
+              "zh": "用 `request_count` 读指标，而不去解析 exposition。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,450 @@
+{
+  "num": "10",
+  "title": {
+    "en": "The map",
+    "zh": "地图"
+  },
+  "lead": {
+    "en": "Ten chapters, one service, nine libraries. What is left is the part a course cannot finish for you: knowing which library answers which question, where the seams are, and what this repository deliberately did not build.",
+    "zh": "十章、一个服务、九个库。剩下的是课程没法替你做完的那部分：知道哪个库回答哪个问题、缝在哪里、以及这个仓库故意没做什么。"
+  },
+  "foot": {
+    "en": "Chapter 10 of 10",
+    "zh": "第 10 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "nine",
+      "title": {
+        "en": "Nine libraries, nine questions",
+        "zh": "九个库，九个问题"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Each library answers one question, and the question is the way to remember which one to reach for. The order below is the order a request meets them.",
+            "zh": "每个库回答一个问题，记住问题就记住了该找谁。下面的顺序，就是一次请求遇到它们的顺序。"
+          }
+        },
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "Library",
+              "zh": "库"
+            },
+            {
+              "en": "The question it answers",
+              "zh": "它回答的问题"
+            },
+            {
+              "en": "Reach for it when",
+              "zh": "什么时候找它"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "moonctl",
+                "zh": "moonctl"
+              },
+              {
+                "en": "What does the spec say?",
+                "zh": "描述里写了什么？"
+              },
+              {
+                "en": "a `.api` file already describes the service and the types",
+                "zh": "已经有 `.api` 描述着服务和类型"
+              }
+            ],
+            [
+              {
+                "en": "moonasgi",
+                "zh": "moonasgi"
+              },
+              {
+                "en": "What is a request, as a value?",
+                "zh": "请求作为一个值是什么？"
+              },
+              {
+                "en": "you write a layer that has to run under any host",
+                "zh": "要写一层，且它得能在任何宿主下跑"
+              }
+            ],
+            [
+              {
+                "en": "moonapi",
+                "zh": "moonapi"
+              },
+              {
+                "en": "Which handler answers this path?",
+                "zh": "这条路径由谁回答？"
+              },
+              {
+                "en": "routes, typed bodies, an OpenAPI document from the same tree",
+                "zh": "路由、带类型的请求体、由同一棵树生成的 OpenAPI 文档"
+              }
+            ],
+            [
+              {
+                "en": "moonzero",
+                "zh": "moonzero"
+              },
+              {
+                "en": "What does a service add around an app?",
+                "zh": "服务在应用外面加了什么？"
+              },
+              {
+                "en": "middleware, config, route options, graceful shutdown",
+                "zh": "中间件、配置、路由选项、优雅停止"
+              }
+            ],
+            [
+              {
+                "en": "moonorm",
+                "zh": "moonorm"
+              },
+              {
+                "en": "How does a row become a value?",
+                "zh": "一行怎么变成值？"
+              },
+              {
+                "en": "models, sessions, statements, transactions, migrations",
+                "zh": "模型、会话、语句、事务、迁移"
+              }
+            ],
+            [
+              {
+                "en": "moondb",
+                "zh": "moondb"
+              },
+              {
+                "en": "What does a database owe a caller?",
+                "zh": "数据库对调用方欠什么？"
+              },
+              {
+                "en": "you write a driver, or code that must not care which one",
+                "zh": "要写驱动，或写不该关心是哪个驱动的代码"
+              }
+            ],
+            [
+              {
+                "en": "moonsqlite",
+                "zh": "moonsqlite"
+              },
+              {
+                "en": "Where do the bytes actually go?",
+                "zh": "字节最后落在哪？"
+              },
+              {
+                "en": "a file on disk, no server to run",
+                "zh": "一个磁盘文件，不用起服务器"
+              }
+            ],
+            [
+              {
+                "en": "mooncat",
+                "zh": "mooncat"
+              },
+              {
+                "en": "Who owns the socket?",
+                "zh": "socket 归谁？"
+              },
+              {
+                "en": "you want native HTTP without another runtime",
+                "zh": "想要原生 HTTP，又不想再拉一个运行时"
+              }
+            ],
+            [
+              {
+                "en": "moongql",
+                "zh": "moongql"
+              },
+              {
+                "en": "Can the same data be asked for by shape?",
+                "zh": "同一份数据能不能按形状问？"
+              },
+              {
+                "en": "a client wants fields, not endpoints",
+                "zh": "客户端想要字段，而不是接口"
+              }
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "`moonrpc` and `moonmuse` sit beside this list rather than in it: the first answers the same question over a different wire, the second answers a question that is not about data at all. Chapter 8 runs all eleven lines through one program if you want them side by side.",
+            "zh": "`moonrpc` 和 `moonmuse` 在这张表旁边而不是表里：前者用另一根线回答同一个问题，后者回答的根本不是数据的问题。想把它们并排看，第 8 章用一个程序跑了十一行。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "seams",
+      "title": {
+        "en": "Where the seams are",
+        "zh": "缝在哪里"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Every chapter in this course changed one seam and left the others alone. There are four of them, and each is a value rather than an inheritance: you can build one by hand, hand it to the next layer, and nothing above or below needs to know.",
+            "zh": "这门课每一章只动一条缝，其余不动。缝有四条，每一条都是一个值而不是一层继承：你可以自己造一个，交给下一层，上面和下面都不需要知道。"
+          }
+        },
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "Seam",
+              "zh": "缝"
+            },
+            {
+              "en": "The value that crosses it",
+              "zh": "跨过它的值"
+            },
+            {
+              "en": "What can be replaced behind it",
+              "zh": "后面可以换掉什么"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "spec → code",
+                "zh": "描述 → 代码"
+              },
+              {
+                "en": "`@moonctl.parse` and the text it writes",
+                "zh": "`@moonctl.parse` 和它写出的文本"
+              },
+              {
+                "en": "the generator, or the model written by hand",
+                "zh": "生成器，或者手写的模型"
+              }
+            ],
+            [
+              {
+                "en": "app → transport",
+                "zh": "应用 → 传输"
+              },
+              {
+                "en": "`AsgiApp`",
+                "zh": "`AsgiApp`"
+              },
+              {
+                "en": "mooncat for a socket, a test client for none",
+                "zh": "要 socket 就用 mooncat，不要就用测试客户端"
+              }
+            ],
+            [
+              {
+                "en": "model → database",
+                "zh": "模型 → 数据库"
+              },
+              {
+                "en": "`&@moondb.Driver`",
+                "zh": "`&@moondb.Driver`"
+              },
+              {
+                "en": "SQLite here, Postgres or MySQL behind the same session",
+                "zh": "这里是 SQLite，同一个会话后面换 Postgres 或 MySQL"
+              }
+            ],
+            [
+              {
+                "en": "app → surface",
+                "zh": "应用 → 入口"
+              },
+              {
+                "en": "the same handler, mounted twice",
+                "zh": "同一个处理器，挂两次"
+              },
+              {
+                "en": "REST, GraphQL and gRPC answering one function",
+                "zh": "REST、GraphQL、gRPC 回答同一个函数"
+              }
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The tests in this repository live on those seams rather than on the handlers: a request through a real socket, a row through a real table, a gRPC call discovered by reflection. That is why a version skew between two libraries shows up here as a red build instead of as a bug report.",
+            "zh": "这个仓库的测试守的是这些缝，而不是处理器：请求走真 socket，行走真表，gRPC 先反射发现再调用。所以两个库之间的版本错位，在这里表现为一次红的构建，而不是一张 bug 单。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "not",
+      "title": {
+        "en": "What this repository does not build",
+        "zh": "这个仓库没做什么"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A course that only shows what works is a brochure. These are the parts left out on purpose, so that the parts included stay readable.",
+            "zh": "只展示能跑的部分，那是宣传册。下面这些是故意留白的，好让写出来的部分还读得下去。"
+          }
+        },
+        {
+          "type": "list",
+          "items": [
+            {
+              "en": "No authorization model. A token is checked; who the caller is and what they may do is a separate design.",
+              "zh": "没有权限模型。令牌被校验了；调用者是谁、能做什么，是另一套设计。"
+            },
+            {
+              "en": "No migration history. `migrate` creates the table; changing a column in place is what moonorm's migration package is for.",
+              "zh": "没有迁移历史。`migrate` 只建表；原地改列是 moonorm 的迁移包负责的事。"
+            },
+            {
+              "en": "No pool tuning and no health checks. Both exist in the stack; neither is what this course is about.",
+              "zh": "没有连接池调优，也没有健康检查。两样在栈里都有，但都不是这门课的主题。"
+            },
+            {
+              "en": "No deployment. The module is pinned to native because it listens on a socket and links SQLite; shipping the binary is a platform decision, not a library one.",
+              "zh": "没有部署。模块钉在 native，因为它监听 socket 又链接 SQLite；怎么发这个二进制是平台的决定，不是库的决定。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "title": {
+        "en": "Where to go next",
+        "zh": "接下来看哪"
+      },
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "If you want",
+              "zh": "如果你想要"
+            },
+            {
+              "en": "Read",
+              "zh": "就看"
+            },
+            {
+              "en": "Because",
+              "zh": "因为"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "an agent to call this service",
+                "zh": "让 agent 调用这个服务"
+              },
+              {
+                "en": "moonmcp",
+                "zh": "moonmcp"
+              },
+              {
+                "en": "the same handlers, described as tools",
+                "zh": "同一批处理器，描述成工具"
+              }
+            ],
+            [
+              {
+                "en": "metrics, tracing and profiles in one place",
+                "zh": "指标、追踪、profile 一处看"
+              },
+              {
+                "en": "moonp8s, moontel",
+                "zh": "moonp8s、moontel"
+              },
+              {
+                "en": "what `ServerMetrics` already renders, and the tracer beside it",
+                "zh": "`ServerMetrics` 渲染的那一套，和旁边的 tracer"
+              }
+            ],
+            [
+              {
+                "en": "generated migrations from the models you have",
+                "zh": "从手上的模型生成迁移"
+              },
+              {
+                "en": "moonorm/migrate",
+                "zh": "moonorm/migrate"
+              },
+              {
+                "en": "diff the schema, then emit the operations",
+                "zh": "对比 schema，再输出操作"
+              }
+            ],
+            [
+              {
+                "en": "a Postgres or MySQL deployment",
+                "zh": "换 Postgres 或 MySQL"
+              },
+              {
+                "en": "moonpostgres, moonorm",
+                "zh": "moonpostgres、moonorm"
+              },
+              {
+                "en": "the same session over another driver",
+                "zh": "同一个会话换一个驱动"
+              }
+            ],
+            [
+              {
+                "en": "state that outlives a restart",
+                "zh": "能活过重启的状态"
+              },
+              {
+                "en": "moonstate",
+                "zh": "moonstate"
+              },
+              {
+                "en": "a run that stops at a node and continues from it",
+                "zh": "停在某个节点、再从那里继续的运行"
+              }
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The repository is the rest of the map: `src/examples/` has one program per idea, `src/server/` is the service the chapters build, and `README.md` lists the eleven libraries in the order a request meets them. Every code block in this course is compiled in CI, so a page that drifts from the source fails the build before it reaches you.",
+            "zh": "仓库就是地图的其余部分：`src/examples/` 一个想法一个程序，`src/server/` 是各章搭起来的那个服务，`README.md` 按请求经过的顺序列着十一个库。这门课里每个代码块都在 CI 里编译，所以页面一旦和源码脱节，在到你手里之前构建就已经红了。"
+          }
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Name the library by the question you have, not by the feature you want.",
+              "zh": "用你手上的问题去找库，而不是用你想要的功能。"
+            },
+            {
+              "en": "Point at the seam a change belongs on, and say what crosses it.",
+              "zh": "指出一处改动该落在哪条缝上，并说出跨过它的是什么值。"
+            },
+            {
+              "en": "Say which parts of a stack are the application's job and which are the platform's.",
+              "zh": "说出一套栈里哪些是应用的事、哪些是平台的事。"
+            },
+            {
+              "en": "Start a service of your own from the same four values.",
+              "zh": "用同样的四个值起一个你自己的服务。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
