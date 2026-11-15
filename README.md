@@ -1,102 +1,130 @@
 <div align="center">
 
-# greet
+# MoonBit Stack Backend Hello World
 
-**The end-to-end slice of the moon\* full-stack web suite.**
+**a example greet project with a single repo.**
 
 [![Check and Test](https://github.com/moonbitstack/moonhelo/actions/workflows/ci.yml/badge.svg)](https://github.com/moonbitstack/moonhelo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
 </div>
 
-`greet` is the acceptance test for the whole moon\* stack: one `.api` spec flows
-through code generation, framework, assembly, ORM, and server, and a real HTTP
-client hits the result over the wire. If this repo's CI is green, the pieces boot
-and cooperate — that is the point of it.
+One greeting service, written once, served four ways: a REST route, an OpenAPI
+document, a GraphQL field and a gRPC method. It exists so that the pieces of the
+stack can be run against each other in one module — a version skew between two
+libraries that each pass their own tests shows up here as a build that does not
+finish.
 
+It is an application, not a library: nothing here is published for other code to
+import, and the module is pinned to the native backend because it listens on a
+socket and links SQLite.
+
+<!-- nocheck -->
 ```mermaid
 flowchart LR
-  api["spec/greet.api"] -->|mctl gen| model["moonorm model<br/>(genmodel)"]
-  model --> app["moonapi App<br/>+ hand-written routes"]
-  app -->|moonzero assemble<br/>+ middleware| asgi["AsgiApp"]
-  asgi -->|mooncat serve| http["native HTTP"]
-  http -->|curl / async @http| client["real client"]
-  model -.->|Session| sqlite[("SQLite<br/>moonsqlite")]
+  api["src/spec/greet.api"] -->|"moonctl"| model["moonorm model<br/>src/genmodel"]
+  model --> server["moonapi app<br/>+ moonzero assembly"]
+  server -->|"mooncat"| http["HTTP :12000"]
+  model -.->|"moonorm Session"| sqlite[("SQLite")]
+  server --> gql["moongql<br/>/graphql"]
+  http --- openapi["/openapi.json, /docs"]
+  rpc["moonrpc<br/>h2c :12001"] --- grpc["greet.Greeter"]
 ```
 
-## The chain
+## What each library does here
 
-| stage | repo | what it does here |
-|-------|------|-------------------|
-| spec | — | `spec/greet.api`: a `service` with `/ping`, `POST /users`, `GET /users/:id`, and a `type User` |
-| generate | [moonctl](https://github.com/moonbitstack/moonctl) (`mctl`) | `genmodel/`: the `User` model, columns, Row decoder, and migration |
-| framework | [moonapi](https://github.com/moonbitstack/moonapi) | routing, the OpenAPI document, the request-id middleware |
-| assembly | [moonzero](https://github.com/moonbitstack/moonzero) | wraps the app with go-zero-style request logging |
-| ORM | [moonorm](https://github.com/moonbitstack/moonorm) + [moondb](https://github.com/moonbitstack/moonorm/tree/master/db) | the `Session` that persists and reads users |
-| driver | [moonsqlite](https://github.com/moonbitstack/moonorm/tree/master/drivers/sqlite) | a real SQLite file behind the Session |
-| server | [mooncat](https://github.com/moonbitstack/mooncat) | serves the assembled app over native HTTP |
-| SEAM | [moonasgi](https://github.com/moonbitstack/moonasgi) | the Scope/Receive/Send contract every layer shares |
-| gRPC | [moonrpc](https://github.com/moonbitstack/moonrpc) | serves greet.Greeter over h2c with Server Reflection (`rpc/`) |
-| GraphQL | [moongql](https://github.com/moonbitstack/moongql) | serves `Query.greeting` at `/graphql`, mounted on the same mooncat server |
+| Stage | Library | What it does in this repo |
+|:--|:--|:--|
+| describe | — | `src/spec/greet.api`: a service with `/ping`, `POST /users`, `GET /users/{id}`, and a `type User` |
+| generate | [moonctl](https://github.com/moonbitstack/moonctl) | reads the spec and writes the `User` model, its columns, its row decoder and its migration into `src/genmodel` |
+| route | [moonapi](https://github.com/moonbitstack/moonapi) | the typed routes, the OpenAPI document, the request-id middleware, and the readers at `/docs` and `/redoc` |
+| assemble | [moonzero](https://github.com/moonbitstack/moonzero) | wraps the routed application in a service with go-zero-style request logging |
+| persist | [moonorm](https://github.com/moonbitstack/moonorm) | the session that writes and reads users through the generated model |
+| driver | [moonsqlite](https://github.com/moonbitstack/moonsqlite) | a real SQLite file behind that session |
+| serve | [mooncat](https://github.com/moonbitstack/mooncat) | runs the assembled application over native HTTP |
+| transport | [moonasgi](https://github.com/moonbitstack/moonasgi) | the scope/receive/send contract every layer above shares |
+| describe again | [moongql](https://github.com/moonbitstack/moongql) | `Query.greeting`, mounted on the same application and answered by the same server |
+| call | [moonrpc](https://github.com/moonbitstack/moonrpc) | serves `greet.Greeter` over HTTP/2 cleartext with Server Reflection, and the client the test drives it with |
+| ask a model | [moonmuse](https://github.com/moonbitstack/moonmuse) | a prompt rendered from a template and answered by a scripted provider, in `src/examples/00-nine-in-one` |
+| stop and resume | [moonstate](https://github.com/moonbitstack/moonstate) | a run that stops between two nodes and continues from its checkpoint, in `src/examples/01-lifecycle` |
 
-Routes are hand-written — the ordinary goctl workflow, where generated
-scaffolding is the starting point and the business logic is filled in — but the
-generated `User` model stays the persistence layer, so a request still
-round-trips through the exact model the spec produced.
-
-mctl also generates a moonapi route scaffold (`@moonctl.generate`), and `gen`
-runs it. `moonctl@0.6.1` emits 0.10.5-safe arrow-closure registration
-(`app.get(path, ctx => handler(ctx))`), so the scaffold type-checks; greet still
-writes its routes by hand because they carry the real business logic — the
-ordinary goctl workflow where the scaffold is the starting point and the logic is
-filled in.
-
-## gRPC leg
-
-`spec/greet.proto` defines `Greeter.SayHello(HelloRequest) -> HelloReply`. `rpc/`
-serves it over moonrpc's self-built HTTP/2 (h2c) transport with `grpc.reflection.v1`
-Server Reflection registered. The test drives it the way `grpcurl` does — over a
-real `@socket.Tcp`, through the in-process `Channel` client: `ListServices` sees
-`greet.Greeter`, `FileContainingSymbol` returns its `FileDescriptorProto`, and a
-unary `SayHello("Ada")` answers `"Hello, Ada"`.
-
-## GraphQL leg
-
-`server/gql.mbt` defines `type Query { greeting(name: String!): String! }` and
-mounts moongql's handler as `GET`/`POST /graphql` on the same moonapi app mooncat
-serves. The end-to-end test POSTs `{ greeting(name: "Ada") }` to that one server
-and asserts the exact `{"data":{"greeting":"Hello, Ada"}}` — GraphQL rides the
-shared moonasgi transport alongside the REST routes, not a second HTTP server.
-
-This used to be a separate module: moongql pinned `moonasgi@0.5.0` while the HTTP
-core pinned `moonasgi@0.1.0`, and one module resolves a single moonasgi for all
-its packages. Aligning the whole suite on `moonasgi@0.6.1` removed the skew, so
-the leg folds back into the main module and the same server answers REST,
-OpenAPI, and GraphQL on one port.
+The routes are written by hand and the model is generated, which is the ordinary
+workflow around a code generator: the spec produces the types and the storage
+layer, and the handlers that carry the business logic are filled in beside them.
+`moonctl` is run in CI, and the model it writes is compared with the copy in the
+repository, so the generated half cannot drift.
 
 ## Run it
 
 ```console
-$ moon run --target native gen           # regenerate genmodel/ from spec/greet.api
-$ moon test --target native              # in-process end-to-end: real @http client over a live socket
-$ moon run --target native cmd/greet-server &
-$ curl -s localhost:12000/ping            # -> pong
+$ moon run src/gen --target native           # regenerate src/genmodel from src/spec/greet.api
+$ moon test --target native                   # the end-to-end suite: a real HTTP client, a real socket
+$ moon run src/cmd/greet-server --target native &
+$ curl -s localhost:12000/ping                 # -> pong
 $ curl -s -XPOST localhost:12000/users -d '{"name":"Ada"}'
 {"id":1,"name":"Ada"}
-$ curl -s localhost:12000/users/1         # -> {"id":1,"name":"Ada"}
-$ curl -s localhost:12000/openapi.json    # -> the OpenAPI document
-$ curl -s -XPOST localhost:12000/graphql -d '{"query":"{ greeting(name: \"Ada\") }"}'
+$ curl -s localhost:12000/users/1              # -> {"id":1,"name":"Ada"}
+$ curl -s localhost:12000/openapi.json         # -> the document its routes describe
+$ curl -s -XPOST localhost:12000/graphql \
+    -H 'content-type: application/json' \
+    -d '{"query":"{ greeting(name: \"Ada\") }"}'
 {"data":{"greeting":"Hello, Ada"}}
 ```
 
-## Layout
+The gRPC leg is a second server, on 12001. The test drives it the way `grpcurl`
+does — reflection first, then the call — over a real socket:
 
-- `spec/greet.api` — the spec.
-- `gen/` — runs mctl over the spec and writes the generated model.
-- `genmodel/` — mctl output, committed so the diff is visible and regenerated in
-  CI so it stays honest.
-- `server/` — the assembled service and the end-to-end test.
-- `cmd/greet-server/` — the binary CI runs and curls.
+```moonbit
+let app = @moonapi.App::new()
+app.get("/ping", _ctx => @moonapi.text(200, "pong"))
+let reply = app.handle({
+  http_method: "GET",
+  path: "/ping",
+  query_string: b"",
+  headers: [],
+  body: b"",
+})
+assert_eq(reply.status, 200)
+assert_eq(@utf8.decode_lossy(reply.body), "pong")
+```
+
+That block runs in-process through `App::handle`, the same path the socket takes:
+a route added to the application is answered by the server with no second
+registration.
+
+## What is where
+
+```console
+src/
+  cmd/greet-server/     the binary: open the database, migrate, listen on 12000
+  examples/             runnable tours of the stack
+    00-nine-in-one/     nine libraries, one greeting, no socket
+    01-lifecycle/       startup, drain, and a run that stops and continues
+  gen/                  runs moonctl over the spec
+  genmodel/             what moonctl wrote — committed, and regenerated in CI
+  rpc/                  greet.Greeter over h2c, with Server Reflection
+  server/               the application, its GraphQL field, and the end-to-end tests
+  spec/                 the .api and .proto the two generators read
+scripts/check_snippets.py   compiles every MoonBit block in this file
+```
+
+`src/spec/` holds data rather than code, and it sits under `src/` because the
+module root keeps only entry points and configuration; a reader looking for the
+source of the service finds everything that describes it in one place.
+
+## The examples
+
+```console
+$ moon run src/examples/00-nine-in-one --target native
+$ moon run src/examples/01-lifecycle --target native
+```
+
+The first carries one greeting through the spec, the request, the route group,
+the typed route, the address, the SQL, the gRPC message, the GraphQL query and a
+prompt, printing one line per library and touching neither a socket nor a disk.
+The second shows the three ways a long-lived thing stops: an application running
+its lifespan hooks in reverse, a connection drained behind a GOAWAY, and a graph
+that waits at a node for an answer it does not have.
 
 ## License
 

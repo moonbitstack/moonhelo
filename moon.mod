@@ -8,7 +8,30 @@ repository = "https://github.com/moonbitstack/moonhelo"
 
 license = "Apache-2.0"
 
-keywords = [ "goctl", "codegen", "end-to-end", "web", "moonbit", "example" ]
+keywords = [
+  "example",
+  "end-to-end",
+  "full-stack",
+  "web",
+  "codegen",
+  "goctl",
+  "moonapi",
+  "moonasgi",
+  "moonzero",
+  "moonorm",
+  "mooncat",
+  "moonrpc",
+  "moongql",
+  "moonmuse",
+  "moonstate",
+  "sqlite",
+  "grpc",
+  "graphql",
+  "openapi",
+  "rest",
+  "http",
+  "moonbit",
+]
 
 description = "The end-to-end greet slice of the MoonBit backend stack: one .api spec is generated into a moonorm model by moonctl, routed by moonapi, assembled by moonzero, persisted through moonorm and moonsqlite, answered by mooncat, and described over gRPC and GraphQL from the same module. An example application, not a library."
 
