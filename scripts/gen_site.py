@@ -685,6 +685,7 @@ def render_cover(site: dict, page: dict) -> str:
           <h1>{raw(page["title"], "span", "title-lines")}</h1>
           <p class="standfirst">{bi(page["standfirst"])}</p>
           <ul class="facts">{facts}</ul>
+          <p class="lineage">{bi(page["lineage"])}</p>
           <p class="go">
             <a class="lead-link" href="{first}.html">{bi(page["go"]["primary"])}</a>
             <a href="{site["repo"]}">{bi(page["go"]["secondary"])}</a>
