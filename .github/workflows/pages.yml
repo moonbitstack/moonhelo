@@ -1,0 +1,54 @@
+name: Pages
+
+# The course under docs/ is generated, and this workflow publishes exactly what is
+# committed: it re-renders first, so a page that was edited by hand instead of by
+# `scripts/gen_site.py` stops the deployment rather than going live out of date.
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel one that is already publishing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: render
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: the pages match their content
+        run: python3 scripts/gen_site.py --check
+
+      - uses: actions/configure-pages@v6
+        with:
+          # the repository has no Pages site until something turns it on, and a
+          # workflow that assumes one exists fails on a fork or a fresh clone
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    name: publish
+    needs: build
+    runs-on: ubuntu-26.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
