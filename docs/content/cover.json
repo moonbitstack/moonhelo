@@ -89,8 +89,8 @@
       "{\"id\":1,\"name\":\"Ada\"}"
     ],
     "note": {
-      "en": "`x-request-id` is the chapter-01 middleware. `server: mooncat` is the transport signing its own work. The body is a row moonsqlite returned and moonorm decoded, on the connection the process opened at boot.",
-      "zh": "`x-request-id` 由中间件加上；`server: mooncat` 是传输层写下的名字。正文是 moonsqlite 返回、moonorm 解码出的一行，走的是进程启动时打开的那条连接。"
+      "en": "`x-request-id` is the chapter-01 middleware. `server: mooncat` is the transport signing its own work. The body is a row moonsqlite returned and moonorm decoded, on the connection the process opened at boot. [Start with chapter 01](ch01-service.html) to watch each of them land.",
+      "zh": "`x-request-id` 由中间件加上；`server: mooncat` 是传输层写下的名字。正文是 moonsqlite 返回、moonorm 解码出的一行，走的是进程启动时打开的那条连接。详见[从第 1 章开始](ch01-service.html)。"
     }
   },
   "layersTitle": {

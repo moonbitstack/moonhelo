@@ -40,10 +40,10 @@ KEYWORDS = {
 
 
 # --------------------------------------------------------------------------
-# inline text: `code`, **bold**, and nothing else
+# inline text: `code`, **bold**, [a link](target), and nothing else
 # --------------------------------------------------------------------------
 
-TOKEN = re.compile(r"`([^`]+)`|\*\*([^*]+)\*\*")
+TOKEN = re.compile(r"`([^`]+)`|\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)")
 
 
 def inline(text: str) -> str:
@@ -52,8 +52,12 @@ def inline(text: str) -> str:
         out.append(html.escape(text[last:m.start()]))
         if m.group(1) is not None:
             out.append(f'<code class="ic">{html.escape(m.group(1))}</code>')
-        else:
+        elif m.group(2) is not None:
             out.append(f"<strong>{html.escape(m.group(2))}</strong>")
+        else:
+            out.append(
+                f'<a href="{html.escape(m.group(4))}">{html.escape(m.group(3))}</a>'
+            )
         last = m.end()
     out.append(html.escape(text[last:]))
     return "".join(out)
