@@ -1,0 +1,348 @@
+{
+  "title": {
+    "en": "Elements",
+    "zh": "元素"
+  },
+  "lead": {
+    "en": "Every control this site can render, in the inks, radii and focus ring the pages around it use. None of them is required by a chapter yet; all of them are styled, so a page that one day needs a form does not invent one.",
+    "zh": "本站能渲染的每一种控件，用与正文相同的颜色、圆角与焦点环。它们目前还没有被任何一章用到；样式已经定好，将来哪一页真需要表单，不必另造一套。"
+  },
+  "foot": {
+    "en": "a reference, not a chapter",
+    "zh": "参考页，不是章节"
+  },
+  "sections": [
+    {
+      "id": "buttons",
+      "title": {
+        "en": "Buttons",
+        "zh": "按钮"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Three weights, one shape. The filled button is the single action a page is asking for; the outline is the alternative; the quiet one sits inside prose and does not compete with it.",
+            "zh": "三档轻重，一种形状。实心按钮是页面唯一在请求的动作；描边是另一种选择；安静的那档待在正文里，不与正文抢。"
+          }
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "filled",
+            "zh": "实心"
+          },
+          "html": "<button class=\"btn\" type=\"button\">Approve</button><a class=\"btn\" href=\"#\">Open the source <span aria-hidden=\"true\">→</span></a>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "outline",
+            "zh": "描边"
+          },
+          "html": "<button class=\"btn ghost\" type=\"button\">Cancel</button>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "quiet",
+            "zh": "安静"
+          },
+          "html": "<button class=\"btn quiet\" type=\"button\">Skip for now</button>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "disabled",
+            "zh": "禁用"
+          },
+          "html": "<button class=\"btn\" type=\"button\" disabled>Approve</button><button class=\"btn ghost\" type=\"button\" disabled>Cancel</button><button class=\"btn quiet\" type=\"button\" disabled>Skip</button>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "icon",
+            "zh": "图标"
+          },
+          "html": "<button class=\"icon-btn\" type=\"button\" aria-label=\"Source\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M8 0a8 8 0 0 0-2.5 15.6c.4.1.5-.2.5-.4v-1.4c-2 .4-2.5-.5-2.5-.5-.3-.9-.8-1.1-.8-1.1-.7-.5 0-.5 0-.5.8.1 1.2.8 1.2.8.7 1.2 1.8.9 2.2.7.1-.5.3-.9.5-1.1-1.6-.2-3.3-.8-3.3-3.6 0-.8.3-1.5.7-2-.1-.2-.3-1 .1-2 0 0 .6-.2 2 .8a6.9 6.9 0 0 1 3.6 0c1.4-1 2-.8 2-.8.4 1 .2 1.8.1 2 .5.5.7 1.2.7 2 0 2.8-1.7 3.4-3.3 3.6.3.2.5.7.5 1.4v2c0 .2.1.5.5.4A8 8 0 0 0 8 0Z\"/></svg></button><button class=\"icon-btn\" type=\"button\" aria-label=\"Disabled\" disabled><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M8 0a8 8 0 0 0-2.5 15.6c.4.1.5-.2.5-.4v-1.4c-2 .4-2.5-.5-2.5-.5-.3-.9-.8-1.1-.8-1.1-.7-.5 0-.5 0-.5.8.1 1.2.8 1.2.8.7 1.2 1.8.9 2.2.7.1-.5.3-.9.5-1.1-1.6-.2-3.3-.8-3.3-3.6 0-.8.3-1.5.7-2-.1-.2-.3-1 .1-2 0 0 .6-.2 2 .8a6.9 6.9 0 0 1 3.6 0c1.4-1 2-.8 2-.8.4 1 .2 1.8.1 2 .5.5.7 1.2.7 2 0 2.8-1.7 3.4-3.3 3.6.3.2.5.7.5 1.4v2c0 .2.1.5.5.4A8 8 0 0 0 8 0Z\"/></svg></button>"
+        }
+      ]
+    },
+    {
+      "id": "fields",
+      "title": {
+        "en": "Text fields",
+        "zh": "文本字段"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "One pixel of `--rule-strong` at rest, the ink at 32% on hover, `--accent` on the focus ring. Placeholder text is the faint ink on purpose: it is an example, not a value.",
+            "zh": "静止时是 1 像素的 `--rule-strong`，悬停加深到墨色的 32%，焦点环用 `--accent`。占位文字刻意用最淡的那档墨：它是示例，不是值。"
+          }
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "text",
+            "zh": "单行"
+          },
+          "html": "<input type=\"text\" placeholder=\"Ada Lovelace\" style=\"width:16rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "search",
+            "zh": "搜索"
+          },
+          "html": "<input type=\"search\" placeholder=\"Search the course\" style=\"width:16rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "email",
+            "zh": "邮箱"
+          },
+          "html": "<input type=\"email\" value=\"ada@example.com\" style=\"width:16rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "number",
+            "zh": "数字"
+          },
+          "html": "<input type=\"number\" value=\"42\" min=\"0\" max=\"100\" style=\"width:8rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "date",
+            "zh": "日期"
+          },
+          "html": "<input type=\"date\" value=\"2026-11-15\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "textarea",
+            "zh": "多行"
+          },
+          "html": "<textarea class=\"wide\" rows=\"3\" placeholder=\"What went wrong?\">Two lines,&#10;and a second one.</textarea>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "readonly",
+            "zh": "只读"
+          },
+          "html": "<input type=\"text\" value=\"greet-1\" readonly style=\"width:10rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "disabled",
+            "zh": "禁用"
+          },
+          "html": "<input type=\"text\" value=\"not editable\" disabled style=\"width:12rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "invalid",
+            "zh": "无效"
+          },
+          "html": "<input type=\"text\" value=\"not-an-email\" aria-invalid=\"true\" style=\"width:16rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "file",
+            "zh": "文件"
+          },
+          "html": "<input type=\"file\">"
+        }
+      ]
+    },
+    {
+      "id": "select",
+      "title": {
+        "en": "Selects",
+        "zh": "下拉"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The platform arrow is replaced by the same chevron the language switcher draws, so a select opened inside a chapter looks like the one in the top bar.",
+            "zh": "平台自带的箭头被换成语言切换器画的那个 chevron，于是正文里的下拉与顶栏的那一个长得一样。"
+          }
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "one of n",
+            "zh": "单选"
+          },
+          "html": "<select style=\"width:12rem\"><option>Native</option><option>Wasm</option><option>JavaScript</option></select>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "disabled",
+            "zh": "禁用"
+          },
+          "html": "<select disabled style=\"width:12rem\"><option>Native</option></select>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "list box",
+            "zh": "列表框"
+          },
+          "html": "<select size=\"4\" class=\"wide\" aria-label=\"Targets\"><option>native</option><option>wasm</option><option>wasm-gc</option><option>js</option><option>llvm</option><option>c</option><option>wasm1</option><option>wasm2</option></select>"
+        }
+      ]
+    },
+    {
+      "id": "choices",
+      "title": {
+        "en": "Choices",
+        "zh": "选择"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A checkbox is a box that fills with the accent and a tick cut out of it; a radio is a ring with a dot; a switch is a checkbox that lies on its side. All three are drawn from the same two tokens, so they cannot drift apart in a dark theme.",
+            "zh": "复选框是对勾从强调色里挖出来，单选框是环加一个点，开关是躺下的复选框。三者都由同样的两个令牌画出来，深色下不会各自走样。"
+          }
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "checkbox",
+            "zh": "复选框"
+          },
+          "html": "<label class=\"inline\"><input type=\"checkbox\"> Unchecked</label><label class=\"inline\"><input type=\"checkbox\" checked> Checked</label><label class=\"inline\"><input type=\"checkbox\" data-indeterminate> Mixed</label>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "radio",
+            "zh": "单选框"
+          },
+          "html": "<label class=\"inline\"><input type=\"radio\" name=\"target\" checked> Native</label><label class=\"inline\"><input type=\"radio\" name=\"target\"> Wasm</label>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "switch",
+            "zh": "开关"
+          },
+          "html": "<label class=\"inline\"><input type=\"checkbox\" role=\"switch\" checked> Serve</label><label class=\"inline\"><input type=\"checkbox\" role=\"switch\"> Drain</label>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "disabled",
+            "zh": "禁用"
+          },
+          "html": "<label class=\"inline\"><input type=\"checkbox\" checked disabled> Locked on</label><label class=\"inline\"><input type=\"radio\" disabled> Locked out</label>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "fieldset",
+            "zh": "分组"
+          },
+          "html": "<fieldset style=\"width:100%\"><legend>Transport</legend><label class=\"inline\"><input type=\"radio\" name=\"t2\" checked> h2c</label> <label class=\"inline\"><input type=\"radio\" name=\"t2\"> HTTP/1.1</label></fieldset>"
+        }
+      ]
+    },
+    {
+      "id": "meter",
+      "title": {
+        "en": "Ranges and progress",
+        "zh": "滑杆与进度"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A range keeps a paper thumb with an accent ring; a progress bar and a meter both read from `--rule` to `--accent`, and a meter warns in the second ink when it leaves its optimum.",
+            "zh": "滑杆是纸色滑块加强调色圆环；进度条与度量条都从 `--rule` 读到 `--accent`，度量条偏离最优区间时改用第二种墨色。"
+          }
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "range",
+            "zh": "滑杆"
+          },
+          "html": "<input type=\"range\" value=\"35\" style=\"width:16rem\">"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "progress",
+            "zh": "进度"
+          },
+          "html": "<progress max=\"100\" value=\"62\" class=\"wide\" aria-label=\"62 percent\"></progress>"
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "meter",
+            "zh": "度量"
+          },
+          "html": "<meter min=\"0\" max=\"100\" low=\"30\" high=\"70\" optimum=\"90\" value=\"64\" class=\"wide\"></meter>"
+        }
+      ]
+    },
+    {
+      "id": "scroll",
+      "title": {
+        "en": "Scroll areas",
+        "zh": "滚动区域"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Any box that overflows gets the same thumb as the page: thin, transparent until the pointer is over it, and rounded. That is why this rule is written on `*` rather than on the three containers that happened to scroll first.",
+            "zh": "任何溢出的盒子都用与页面相同的滑块：细、指针移上去才显形、两端是圆的。这也是为什么这条规则写在 `*` 上，而不是写在最早会滚动的那三个容器上。"
+          }
+        },
+        {
+          "type": "specimen",
+          "label": {
+            "en": "overflow",
+            "zh": "溢出"
+          },
+          "html": "<div class=\"scroll\" tabindex=\"0\" style=\"height:96px;overflow:auto;padding:2px 12px 2px 0;border-left:2px solid var(--rule)\"><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 1 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 2 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 3 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 4 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 5 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 6 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 7 — the scrollbar here is the same one the page uses</p><p style=\"margin:0 0 8px;color:var(--muted);font-size:14px\">line 8 — the scrollbar here is the same one the page uses</p></div>"
+        }
+      ]
+    },
+    {
+      "id": "states",
+      "title": {
+        "en": "Focus and states",
+        "zh": "焦点与状态"
+      },
+      "blocks": [
+        {
+          "type": "note",
+          "title": {
+            "en": "One ring, everywhere",
+            "zh": "一个焦点环，处处相同"
+          },
+          "text": {
+            "en": "Tab through this page: every control answers with a 2px `--accent` outline at 2px offset. It is set once on the elements, so a control added later cannot forget it.",
+            "zh": "用 Tab 走一遍这一页：每个控件都用 2 像素 `--accent`、偏移 2 像素的外框作答。规则写在元素上，后来加的控件想忘也忘不掉。"
+          }
+        }
+      ]
+    }
+  ]
+}

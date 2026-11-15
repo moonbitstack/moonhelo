@@ -111,6 +111,14 @@
     });
   }
 
+  // ---------- a mixed checkbox ----------
+  // `indeterminate` exists only as a property, so the elements page marks the box
+  // and this sets it. The style is the stylesheet's, as for every other control.
+
+  for (const box of document.querySelectorAll("[data-indeterminate]")) {
+    box.indeterminate = true;
+  }
+
   // ---------- the page scrollbar hides its thumb while at the top ----------
 
   const atTop = () => root.classList.toggle("at-top", scrollY <= 4);

@@ -314,6 +314,13 @@ def render_block(block: dict) -> str:
             f'<div class="know"><h3>{bi(block["title"])}</h3>'
             f'<ul>{items}</ul></div>'
         )
+    if kind == "specimen":
+        return (
+            '<div class="specimen">'
+            f'<div class="specimen__label">{bi(block["label"])}</div>'
+            f'<div class="specimen__body">{block["html"]}</div>'
+            "</div>"
+        )
     if kind == "list":
         items = "".join(f"<li>{bi(i)}</li>" for i in block["items"])
         return f"<ul>{items}</ul>"
@@ -344,6 +351,7 @@ UI = {
     "prev": {"en": "Previous", "zh": "上一章"},
     "next": {"en": "Next", "zh": "下一章"},
     "courselink": {"en": "The course", "zh": "课程首页"},
+    "elements": {"en": "Elements", "zh": "元素"},
     "progress": {"en": "Your progress", "zh": "阅读进度"},
     "edit": {"en": "Edit this page", "zh": "改进这一页"},
     "know": {"en": "You can now", "zh": "你现在会了"},
@@ -406,6 +414,7 @@ def plain(node: dict) -> str:
 
 def head(site: dict, page: dict, css_prefix: str = "") -> str:
     title = plain(page["title"])
+    summary = page.get("lead") or page.get("standfirst") or {"en": ""}
     return f"""<!DOCTYPE html>
 <html lang="en" data-lang="en">
 <head>
@@ -413,13 +422,13 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>{html.escape(title)} — {site["short"]}</title>
-<meta name="description" content="{html.escape(page["lead"]["en"])}">
+<meta name="description" content="{html.escape(plain(summary))}">
 <link rel="icon" href="{FAVICON}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{css_prefix}assets/site.css">
 </head>
-<body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") else ""}>
+<body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") and not page.get("standalone") else ""}>
 <a class="skip" href="#content">Skip to content</a>
 <header class="topbar">
   <button class="icon-btn menu" type="button" data-menu aria-label="Contents" aria-expanded="false">
@@ -432,6 +441,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
   <nav class="topnav" aria-label="Site">
     <a href="{css_prefix}index.html"{" aria-current=\"page\"" if page.get("is_cover") else ""}>{ui("course")}</a>
     <a href="{site["repo"]}/tree/master/src/examples">{ui("examples")}</a>
+    <a href="{css_prefix}elements.html"{" aria-current=\"page\"" if page.get("is_elements") else ""}>{ui("elements")}</a>
   </nav>
   <div class="topbar__end">
     <span class="lang">
@@ -499,6 +509,8 @@ def toc(page: dict) -> str:
 
 
 def pager(site: dict, page: dict, prefix: str) -> str:
+    if page.get("standalone"):
+        return ""
     chapters = [c for c in site["chapters"] if c.get("ready")]
     slugs = [c["slug"] for c in chapters]
     if page.get("slug") not in slugs:
@@ -545,6 +557,17 @@ def footer(site: dict, page: dict, prefix: str = "") -> str:
 # pages
 # --------------------------------------------------------------------------
 
+def crumb(page: dict) -> str:
+    """A chapter says which chapter it is; a page that is not a chapter says
+    nothing rather than inventing a number for itself."""
+    if page.get("standalone"):
+        return ""
+    return (
+        f'<p class="crumb"><span lang="en" data-lang="en">Chapter {page["num"]}</span>'
+        f'<span lang="zh" data-lang="zh">第 {page["num"]} 章</span></p>'
+    )
+
+
 def render_chapter(site: dict, page: dict) -> str:
     body = f"""<!DOCTYPE html>
 {head(site, page)}
@@ -552,7 +575,7 @@ def render_chapter(site: dict, page: dict) -> str:
 {sidebar(site, page, "")}
   <main id="content" class="main">
     <article class="doc">
-      <p class="crumb"><span lang="en" data-lang="en">Chapter {page["num"]}</span><span lang="zh" data-lang="zh">第 {page["num"]} 章</span></p>
+      {crumb(page)}
       <h1>{bi(page["title"], "span", "h1__t")}</h1>
       <p class="lead">{bi(page["lead"])}</p>
 {render_sections(page)}
@@ -570,6 +593,10 @@ def render_chapter(site: dict, page: dict) -> str:
 
 
 def render_cover(site: dict, page: dict) -> str:
+    """The home page as a document: a gutter of numbers, a real exchange, and the
+    chapters set like a printed contents page. The accent colours rules, numbers
+    and states; no word of the title carries the meaning by its colour."""
+
     def figure(value: str) -> str:
         if value == "@chapters":
             return str(len(site["chapters"]))
@@ -579,79 +606,120 @@ def render_cover(site: dict, page: dict) -> str:
             return str(site["libraries"])
         return value
 
-    def meta_item(m: dict) -> str:
-        v = f"<b>{figure(m['value'])}</b>"
-        return "".join(
-            f'<span lang="{lang}" data-lang="{lang}">'
-            + html.escape(m["tpl"][lang]).replace("{v}", v)
-            + "</span>"
-            for lang in LANGS
+    facts = "".join(
+        f'<li><span>{bi(f["label"])}</span><b>{figure(f["value"])}</b></li>'
+        for f in page["facts"]
+    )
+
+    def exchange_part(label: dict, note: str, lines: list, kind: str) -> str:
+        rows = []
+        for i, line in enumerate(lines):
+            if line == "":
+                rows.append("")
+            elif i == 0 and kind == "req":
+                verb, _, rest = line.partition(" ")
+                rows.append(f"<b>{html.escape(verb)}</b> {html.escape(rest)}")
+            elif i == 0 and kind == "res":
+                rows.append(f"<b>{html.escape(line)}</b>")
+            elif ": " in line and not line.startswith("{"):
+                name, _, value = line.partition(":")
+                rows.append(
+                    f'<span class="hdr">{html.escape(name)}:</span>{html.escape(value)}'
+                )
+            else:
+                rows.append(f'<span class="body">{html.escape(line)}</span>')
+        return (
+            '<div class="exchange__part">'
+            f'<div class="exchange__label">{bi(label)}<em>{html.escape(note)}</em></div>'
+            f"<pre>{chr(10).join(rows)}</pre>"
+            "</div>"
         )
 
-    meta = "".join(meta_item(m) for m in page["meta"])
-    cards = "".join(
-        f'<div class="card"><h4>{bi(c["title"])}</h4><div>{bi(c["text"])}</div></div>'
-        for c in page["cards"]
+    ex = page["exchange"]
+    exchange = (
+        '<div class="exchange">'
+        + exchange_part(ex["reqLabel"], ex["reqNote"], ex["request"], "req")
+        + exchange_part(ex["resLabel"], ex["resNote"], ex["response"], "res")
+        + f'<p class="exchange__note">{bi(ex["note"])}</p>'
+        + "</div>"
     )
-    chapters = []
+
+    layers = "".join(
+        f'<li class="layer"><span class="layer__n">{l["n"]}</span>'
+        f'<span class="layer__lib">{l["lib"]}</span>'
+        f'<span class="layer__did">{bi(l["did"])}'
+        f'<span class="layer__lead" aria-hidden="true"></span>'
+        f'<code class="layer__art">{html.escape(l["artifact"])}</code></span></li>'
+        for l in page["layers"]
+    )
+
+    entries = []
     for ch in site["chapters"]:
         tag = "a" if ch.get("ready") else "span"
         href = f' href="{ch["slug"]}.html"' if ch.get("ready") else ""
-        cls = "chapter" + ("" if ch.get("ready") else " soon")
-        tags = "".join(f'<span class="tag">{t}</span>' for t in ch.get("tags", []))
-        chapters.append(
+        cls = "entry" + ("" if ch.get("ready") else " soon")
+        tags = " · ".join(ch.get("tags", []))
+        entries.append(
             f'<li class="{cls}"><{tag}{href}>'
-            f'<span class="chapter__n">{ch["num"]}</span>'
-            f'<span class="chapter__t">{bi(ch["title"])}</span>'
-            f'<span class="chapter__d">{bi(ch["blurb"])}</span>'
-            f'<span class="chapter__tags">{tags}</span>'
+            f'<span class="entry__n">{ch["num"]}</span>'
+            f'<span class="entry__t">{bi(ch["title"])}</span>'
+            f'<span class="entry__d">{bi(ch["blurb"])}</span>'
+            f'<span class="entry__tags">{html.escape(tags)}</span>'
             f"</{tag}></li>"
         )
+
+    first = next(c["slug"] for c in site["chapters"] if c.get("ready"))
 
     body = f"""<!DOCTYPE html>
 {head(site, {**page, "is_cover": True})}
 <main id="content" class="cover">
-  <section class="hero">
-    <p class="kicker">{bi(page["kicker"])}</p>
-    <h1>{raw(page["title"], "span", "h1__t")}</h1>
-    <p class="lead">{bi(page["lead"])}</p>
-    <div class="meta">{meta}</div>
-    <div class="cta">
-      <a class="btn" href="{site["chapters"][0]["slug"]}.html">{bi(page["cta"]["primary"])}<span aria-hidden="true">→</span></a>
-      <a class="btn ghost" href="{site["repo"]}">{bi(page["cta"]["secondary"])}</a>
+  <section class="sheet sheet--first">
+    <div class="sheet__gutter"><span class="sheet__num">00</span>{bi(page["gutter"][0])}</div>
+    <div class="sheet__body">
+      <div class="masthead">
+        <div>
+          <p class="kicker">{bi(page["kicker"])}</p>
+          <h1>{raw(page["title"], "span", "title-lines")}</h1>
+          <p class="standfirst">{bi(page["standfirst"])}</p>
+          <ul class="facts">{facts}</ul>
+          <p class="go">
+            <a class="lead-link" href="{first}.html">{bi(page["go"]["primary"])}</a>
+            <a href="{site["repo"]}">{bi(page["go"]["secondary"])}</a>
+          </p>
+        </div>
+        {exchange}
+      </div>
     </div>
   </section>
 
-  <figure class="line">
-    <figcaption>{bi(page["figure"]["caption"])}</figcaption>
-    <svg viewBox="0 0 1000 120" role="img" aria-label="A request leaves the spec, reaches the application, reads a session, and is written to the socket.">
-      <path class="trace" pathLength="1" d="M56 60 H944"/>
-      <g><line x1="56" y1="44" x2="56" y2="76"/><circle cx="56" cy="60" r="4.5"/><text x="56" y="102" text-anchor="middle">{page["figure"]["nodes"][0]}</text></g>
-      <g><line x1="340" y1="44" x2="340" y2="76"/><circle cx="340" cy="60" r="4.5"/><text x="340" y="102" text-anchor="middle">{page["figure"]["nodes"][1]}</text></g>
-      <g><line x1="620" y1="44" x2="620" y2="76"/><circle cx="620" cy="60" r="4.5"/><text x="620" y="102" text-anchor="middle">{page["figure"]["nodes"][2]}</text></g>
-      <g><line x1="904" y1="44" x2="904" y2="76"/><circle cx="904" cy="60" r="4.5"/><text x="904" y="102" text-anchor="middle">{page["figure"]["nodes"][3]}</text></g>
-      <g class="edge"><text x="198" y="36" text-anchor="middle">{page["figure"]["edges"][0]}</text><text x="480" y="36" text-anchor="middle">{page["figure"]["edges"][1]}</text><text x="762" y="36" text-anchor="middle">{page["figure"]["edges"][2]}</text></g>
-    </svg>
-    <ol class="line-list">
-      <li><span class="line-list__n">spec</span><span class="line-list__e">{page["figure"]["edges"][0]}</span></li>
-      <li><span class="line-list__n">app</span><span class="line-list__e">{page["figure"]["edges"][1]}</span></li>
-      <li><span class="line-list__n">session</span><span class="line-list__e">{page["figure"]["edges"][2]}</span></li>
-      <li><span class="line-list__n">socket</span></li>
-    </ol>
-  </figure>
-
-  <section class="curriculum">
-    <div class="curriculum__head">
-      <h2>{bi(page["curriculum"]["title"])}</h2>
-      <span>{bi(page["curriculum"]["hint"])}</span>
-    </div>
-    <div class="curriculum__body">
-      <ol class="chapters">{''.join(chapters)}</ol>
-      <div class="cards">{cards}</div>
+  <section class="sheet">
+    <div class="sheet__gutter"><span class="sheet__num">01</span>{bi(page["gutter"][1])}</div>
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <h2 class="sheet__title">{bi(page["layersTitle"])}</h2>
+        <span class="sheet__hint">{bi(page["layersHint"])}</span>
+      </div>
+      <p class="about">{bi(page["layersLead"])}</p>
+      <ol class="layers">{layers}</ol>
     </div>
   </section>
 
-{footer(site, {**page, "is_cover": True})}
+  <section class="sheet">
+    <div class="sheet__gutter"><span class="sheet__num">02</span>{bi(page["gutter"][2])}</div>
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <h2 class="sheet__title">{bi(page["contentsTitle"])}</h2>
+        <span class="sheet__hint">{bi(page["contentsHint"])}</span>
+      </div>
+      <ol class="contents">{''.join(entries)}</ol>
+    </div>
+  </section>
+
+  <div class="colophon">
+    <span>Apache-2.0</span>
+    <a href="{site["repo"]}">github.com/moonbitstack/moonhelo</a>
+    <span>{bi(page["colophon"])}</span>
+  </div>
 </main>
 <script src="assets/site.js"></script>
 </body>
@@ -673,6 +741,12 @@ def main() -> int:
         page = json.loads(path.read_text(encoding="utf-8"))
         page["slug"] = path.stem
         pages[f"{path.stem}.html"] = render_chapter(site, page)
+
+    elements = json.loads((CONTENT / "elements.json").read_text(encoding="utf-8"))
+    elements["slug"] = "elements"
+    elements["standalone"] = True
+    elements["is_elements"] = True
+    pages["elements.html"] = render_chapter(site, elements)
 
     changed = []
     for name, text in pages.items():
