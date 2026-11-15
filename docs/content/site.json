@@ -55,8 +55,8 @@
         "zh": "一份描述，一个模型"
       },
       "blurb": {
-        "en": "Describe the data once; a generator writes the model the service persists through, and the build proves it has not drifted.",
-        "zh": "数据只描述一次，模型由生成器写出，构建会证明它没有漂移。"
+        "en": "Describe the data once; a generator writes the model the service persists through, and the build proves the two agree.",
+        "zh": "数据只写一遍，模型交给生成器；两者是否一致，由构建来保证。"
       },
       "tags": [
         "moonctl",
@@ -73,8 +73,8 @@
         "zh": "行与会话"
       },
       "blurb": {
-        "en": "Write a row with a bound parameter, read it back through the generated model, and do the same through two other descriptions of the table.",
-        "zh": "用绑定参数写一行，用生成的模型读回来，再用另外两种表的描述各读一遍。"
+        "en": "Write a row with a bound parameter, read it back through the generated model, then read it again through two other descriptions of the same table.",
+        "zh": "用绑定参数写一行，用生成的模型读回来，再用另外两种表定义各读一遍。"
       },
       "tags": [
         "moonorm",
@@ -89,7 +89,7 @@
       "ready": true,
       "title": {
         "en": "A second surface",
-        "zh": "第二个门面"
+        "zh": "第二个入口"
       },
       "blurb": {
         "en": "The same routes published as an OpenAPI document, and a GraphQL field mounted on the very same application.",
@@ -107,11 +107,11 @@
       "ready": true,
       "title": {
         "en": "A third surface",
-        "zh": "第三个门面"
+        "zh": "第三个入口"
       },
       "blurb": {
-        "en": "greet.Greeter over HTTP/2 cleartext with Server Reflection, so a client can discover the service before it calls.",
-        "zh": "greet.Greeter 跑在 h2c 上并带 Server Reflection，客户端可以先发现服务、再调用。"
+        "en": "greet.Greeter over HTTP/2 cleartext with Server Reflection, so a client can find the service before it calls it.",
+        "zh": "greet.Greeter 走 h2c，带 Server Reflection，客户端可以先发现、再调用。"
       },
       "tags": [
         "moonrpc"
@@ -141,7 +141,7 @@
       "ready": true,
       "title": {
         "en": "Stopping well",
-        "zh": "好好停下"
+        "zh": "优雅停下"
       },
       "blurb": {
         "en": "Hooks in reverse order, a connection drained behind a GOAWAY, and a run that waits at a node for an answer.",
@@ -175,8 +175,8 @@
       "part": "edges",
       "ready": false,
       "title": {
-        "en": "The production edges",
-        "zh": "生产环境的边角"
+        "en": "What production adds",
+        "zh": "上生产还缺什么"
       },
       "blurb": {
         "en": "What a service needs once it works: tokens, validated bodies, pagination, a transaction, background work, a stream, metrics.",
@@ -199,7 +199,7 @@
       },
       "blurb": {
         "en": "Where every library sits, which one to reach for next, and how to add a layer without touching the ones below.",
-        "zh": "每个库站在哪一层、下一个该读谁、怎么加一层而不动下面。"
+        "zh": "每个库在哪一层、接下来该看哪个、加一层怎样不惊动下面。"
       },
       "tags": [
         "reference"

@@ -2,7 +2,7 @@
   "num": "05",
   "title": {
     "en": "A third surface",
-    "zh": "第三个门面"
+    "zh": "第三个入口"
   },
   "lead": {
     "en": "The same greeting over gRPC: one proto file, one handler that turns bytes into bytes, and Server Reflection so a client can discover the service before it calls.",

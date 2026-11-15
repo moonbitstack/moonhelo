@@ -2,7 +2,7 @@
   "num": "04",
   "title": {
     "en": "A second surface",
-    "zh": "第二个门面"
+    "zh": "第二个入口"
   },
   "lead": {
     "en": "The same application answers as JSON over REST, describes itself as an OpenAPI document, and speaks GraphQL on one of its own routes. None of the three is written twice.",

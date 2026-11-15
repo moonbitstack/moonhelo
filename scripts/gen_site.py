@@ -353,11 +353,11 @@ UI = {
     "prev": {"en": "Previous", "zh": "上一章"},
     "next": {"en": "Next", "zh": "下一章"},
     "courselink": {"en": "The course", "zh": "课程首页"},
-    "elements": {"en": "Elements", "zh": "元素"},
+    "elements": {"en": "Elements", "zh": "控件"},
     "soon": {"en": "not written yet", "zh": "待写"},
     "progress": {"en": "Your progress", "zh": "阅读进度"},
-    "edit": {"en": "Edit this page", "zh": "改进这一页"},
-    "know": {"en": "You can now", "zh": "你现在会了"},
+    "edit": {"en": "Edit this page", "zh": "编辑此页"},
+    "know": {"en": "You can now", "zh": "现在你能"},
 }
 
 

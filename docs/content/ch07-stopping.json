@@ -2,7 +2,7 @@
   "num": "07",
   "title": {
     "en": "Stopping well",
-    "zh": "好好停下"
+    "zh": "优雅停下"
   },
   "lead": {
     "en": "A service that starts must stop. Three layers of this stack stop the same way in spirit and differently in form: hooks in reverse, a connection drained rather than cut, and a run that waits for an answer it does not have.",

@@ -8,8 +8,8 @@
     "zh": "MoonBit 后端与微服务<br>快速入门"
   },
   "standfirst": {
-    "en": "Every chapter adds one capability to the same running service. By the last one it answers over HTTP, GraphQL and gRPC, keeps its rows in SQLite, and carries tests that go red when any of that stops being true.",
-    "zh": "每章给同一个在跑的服务加一件事。到最后一章，它同时通过 HTTP、GraphQL 和 gRPC 回答，把行存进 SQLite，并带着测试：其中任何一处失效，测试就会红。"
+    "en": "Every chapter adds one capability to the same running service. By the last one it answers over HTTP, GraphQL and gRPC, keeps its rows in SQLite, and carries tests that fail when any of that stops being true.",
+    "zh": "每章只给同一个服务添一样能力。到最后一章，它同时用 HTTP、GraphQL 和 gRPC 对外服务，数据落在 SQLite 里，还带着一套测试：哪一样坏了，测试就会失败。"
   },
   "facts": [
     {
@@ -103,7 +103,7 @@
   },
   "layersLead": {
     "en": "Each line is one library doing one thing to the same request, and any of them can be swapped without the others noticing. The numbers match the transcript in chapter 8.",
-    "zh": "每一行是一个库对同一个请求做的一件事，换掉其中任何一个，别的都不必改。编号与第 8 章那份回放对得上。"
+    "zh": "每行只做一件事；换掉任何一个库，其余都不用改。编号与第 8 章的回放对得上。"
   },
   "layers": [
     {
@@ -119,8 +119,8 @@
       "n": "02",
       "lib": "moonasgi",
       "did": {
-        "en": "Carries the request value every layer passes around.",
-        "zh": "传那个各层共用的请求值。"
+        "en": "Carries the request value that every layer shares.",
+        "zh": "在各层之间传递同一个请求值。"
       },
       "artifact": "GET /users/1"
     },
@@ -146,8 +146,8 @@
       "n": "05",
       "lib": "moonorm",
       "did": {
-        "en": "Builds the statement and decodes the row it gets back.",
-        "zh": "拼出语句，并把回来的行解码。"
+        "en": "Builds the statement, then decodes the row it gets back.",
+        "zh": "拼出 SQL，再把查回的行解码成记录。"
       },
       "artifact": "SELECT … WHERE id = ?"
     },
@@ -165,7 +165,7 @@
       "lib": "moongql",
       "did": {
         "en": "Answers the same data as a GraphQL field on the same app.",
-        "zh": "在同一个应用上把同样的数据作为 GraphQL 字段回答。"
+        "zh": "同一个应用上，用 GraphQL 字段回答同一份数据。"
       },
       "artifact": "{ greeting(name: \"Ada\") }"
     },
@@ -174,7 +174,7 @@
       "lib": "moonrpc",
       "did": {
         "en": "Serves the same greeting over HTTP/2 cleartext.",
-        "zh": "把同一句问候通过 h2c 提供出去。"
+        "zh": "同一句问候，再走一遍 h2c。"
       },
       "artifact": "SayHello · 23 octets"
     },
@@ -182,8 +182,8 @@
       "n": "09",
       "lib": "moonmuse",
       "did": {
-        "en": "Asks a model through a template and a provider.",
-        "zh": "通过模板与提供者去问一个模型。"
+        "en": "Asks a model, through a template and a provider.",
+        "zh": "用模板和提供者调用模型。"
       },
       "artifact": "no key, no network"
     }
