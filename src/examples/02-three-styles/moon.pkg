@@ -1,0 +1,17 @@
+// The same two routes, written three ways: as functions, as a type that answers
+// the path, and as annotations the generator turns into registration. All three
+// answer the same bytes, which the test below asserts.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+formatter(ignore: [ "routes.g.mbt" ])
+
+dev_build(rule: "routes", input: "routes.mbt", output: "routes.g.mbt")
+
+import {
+  "moonbitstack/moonasgi",
+  "moonbitstack/moonapi",
+  "moonbitlang/async",
+  "moonbitlang/core/encoding/utf8",
+}

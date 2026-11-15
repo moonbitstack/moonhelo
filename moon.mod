@@ -53,3 +53,8 @@ import {
   "moonbitstack/moonstate@0.2.0",
   "moonbitlang/async@0.22.5",
 }
+
+rule(
+  name: "routes",
+  command: "moonx moonbitstack/moonapi/cmd/routes@0.18.2 -C \"$mod_dir\" \"$input\" -o \"$output\"",
+)

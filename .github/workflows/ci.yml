@@ -51,7 +51,10 @@ jobs:
         run: moon check --target native --deny-warn
 
       - name: moon build
-        run: moon build --target native
+        run: |
+          moon build --target native
+          # the annotation generator writes routes.g.mbt on every build
+          git diff --exit-code src/examples/02-three-styles/routes.g.mbt
 
       - name: moon test (REST over a socket, SQLite persistence, GraphQL, gRPC reflection)
         run: moon test --target native
