@@ -7,10 +7,13 @@ struct Greeter {
 }
 
 ///|
+fn greet_with(greeting : String, ctx : @moonapi.Context) -> @moonasgi.Response {
+  @moonapi.text(200, greeting + ", " + ctx.param("id").unwrap_or("?"))
+}
+
+///|
 impl @moonapi.View for Greeter with fn get(self) {
-  Some(ctx => {
-    @moonapi.text(200, self.greeting + ", " + ctx.param("id").unwrap_or("?"))
-  })
+  Some(ctx => greet_with(self.greeting, ctx))
 }
 
 ///|
