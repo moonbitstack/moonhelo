@@ -25,4 +25,5 @@ import {
 import {
   "moonbitlang/async",
   "moonbitlang/async/http",
+  "moonbitlang/core/env",
 } for "test"

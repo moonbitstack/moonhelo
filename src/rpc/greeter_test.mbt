@@ -25,9 +25,7 @@ async test "greet rpc: reflection lists+describes and SayHello answers over h2c"
     // reflection: FileContainingSymbol describes greet.Greeter.
     let fc = ch.server_streaming(
       refl_path,
-      @moonrpc.encode_reflection_request(
-        FileContainingSymbol("greet.Greeter"),
-      ),
+      @moonrpc.encode_reflection_request(FileContainingSymbol("greet.Greeter")),
     )
     let protos = match @moonrpc.decode_reflection_response(fc.messages[0]) {
       FileDescriptors(p) => p
@@ -43,6 +41,35 @@ async test "greet rpc: reflection lists+describes and SayHello answers over h2c"
       _ => abort("could not decode HelloReply")
     }
     assert_eq(message, "Hello, Ada")
+    ch.close()
+    task.cancel()
+  })
+}
+
+///|
+/// What the same server answers when the call is not the one it registered, and
+/// when the request is empty: a method nobody serves is `UNIMPLEMENTED` (12) —
+/// a status on the call, not a broken connection — and an empty `HelloRequest` is
+/// a valid proto3 message, so it is greeted by name and not refused.
+async test "greet rpc: an unknown method is UNIMPLEMENTED and an empty request is valid" {
+  @async.with_task_group(g => {
+    let task = g.spawn(() => @rpc.serve_greet_grpc(port=18077))
+    @async.sleep(400)
+    let ch = @net.Channel::connect("127.0.0.1", 18077)
+
+    let missing = ch.unary("/greet.Greeter/Shout", @rpc.hello_request("Ada"))
+    assert_eq(missing.grpc_status, 12)
+
+    // The connection is still usable after the refused call: one status does not
+    // take the stream multiplexing down with it.
+    let empty = ch.unary("/greet.Greeter/SayHello", b"")
+    assert_eq(empty.grpc_status, 0)
+    assert_eq(
+      @rpc.parse_hello_reply(empty.messages[0]) catch {
+        _ => abort("could not decode HelloReply")
+      },
+      "Hello, ",
+    )
     ch.close()
     task.cancel()
   })
