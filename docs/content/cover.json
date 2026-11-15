@@ -1,0 +1,110 @@
+{
+  "kicker": {
+    "en": "MoonBit Stack · a course",
+    "zh": "MoonBit 后端全家桶 · 教程"
+  },
+  "title": {
+    "en": "One request,<br><em>nine</em> libraries.",
+    "zh": "一条请求，<br><em>九个</em>库。"
+  },
+  "lead": {
+    "en": "A greeting service, built one layer at a time. Every chapter adds a single capability and leaves behind a service you can run, curl and read.",
+    "zh": "一个问候服务，一层一层搭起来。每章只加一件事，留下的服务都能跑、能 curl、能读。"
+  },
+  "meta": [
+    {
+      "value": "@chapters",
+      "tpl": {
+        "en": "{v} chapters",
+        "zh": "{v} 章"
+      }
+    },
+    {
+      "value": "@libraries",
+      "tpl": {
+        "en": "{v} libraries",
+        "zh": "{v} 个库"
+      }
+    },
+    {
+      "value": "native",
+      "tpl": {
+        "en": "{v} only",
+        "zh": "只跑 {v}"
+      }
+    }
+  ],
+  "cta": {
+    "primary": {
+      "en": "Start at chapter 01",
+      "zh": "从第 1 章开始"
+    },
+    "secondary": {
+      "en": "Read the source",
+      "zh": "先看源码"
+    }
+  },
+  "figure": {
+    "caption": {
+      "en": "the path every chapter follows",
+      "zh": "每章都沿着这条路径"
+    },
+    "nodes": [
+      "spec",
+      "app",
+      "session",
+      "socket"
+    ],
+    "edges": [
+      "moonctl",
+      "moonapi",
+      "moonorm"
+    ]
+  },
+  "curriculum": {
+    "title": {
+      "en": "The chapters",
+      "zh": "课程目录"
+    },
+    "hint": {
+      "en": "read in order",
+      "zh": "按顺序读"
+    }
+  },
+  "cards": [
+    {
+      "title": {
+        "en": "Before you start",
+        "zh": "开始之前"
+      },
+      "text": {
+        "en": "`moon` 0.1.20261104 or newer, a clone of this repository, and one `moon update`.",
+        "zh": "需要 `moon` 0.1.20261104 或更新版本，克隆本仓库，再跑一次 `moon update`。"
+      }
+    },
+    {
+      "title": {
+        "en": "Three parts to a chapter",
+        "zh": "每章三段"
+      },
+      "text": {
+        "en": "Run it, read the code behind the output, then change something yourself.",
+        "zh": "先跑起来，再读输出背后的代码，最后自己改一处。"
+      }
+    },
+    {
+      "title": {
+        "en": "One idea, three spellings",
+        "zh": "同一件事，三种说法"
+      },
+      "text": {
+        "en": "Where a library offers more than one, the code block switches between writing it, letting your types carry it, and letting annotations generate the glue.",
+        "zh": "库有多种写法的地方，代码块可以在三者之间切换：自己写、交给类型、交给注解。"
+      }
+    }
+  ],
+  "foot": {
+    "en": "every output on these pages is from a real run",
+    "zh": "本站每个输出都来自真实运行"
+  }
+}

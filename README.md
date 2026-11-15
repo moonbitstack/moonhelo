@@ -100,13 +100,17 @@ src/
   examples/             runnable tours of the stack
     00-nine-in-one/     nine libraries, one greeting, no socket
     01-lifecycle/       startup, drain, and a run that stops and continues
+    02-three-styles/    the same two routes as functions, as a type, as annotations
   gen/                  runs moonctl over the spec
   genmodel/             what moonctl wrote — committed, and regenerated in CI
   rpc/                  greet.Greeter over h2c, with Server Reflection
   server/               the application, its GraphQL field, and the end-to-end tests
   spec/                 the .api and .proto the two generators read
-scripts/check_snippets.py   compiles every MoonBit block in this file
 ```
+
+`docs/` holds the course that walks this repository chapter by chapter, rendered
+by `scripts/gen_site.py`; `scripts/check_snippets.py` compiles every MoonBit block
+in this file.
 
 `src/spec/` holds data rather than code, and it sits under `src/` because the
 module root keeps only entry points and configuration; a reader looking for the
@@ -117,6 +121,7 @@ source of the service finds everything that describes it in one place.
 ```console
 $ moon run src/examples/00-nine-in-one --target native
 $ moon run src/examples/01-lifecycle --target native
+$ moon run src/examples/02-three-styles --target native
 ```
 
 The first carries one greeting through the spec, the request, the route group,

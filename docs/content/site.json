@@ -1,0 +1,209 @@
+{
+  "short": "MoonBit Stack",
+  "repo": "https://github.com/moonbitstack/moonhelo",
+  "libraries": 9,
+  "parts": [
+    {
+      "id": "start",
+      "title": {
+        "en": "Getting started",
+        "zh": "开始"
+      }
+    },
+    {
+      "id": "core",
+      "title": {
+        "en": "The service",
+        "zh": "服务本体"
+      }
+    },
+    {
+      "id": "edges",
+      "title": {
+        "en": "Going further",
+        "zh": "走得更远"
+      }
+    }
+  ],
+  "chapters": [
+    {
+      "slug": "ch01-service",
+      "num": "01",
+      "part": "start",
+      "ready": true,
+      "title": {
+        "en": "A service is a function",
+        "zh": "服务就是一个函数"
+      },
+      "blurb": {
+        "en": "Three routes, one middleware, one real port. The smallest thing that answers.",
+        "zh": "三条路由、一个中间件、一个真实端口。先把最小的服务跑起来。"
+      },
+      "tags": [
+        "moonasgi",
+        "moonapi",
+        "mooncat"
+      ]
+    },
+    {
+      "slug": "ch02-spec",
+      "num": "02",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "One spec, one model",
+        "zh": "一份描述，一个模型"
+      },
+      "blurb": {
+        "en": "Describe the data once; the generator writes the model the service persists through, and CI proves it has not drifted.",
+        "zh": "数据只描述一次，模型由生成器写出来，CI 保证它没有漂移。"
+      },
+      "tags": [
+        "moonctl",
+        "moonorm"
+      ]
+    },
+    {
+      "slug": "ch03-rows",
+      "num": "03",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "Rows and sessions",
+        "zh": "行与会话"
+      },
+      "blurb": {
+        "en": "Insert a row, read it back through the generated model, and migrate the table up and down.",
+        "zh": "插入一行，按生成的模型读回来，再把表迁移上去、迁下来。"
+      },
+      "tags": [
+        "moonorm",
+        "moondb",
+        "moonsqlite"
+      ]
+    },
+    {
+      "slug": "ch04-surfaces",
+      "num": "04",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "A second surface",
+        "zh": "第二个门面"
+      },
+      "blurb": {
+        "en": "The same routes published as an OpenAPI document, and a GraphQL field on the very same application.",
+        "zh": "同一批路由既是 OpenAPI 文档，也是同一个应用上的 GraphQL 字段。"
+      },
+      "tags": [
+        "moonapi",
+        "moongql"
+      ]
+    },
+    {
+      "slug": "ch05-rpc",
+      "num": "05",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "A third surface",
+        "zh": "第三个门面"
+      },
+      "blurb": {
+        "en": "greet.Greeter over HTTP/2 cleartext, with Server Reflection so a client can discover it before it calls.",
+        "zh": "greet.Greeter 跑在 h2c 上，带 Server Reflection，客户端先发现、再调用。"
+      },
+      "tags": [
+        "moonrpc"
+      ]
+    },
+    {
+      "slug": "ch06-assembly",
+      "num": "06",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "Assembly",
+        "zh": "装配"
+      },
+      "blurb": {
+        "en": "Wrap the routed application in a service: configuration, the middleware chain, one access log line per call.",
+        "zh": "把路由装进服务：配置、中间件链、每次调用一行访问日志。"
+      },
+      "tags": [
+        "moonzero"
+      ]
+    },
+    {
+      "slug": "ch07-stopping",
+      "num": "07",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "Stopping well",
+        "zh": "好好停下"
+      },
+      "blurb": {
+        "en": "Hooks in reverse order, a connection drained behind a GOAWAY, and a run that waits at a node for an answer.",
+        "zh": "钩子倒序执行、连接用 GOAWAY 排空、图停在某个节点等人回答。"
+      },
+      "tags": [
+        "moonstate",
+        "moonrpc"
+      ]
+    },
+    {
+      "slug": "ch08-tour",
+      "num": "08",
+      "part": "core",
+      "ready": false,
+      "title": {
+        "en": "The whole stack, once",
+        "zh": "全家桶，一次走完"
+      },
+      "blurb": {
+        "en": "Nine libraries, one greeting, no socket: what each layer contributes, in one program.",
+        "zh": "九个库、一句问候、不开端口：一次性看清每一层各自做了什么。"
+      },
+      "tags": [
+        "nine-in-one"
+      ]
+    },
+    {
+      "slug": "ch09-edges",
+      "num": "09",
+      "part": "edges",
+      "ready": false,
+      "title": {
+        "en": "The production edges",
+        "zh": "生产环境的边角"
+      },
+      "blurb": {
+        "en": "What a service needs once it works: tokens, validated bodies, pagination, a transaction, background work, a stream, metrics.",
+        "zh": "服务能跑之后还缺的东西：令牌、校验、分页、事务、后台任务、流、指标。"
+      },
+      "tags": [
+        "moonapi",
+        "moonmcp",
+        "moonp8s"
+      ]
+    },
+    {
+      "slug": "ch10-map",
+      "num": "10",
+      "part": "edges",
+      "ready": false,
+      "title": {
+        "en": "The map",
+        "zh": "地图"
+      },
+      "blurb": {
+        "en": "Where every library sits, which one to reach for next, and how to add a layer without touching the ones below.",
+        "zh": "每个库站在哪一层、下一个该读谁、怎么加一层而不动下面。"
+      },
+      "tags": [
+        "reference"
+      ]
+    }
+  ]
+}

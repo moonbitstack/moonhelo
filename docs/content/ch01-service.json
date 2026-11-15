@@ -1,0 +1,338 @@
+{
+  "num": "01",
+  "title": {
+    "en": "A service is a function",
+    "zh": "服务就是一个函数"
+  },
+  "lead": {
+    "en": "Before the generator, the database and the second protocol, there is one thing to get right: a function that takes a request and returns a response. Everything else is added around it.",
+    "zh": "在生成器、数据库和第二个协议之前，先把一件事做对：一个吃进请求、吐出响应的函数。其余都是围绕它加上去的。"
+  },
+  "foot": {
+    "en": "Chapter 01 of 10",
+    "zh": "第 01 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "contract",
+      "title": {
+        "en": "The contract",
+        "zh": "契约"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "An ASGI application is a function of three things: a **scope** describing the request, a **receive** that hands over the body as events, and a **send** that takes the response back the same way. That is the whole contract. Every server and framework in this stack speaks it, and nothing above it knows whether the bytes arrived over HTTP/1.1, HTTP/2 or a websocket.",
+            "zh": "ASGI 应用就是一个函数，参数有三样：描述这次请求的 **scope**，把请求体当作事件交给你的 **receive**，以及按同样方式送走响应的 **send**。契约就只有这些。这一栈里的服务器和框架都按它说话，而它上面的代码不必知道字节来自 HTTP/1.1、HTTP/2 还是 WebSocket。"
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "This repository has one entry point, and everything the service does is visible from it:",
+            "zh": "本仓库只有一个入口，服务所做的每件事都能从这里看出去："
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "/// Open the database, run the migration, serve until the task is cancelled.\npub async fn serve_greet(\n  host~ : String = \"127.0.0.1\",\n  port~ : Int32 = 12000,\n  db_path~ : String = \"greet.db\",\n) -> Unit raise {\n  let db = @sqlite.SqliteDriver::open(db_path)\n  let sess = @moonorm.Session::new(db)\n  @genmodel.user_up(sess) |> ignore\n  @mooncat.serve(assemble(sess), host~, port~)\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Six lines, and four of them are about a database this chapter has not reached. The line that matters today is the last one: `assemble` builds an application, and `@mooncat.serve` puts it on a socket. Neither knows what the routes are.",
+            "zh": "六行代码，其中四行在说这一章还没碰到的数据库。今天要紧的是最后一行：`assemble` 造出一个应用，`@mooncat.serve` 把它放到端口上。两者都不知道里面有哪些路由。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "routes",
+      "title": {
+        "en": "Three routes, three spellings",
+        "zh": "三条路由，三种写法"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "An application is a value. Routes are added to it, and the document that describes them is derived from the same calls — there is no second place to keep in sync.",
+            "zh": "应用是一个值。路由一条条加上去，描述这些路由的文档也从同一批调用推出来 —— 没有第二处需要同步。"
+          }
+        },
+        {
+          "type": "code",
+          "note": {
+            "en": "All three are in `src/examples/02-three-styles`, and a test asserts they answer the same bytes. `moon run src/examples/02-three-styles` prints one line per form.",
+            "zh": "三种写法都在 `src/examples/02-three-styles` 里，测试断言三者返回的字节相同。跑 `moon run src/examples/02-three-styles` 会各打印一行。"
+          },
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/02-three-styles/function_form.mbt",
+              "lang": "moonbit",
+              "code": "pub fn function_app() -> @moonapi.App {\n  let app = @moonapi.App::new()\n  app.get(\"/ping\", ctx => ping(ctx), summary=\"health check\")\n  app.get(\"/greet/{id}\", ctx => greet_one(ctx), summary=\"greet one name\")\n  app\n}"
+            },
+            {
+              "style": "type",
+              "file": "src/examples/02-three-styles/view_form.mbt",
+              "lang": "moonbit",
+              "code": "// A value answers the path, and carries what the handler needs.\nstruct Greeter {\n  greeting : String\n}\n\nimpl @moonapi.View for Greeter with get(self) {\n  Some(ctx => @moonapi.text(200, self.greeting + \", \" + ctx.param(\"id\").unwrap_or(\"?\")))\n}\n\npub fn view_app(greeting : String) -> @moonapi.App {\n  let app = @moonapi.App::new()\n  app.get(\"/ping\", _ctx => @moonapi.text(200, \"pong\"), summary=\"health check\")\n  app.view(\"/greet/{id}\", Greeter::{ greeting })\n  app\n}"
+            },
+            {
+              "style": "annotation",
+              "file": "src/examples/02-three-styles/routes.mbt",
+              "lang": "moonbit",
+              "code": "// The registration is generated: `moonx moonbitstack/moonapi/cmd/routes`\n// reads these two functions and writes register(app) into routes.g.mbt.\n#app.get(\"/ping\", summary=\"health check\")\nfn ping_route(_ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, \"pong\")\n}\n\n#app.get(\"/greet/{id}\", summary=\"greet one name\")\nfn greet_route(ctx : @moonapi.Context) -> @moonasgi.Response {\n  @moonapi.text(200, \"hello, \" + ctx.param(\"id\").unwrap_or(\"?\"))\n}\n\npub fn annotation_app() -> @moonapi.App {\n  let app = @moonapi.App::new()\n  register(app)\n  app\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The choice is not cosmetic. A function keeps the handler next to its path, which is what you want while the logic is short. A type that answers a path carries state with it, so one value can own a connection or a cache for as long as the route lives. Annotations move the registration into generated code, which is what keeps a route table readable once it has forty entries.",
+            "zh": "三种写法不是好不好看的问题。函数写法把处理函数放在路径旁边，逻辑短的时候最顺手。让一个类型去回答某条路径，可以把状态一起带上，于是一个值能在路由存活期间管住一条连接或一份缓存。注解把注册代码挪进生成物，路由表长到四十条时，靠它才读得下去。"
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "A path parameter is written `{id}`, and its value arrives through `ctx.param`. The `summary` you pass here is the text a reader sees in the API document, because the document is generated from these calls.",
+            "zh": "路径参数写成 `{id}`，值从 `ctx.param` 取。这里传的 `summary` 就是 API 文档里读者看到的那句话 —— 文档由这些调用生成，不是另写的。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "middleware",
+      "title": {
+        "en": "One middleware",
+        "zh": "一个中间件"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A middleware takes the next step and returns a new one. It sees the request on the way in and the response on the way out, which is enough to stamp an identifier on every answer without any route knowing it exists.",
+            "zh": "中间件接收「下一步」，返回一个新的下一步。它在入口看到请求，在出口看到响应，因此能给每个响应盖一个标识，而任何路由都不知道它存在。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "app.middleware(async fn(req, next) {\n  let resp = next(req)\n  @moonasgi.Response::new(\n    resp.status,\n    [(\"x-request-id\", \"greet-1\"), ..resp.headers],\n    resp.body,\n  )\n})"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The header is prepended, so a route that sets its own `x-request-id` keeps it. Once the service runs, the check is one flag: `curl -i` a route that knows nothing about middleware.",
+            "zh": "新头是插在最前面的，路由自己设了 `x-request-id` 时不会被覆盖。服务跑起来后，验证只要一个参数：对一条完全不知道中间件的路由用 `curl -i`。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "title": {
+        "en": "Run it",
+        "zh": "跑起来"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "From the repository root. The first command builds and starts the binary on port 12000; the rest are a client.",
+            "zh": "在仓库根目录执行。第一条命令编译并启动二进制，端口 12000；后面几条是客户端。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/cmd/greet-server --target native",
+              "out": []
+            },
+            {
+              "cmd": "curl -s localhost:12000/ping",
+              "out": [
+                "pong"
+              ]
+            },
+            {
+              "cmd": "curl -s -XPOST localhost:12000/users -d '{\"name\":\"Curl\"}'",
+              "out": [
+                "{\"id\":1,\"name\":\"Curl\"}"
+              ]
+            },
+            {
+              "cmd": "curl -s localhost:12000/users/1",
+              "out": [
+                "{\"id\":1,\"name\":\"Curl\"}"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": {
+            "en": "The same thing without a socket",
+            "zh": "不占端口也一样"
+          },
+          "text": {
+            "en": "`App::handle` takes the same request value and returns the same response, through the same middleware. The tests use it; so can you, when starting a server is more ceremony than the question deserves.",
+            "zh": "`App::handle` 收同样的请求值、返回同样的响应，走的也是同一套中间件。测试用它；当起一个服务器比问题本身还麻烦时，你也可以用。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "what",
+      "title": {
+        "en": "What just happened",
+        "zh": "刚才发生了什么"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Four libraries took part in that one request, and each had exactly one job:",
+            "zh": "这一次请求里有四个库参与，每个只做一件事："
+          }
+        },
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "Layer",
+              "zh": "层"
+            },
+            {
+              "en": "Library",
+              "zh": "库"
+            },
+            {
+              "en": "Its job here",
+              "zh": "在这里做的事"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "Transport",
+                "zh": "传输"
+              },
+              {
+                "en": "mooncat",
+                "zh": "mooncat"
+              },
+              {
+                "en": "Accepted the connection, parsed HTTP, turned it into a scope, and wrote the response back.",
+                "zh": "接连接、解析 HTTP、变成 scope，再把响应写回去。"
+              }
+            ],
+            [
+              {
+                "en": "Contract",
+                "zh": "契约"
+              },
+              {
+                "en": "moonasgi",
+                "zh": "moonasgi"
+              },
+              {
+                "en": "Defines the request and response values that both sides of the boundary pass.",
+                "zh": "定义边界两侧传递的请求与响应值。"
+              }
+            ],
+            [
+              {
+                "en": "Routing",
+                "zh": "路由"
+              },
+              {
+                "en": "moonapi",
+                "zh": "moonapi"
+              },
+              {
+                "en": "Matched the path, bound the parameter, ran the middleware, produced the body.",
+                "zh": "匹配路径、绑定参数、跑中间件、产出响应体。"
+              }
+            ],
+            [
+              {
+                "en": "Assembly",
+                "zh": "装配"
+              },
+              {
+                "en": "moonzero",
+                "zh": "moonzero"
+              },
+              {
+                "en": "Wrapped the routed application in a service that logs one line per call.",
+                "zh": "把路由装进服务，每次调用记一行日志。"
+              }
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The database appears in `serve_greet` but not in this table: nothing here has read or written a row yet. That is chapter 2.",
+            "zh": "数据库出现在 `serve_greet` 里，却不在表里：这一章还没有读写任何一行。那是第 2 章的事。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Change `\"pong\"` to `\"pong!\"` and run the tests. One goes red, and it is not the one you edited — find it and read what it asserts. That is the loop the rest of the course runs on.",
+              "zh": "把 `\"pong\"` 改成 `\"pong!\"`，然后跑测试。有一条会红，而且不是你刚改的那条 —— 找到它，读它断言了什么。后面每一章都在跑这个循环。"
+            },
+            {
+              "en": "Add `GET /health` that answers `{\"ok\":true}`, then fetch `/openapi.json` and find it there. You did not write any documentation.",
+              "zh": "加一条 `GET /health`，返回 `{\"ok\":true}`，再去 `/openapi.json` 里找它。你一行文档都没写。"
+            },
+            {
+              "en": "Ask for `DELETE /ping`. It answers 405, not 404, and carries an `Allow` header. Work out which layer decided that, and why a client cares about the difference.",
+              "zh": "请求 `DELETE /ping`。它返回 405 而不是 404，还带一个 `Allow` 头。想想是哪一层决定的，以及客户端为什么在意这个区别。"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The service so far has no memory. Chapter 2 gives it one, and the generator writes the part that touches the database.",
+            "zh": "到这里的服务还没有记忆。第 2 章给它一份，并且由生成器来写碰数据库的那部分。"
+          }
+        }
+      ]
+    }
+  ]
+}
