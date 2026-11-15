@@ -1,0 +1,19 @@
+// One table, three ways to reach it: a model written by hand, a model generated
+// from an annotated struct, and a SELECT generated from annotated SQL. The test
+// below runs all three against one in-memory database and compares the rows.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+formatter(ignore: [ "models.g.mbt", "mapper.g.mbt" ])
+
+dev_build(rule: "orm", input: "models.mbt", output: "models.g.mbt")
+
+dev_build(rule: "sql", input: "models.mbt", output: "mapper.g.mbt")
+
+import {
+  "moonbitstack/moonorm",
+  "moonbitstack/moonorm/mapper",
+  "moonbitstack/moondb",
+  "moonbitstack/moonsqlite" @sqlite,
+}

@@ -101,6 +101,7 @@ src/
     00-nine-in-one/     nine libraries, one greeting, no socket
     01-lifecycle/       startup, drain, and a run that stops and continues
     02-three-styles/    the same two routes as functions, as a type, as annotations
+    03-three-ways-data/ the same row read through a written model, an annotated one, and generated SQL
   gen/                  runs moonctl over the spec
   genmodel/             what moonctl wrote — committed, and regenerated in CI
   rpc/                  greet.Greeter over h2c, with Server Reflection
@@ -122,6 +123,7 @@ source of the service finds everything that describes it in one place.
 $ moon run src/examples/00-nine-in-one --target native
 $ moon run src/examples/01-lifecycle --target native
 $ moon run src/examples/02-three-styles --target native
+$ moon run src/examples/03-three-ways-data --target native
 ```
 
 The first carries one greeting through the spec, the request, the route group,

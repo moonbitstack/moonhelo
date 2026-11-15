@@ -55,6 +55,16 @@ import {
 }
 
 rule(
+  name: "orm",
+  command: "moonx moonbitstack/moonorm/cmd/orm@0.12.0 -C \"$mod_dir\" \"$input\" -o \"$output\"",
+)
+
+rule(
+  name: "sql",
+  command: "moonx moonbitstack/moonorm/cmd/sql@0.12.0 -C \"$mod_dir\" \"$input\" -o \"$output\"",
+)
+
+rule(
   name: "routes",
   command: "moonx moonbitstack/moonapi/cmd/routes@0.18.2 -C \"$mod_dir\" \"$input\" -o \"$output\"",
 )
