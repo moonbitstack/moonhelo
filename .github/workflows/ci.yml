@@ -53,8 +53,10 @@ jobs:
       - name: moon build
         run: |
           moon build --target native
-          # the annotation generator writes routes.g.mbt on every build
-          git diff --exit-code src/examples/02-three-styles/routes.g.mbt
+          # every annotation rule writes its output on each build, so after a
+          # clean checkout any diff under src/ is a generated file that no longer
+          # matches its input — which is the only way this can be caught cheaply
+          git diff --exit-code -- src
 
       - name: moon test (REST over a socket, SQLite persistence, GraphQL, gRPC reflection)
         run: moon test --target native

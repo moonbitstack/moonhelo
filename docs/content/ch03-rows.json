@@ -1,0 +1,271 @@
+{
+  "num": "03",
+  "title": {
+    "en": "Rows and sessions",
+    "zh": "行与会话"
+  },
+  "lead": {
+    "en": "A model says what a table is. A session is what you run it with: it renders a statement for one dialect, binds the values, and hands back rows. This chapter writes one row and reads it back three ways.",
+    "zh": "模型说表是什么；会话才是你拿来跑的东西：按一种方言渲染语句、绑定参数、把行交回来。这一章写一行，再用三种方式读回来。"
+  },
+  "foot": {
+    "en": "Chapter 03 of 10",
+    "zh": "第 03 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "open",
+      "title": {
+        "en": "Opening",
+        "zh": "打开"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Four lines of `serve_greet` are the whole database story: open a driver, wrap it in a session, run the generated migration, hand the session to the app.",
+            "zh": "`serve_greet` 里的四行就是数据库的全部故事：打开驱动、包成会话、跑生成的迁移、把会话交给应用。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "  let db = @sqlite.SqliteDriver::open(db_path)\n  let sess = @moonorm.Session::new(db)\n  @genmodel.user_up(sess) |> ignore\n  @mooncat.serve(assemble(sess), host~, port~)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The split earns its keep. A driver speaks one engine and knows nothing about tables; a session knows the dialect and the model, and every fallible call raises `@moondb.DbError` at the call site instead of returning a quiet zero.",
+            "zh": "这个分工是有回报的。驱动只认一种引擎，不知道表；会话知道方言和模型，每个可能失败的调用都在调用点抛 `@moondb.DbError`，而不是悄悄返回一个零。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "write",
+      "title": {
+        "en": "A bound value",
+        "zh": "绑定，而不是拼接"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The insert is one statement and one parameter array. The name never reaches the SQL text, so no input can change the shape of the statement.",
+            "zh": "插入是一条语句加一个参数数组。name 从不进入 SQL 文本，任何输入都改不了语句的形状。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "  let res = try\n    sess.execute(\"INSERT INTO user (name) VALUES (?)\", [@moondb.Text(name)])\n  catch {\n    e => return error_json(500, \"insert failed: \" + e.to_string())\n  } noraise {\n    v => v\n  }"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "`last_insert_id` is what makes a `201` possible without a second query: SQLite assigned the id, and the response echoes it.",
+            "zh": "`last_insert_id` 让 `201` 不必再查一次：id 是 SQLite 分配的，响应直接把它回出去。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "read",
+      "title": {
+        "en": "Typed rows",
+        "zh": "读回来的行"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Reading goes back through the same model. `fetch_as` decodes every row, so the handler works with `User`, not with a bag of columns.",
+            "zh": "读取还是走同一个模型。`fetch_as` 把每一行都解码，处理函数拿到的是 `User`，不是一包列。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "  let rows = try\n    sess.fetch_as(\n      @genmodel.user_model,\n      @genmodel.user_model.select().eq(\"id\", @moondb.Int(id)),\n    )"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "An empty array is a `404` here, not a `User` full of defaults: the absence of a row is a case the type system makes you write down.",
+            "zh": "空数组在这里就是 `404`，而不是一个全是默认值的 `User`：行不存在这件事，类型系统逼你写出来。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "three",
+      "title": {
+        "en": "Who describes the table",
+        "zh": "表由谁来描述"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Three spellings, one table. Choose by where the truth already lives: a spec you keep, a struct you have, or a statement you wrote.",
+            "zh": "三种写法，一张表。按「真相已经在哪里」来选：你已经维护的描述、你手上就有的结构体、或你写下的那条语句。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/03-three-ways-data/hand_model.mbt",
+              "lang": "moonbit",
+              "code": "pub let note_by_hand : @moonorm.Model[Note] = @moonorm.Model::new(\n  \"note\",\n  [\n    @moonorm.column(\"id\", BigIntType, primary_key=true, autoincrement=true),\n    @moonorm.column(\"text\", TextType, nullable=false),\n  ],\n  note_from_row,\n  note_to_columns,\n)\n\nfn note_from_row(r : @moondb.Row) -> Note raise @moondb.DbError {\n  { id: Some(r.int64(0)), text: r.text(1), }\n}\n\nfn note_to_columns(n : Note) -> Array[(String, @moondb.Value)] {\n  [(\"id\", @moondb.Int64(n.id.unwrap_or(0L))), (\"text\", @moondb.Text(n.text))]\n}"
+            },
+            {
+              "style": "type",
+              "file": "src/examples/03-three-ways-data/models.mbt",
+              "lang": "moonbit",
+              "code": "#orm.table(name=\"note\")\npub struct Note {\n  #orm.column(primary_key=true, autoincrement=true)\n  id : Int64?\n  text : String\n}"
+            },
+            {
+              "style": "annotation",
+              "file": "src/examples/03-three-ways-data/models.mbt",
+              "lang": "moonbit",
+              "code": "#sql.select(\"SELECT id, text FROM note WHERE id = #{id}\")\ndeclare fn find_note(db : &@moondb.Driver, id : Int64) -> Note? raise"
+            }
+          ],
+          "note": {
+            "en": "All three are in `src/examples/03-three-ways-data`, and a test reads one row through each and compares. `moon run src/examples/03-three-ways-data` prints the three answers.",
+            "zh": "三种都在 `src/examples/03-three-ways-data` 里，测试用每种方式读同一行再比对。`moon run src/examples/03-three-ways-data` 会把三个答案打印出来。"
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The annotation form is the only one that produces a second file. `#orm.table` generates `Note::model()`; `#sql.select` generates the function body. Both land in `*.g.mbt` that the formatter ignores and CI regenerates.",
+            "zh": "注解是唯一会多出一个文件的写法。`#orm.table` 生成 `Note::model()`，`#sql.select` 生成函数体；两者都落在 `*.g.mbt`，格式化器不管它们，CI 负责重建。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "annotation",
+              "file": "src/examples/03-three-ways-data/mapper.g.mbt",
+              "lang": "moonbit",
+              "code": "fn find_note(db : &@moondb.Driver, id : Int64) -> Note? raise {\n  let rows = db.query(\n    \"SELECT id, text FROM note WHERE id = ?\", [@moondb.ToValue::to_value(id)]\n  )\n  match @mapper.optional(rows) {\n    Some(row) => \n      Some({ id: @mapper.column(row, \"id\"), text: @mapper.column(row, \"text\") })\n    None => None\n  }\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "That file is worth reading once: `#{id}` became a bound `?`, the row was read by column name, and a `T?` return meant `optional`. The generator made decisions, and every one of them is visible.",
+            "zh": "这个文件值得读一遍：`#{id}` 变成了绑定的 `?`，行按列名读取，返回 `T?` 就意味着 `optional`。生成器做了决定，而且每个决定都看得见。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "title": {
+        "en": "Run it",
+        "zh": "跑起来"
+      },
+      "blocks": [
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/examples/03-three-ways-data --target native",
+              "out": [
+                "generated model : 1 first",
+                "written model   : 1 first",
+                "generated SQL   : first"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "One in-memory database, one row, three readers, three identical answers. The choice between the forms is about maintenance, not behaviour.",
+            "zh": "一个内存数据库、一行数据、三个读取者、三个相同答案。写法之间的差别在维护成本，不在行为。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Add a second row and change the query to `eq` on `text`. Two of the three readers need no edit; find the one that does.",
+              "zh": "插第二行，把查询改成按 `text` 做 `eq`。三个读取者里有两个不用改，找出要改的那个。"
+            },
+            {
+              "en": "Wrap two inserts in `begin` / `commit` and make the second one fail. Neither row survives — and the test in this chapter still passes, which tells you it does not cover the transaction yet.",
+              "zh": "把两条插入包进 `begin` / `commit`，让第二条失败。两行都不会留下 —— 而本章的测试照样过，这说明它还没覆盖事务。"
+            },
+            {
+              "en": "Move the `#orm.table` struct into its own file and point `dev_build` at it. The generated model moves with it, and nothing that reads `Note::model()` notices.",
+              "zh": "把 `#orm.table` 的结构体挪到单独文件，把 `dev_build` 指过去。生成的模型跟着走，而所有读 `Note::model()` 的地方毫无察觉。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Open a database and say which of the four lines runs the migration.",
+              "zh": "打开数据库，并说出四行里哪一行跑迁移。"
+            },
+            {
+              "en": "Write an insert that binds its value, and explain what the alternative would have cost.",
+              "zh": "写一条绑定参数的插入，并说出拼接那种写法要付什么代价。"
+            },
+            {
+              "en": "Read a row through a generated model, a hand-written one, and a generated statement.",
+              "zh": "分别用生成的模型、手写的模型、生成的语句读同一行。"
+            },
+            {
+              "en": "Say when a `#sql.select` is the right tool and when the query builder is.",
+              "zh": "说出什么时候该用 `#sql.select`，什么时候该用查询构造器。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

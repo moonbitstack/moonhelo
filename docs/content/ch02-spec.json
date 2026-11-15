@@ -1,0 +1,209 @@
+{
+  "num": "02",
+  "title": {
+    "en": "One spec, one model",
+    "zh": "一份描述，一个模型"
+  },
+  "lead": {
+    "en": "Before there is a table there is a description of a table. One file lists the routes and the fields; a generator turns the fields into the model the service persists through, and the build proves the two have not drifted.",
+    "zh": "有表之前，先有一份表的描述。一个文件列出路由和字段；生成器把字段变成服务用来持久化的模型，而构建会证明两者没有走散。"
+  },
+  "foot": {
+    "en": "Chapter 02 of 10",
+    "zh": "第 02 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "spec",
+      "title": {
+        "en": "The file",
+        "zh": "那份文件"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "`src/spec/greet.api` is the whole description: one `service` block with three routes, one `type` block with two fields. There is no MoonBit in it — it is the shape of the service, not its implementation.",
+            "zh": "`src/spec/greet.api` 就是全部描述：一个 `service` 块带三条路由，一个 `type` 块带两个字段。里面没有一行 MoonBit —— 它是服务的形状，不是实现。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "spec",
+              "file": "src/spec/greet.api",
+              "lang": "moonbit",
+              "code": "// greet — the end-to-end slice of the moon* full-stack web suite.\n//\n// One goctl-style .api spec drives the whole chain: mctl (moonctl) turns the\n// service block into a moonapi scaffold and the type block into a moonorm model,\n// the handlers are filled in against that model, moonzero assembles the app with\n// middleware, moonorm persists to SQLite, and mooncat serves it over native HTTP.\n\nservice greet {\n  get  /ping        ping        \"health check\"\n  post /users       create_user \"create a user\"\n  get  /users/:id   get_user    \"fetch a user by id\"\n}\n\ntype User {\n  id:   int\n  name: string\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "mctl reads both blocks. The type block becomes a moonorm model; the service block becomes a moonapi scaffold. This repository keeps the model and writes the routes itself, because the routes carry the business logic — the goctl habit of generating the skeleton and filling in the middle.",
+            "zh": "mctl 两个块都读。类型块变成 moonorm 模型，服务块变成 moonapi 脚手架。本仓库留下模型、路由自己写，因为路由里是业务逻辑 —— 也就是 goctl 的习惯：生成骨架，自己填中间。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "title": {
+        "en": "Run the generator",
+        "zh": "跑一次生成器"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "`src/gen` is a program rather than a shell script, so the paths live in one place and a failure is a message instead of a missing file.",
+            "zh": "`src/gen` 是一个程序，不是 shell 脚本：路径集中在一处，失败时给出的是一条消息，而不是一个找不到的文件。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/gen --target native",
+              "out": [
+                "gen: wrote src/genmodel/greet_model.mbt",
+                "gen: mctl also produced a 1284-byte moonapi scaffold (routes are hand-written for the business logic)"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The output is committed. CI runs the same command, then `moon fmt`, then `git diff --exit-code`: a spec change nobody regenerated is a red build, not a model that quietly describes last week's table.",
+            "zh": "生成物入库。CI 跑同一条命令，再 `moon fmt`，再 `git diff --exit-code`：改了描述却忘了重新生成，换来的是红的构建，而不是一个还在描述上周那张表的模型。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "model",
+      "title": {
+        "en": "What came out",
+        "zh": "生成了什么"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "One record, one model, two migration functions. The model is a name, a column list, and two closures: a row into the record, and the record into the columns an `INSERT` binds.",
+            "zh": "一个记录、一个模型、两个迁移函数。模型是一个名字、一份列清单、两个闭包：一行变成记录，记录变成 `INSERT` 要绑的列。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "spec",
+              "file": "src/genmodel/greet_model.mbt",
+              "lang": "moonbit",
+              "code": "pub let user_model : @moonorm.Model[User] = @moonorm.Model::new(\n  \"user\",\n  [\n    @moonorm.column(\"id\", IntType, primary_key=true),\n    @moonorm.column(\"name\", TextType),\n  ],\n  row => { id: row.int(0), name: row.text(1), },\n  r => [(\"id\", @moondb.Int(r.id)), (\"name\", @moondb.Text(r.name))],\n)"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Those two closures are what MoonBit cannot synthesise without reflection. The generator writes them out instead of hiding them behind an attribute, so a decoder bug is a line you can read and a test can point at.",
+            "zh": "这两个闭包正是 MoonBit 在没有反射时无法自动合成的东西。生成器把它们写出来，而不是藏在注解后面，所以解码出错时，你有一行可读的代码，测试也能指到它。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "used",
+      "title": {
+        "en": "Where it runs",
+        "zh": "用在哪里"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The handler reads through the generated model, so this code is on the request path and not in the tree for show.",
+            "zh": "处理函数通过生成的模型读取，所以这段代码在请求路径上，不是摆在树里看的。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "spec",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "  let rows = try\n    sess.fetch_as(\n      @genmodel.user_model,\n      @genmodel.user_model.select().eq(\"id\", @moondb.Int(id)),\n    )"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The `SELECT` it issues lists the columns the model declares, so a column the model does not know cannot be read by accident. A column added to the type block reaches the query after one regeneration.",
+            "zh": "它发出的 `SELECT` 只列模型声明过的列，所以模型不认识的列不会被误读。类型块里加一个字段，重新生成一次就到达这条查询。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Add `email : string` to the type block and run `moon run src/gen`. The diff touches the record, the model, the decoder and the insert projection — four places you did not type.",
+              "zh": "给类型块加 `email : string`，跑 `moon run src/gen`。diff 会动到记录、模型、解码器和插入投影 —— 四处你都没亲手写。"
+            },
+            {
+              "en": "Run the tests without touching the handler. They still pass, because nothing reads `email` yet. Add it to `user_json` and one test tells you the response shape moved.",
+              "zh": "先不动处理函数，跑测试。它照样过，因为还没有人读 `email`。把它加进 `user_json`，会有一条测试告诉你响应形状变了。"
+            },
+            {
+              "en": "Edit `src/genmodel/greet_model.mbt` by hand and regenerate. Your edit is gone. The first line of the file said it would be.",
+              "zh": "手改 `src/genmodel/greet_model.mbt`，然后重新生成。改动没了 —— 文件第一行早就这么写了。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Read a `.api` spec and say which block becomes which file.",
+              "zh": "读懂一份 `.api` 描述，说出哪个块变成哪个文件。"
+            },
+            {
+              "en": "Regenerate the model, and explain why the generated file is committed rather than ignored.",
+              "zh": "重新生成模型，并解释生成的代码为什么入库而不是被忽略。"
+            },
+            {
+              "en": "Point at the exact line where a request reaches the generated decoder.",
+              "zh": "指出请求进入生成解码器的那一行。"
+            },
+            {
+              "en": "Add a field and predict every file the regeneration will touch.",
+              "zh": "加一个字段，预判重新生成会动到哪些文件。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

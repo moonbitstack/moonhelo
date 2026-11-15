@@ -1,0 +1,223 @@
+{
+  "num": "04",
+  "title": {
+    "en": "A second surface",
+    "zh": "第二个门面"
+  },
+  "lead": {
+    "en": "The same application answers as JSON over REST, describes itself as an OpenAPI document, and speaks GraphQL on one of its own routes. None of the three is written twice.",
+    "zh": "同一个应用，用 REST 回 JSON、用 OpenAPI 文档描述自己、又在自己的一条路由上说 GraphQL。这三样没有一处是写两遍的。"
+  },
+  "foot": {
+    "en": "Chapter 04 of 10",
+    "zh": "第 04 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "document",
+      "title": {
+        "en": "The document is derived",
+        "zh": "文档是推出来的"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Every route call carries a `summary`; `App::describe` carries the title and the version. The document is assembled from those at the moment it is read.",
+            "zh": "每条路由调用都带一个 `summary`；`App::describe` 带标题和版本。文档在读取的那一刻由这些拼出来。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "curl -s localhost:12000/openapi.json | python -m json.tool",
+              "out": [
+                "{",
+                "    \"openapi\": \"3.1.0\",",
+                "    \"info\": {",
+                "        \"title\": \"greet\",",
+                "        \"summary\": \"the greet end-to-end slice\",",
+                "        \"version\": \"0.1.0\"",
+                "    },",
+                "    \"paths\": {",
+                "        \"/ping\": {"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "There is no OpenAPI file in this repository. A route added in an exercise appears here with no edit, and a route deleted leaves no stale line behind.",
+            "zh": "本仓库没有 OpenAPI 文件。练习里加的一条路由会自己出现在这里，删掉的路由也不会留下过期的一行。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "readers",
+      "title": {
+        "en": "The readers",
+        "zh": "阅读器"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "`/openapi.json` and `/docs` are published by the application itself, and `/docs` is a page that reads the document the app serves. Neither is listed in the document, which is why the reader pages are not paths in it.",
+            "zh": "`/openapi.json` 与 `/docs` 由应用自己发布，`/docs` 是一个读应用所发文档的页面。两者都不列在文档里 —— 所以文档中没有阅读器这两条路径。"
+          }
+        },
+        {
+          "type": "note",
+          "title": {
+            "en": "What the document does not describe",
+            "zh": "文档不描述的部分"
+          },
+          "text": {
+            "en": "The GraphQL route appears as a path, but its schema is not translated into OpenAPI. GraphQL describes itself through introspection, on the same URL, which is the point of mounting it on a route rather than beside one.",
+            "zh": "GraphQL 那条路由作为路径出现，但它的 schema 不会翻译成 OpenAPI。GraphQL 在同一个 URL 上通过内省描述自己 —— 这也正是把它挂在路由上、而不是放在路由旁边的意义。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "graphql",
+      "title": {
+        "en": "GraphQL on a route",
+        "zh": "路由上的 GraphQL"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The schema is a value, the resolvers are another, and the handler is mounted as an ordinary route — so GraphQL rides the same transport and the same middleware as every JSON endpoint.",
+            "zh": "schema 是一个值，resolvers 是另一个值，处理函数作为普通路由挂上去 —— 于是 GraphQL 和每个 JSON 端点走同一套传输、同一套中间件。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/gql.mbt",
+              "lang": "moonbit",
+              "code": "fn gql_schema() -> @gql.Schema {\n  let schema = @gql.Schema::new()\n  let query = schema.object(\"Query\")\n  query.field_args(\n    \"greeting\",\n    [(\"name\", NonNull(Scalar(\"String\")))],\n    NonNull(Scalar(\"String\")),\n  )\n  schema\n}"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/gql.mbt",
+              "lang": "moonbit",
+              "code": "fn gql_resolvers() -> @gql.Resolvers {\n  let resolvers = @gql.Resolvers::new()\n  resolvers.field(\"Query\", \"greeting\", info => {\n    let name = match info.arg(\"name\") {\n      String(s) => s\n      _ => \"\"\n    }\n    Json(\"Hello, \" + name)\n  })\n  resolvers\n}"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "  let gql = gql_handler()\n  app.post(\"/graphql\", ctx => gql(ctx.request), summary=\"GraphQL query\")\n  app.get(\"/graphql\", ctx => gql(ctx.request), summary=\"GraphiQL\")"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "call",
+      "title": {
+        "en": "Calling it",
+        "zh": "调它"
+      },
+      "blocks": [
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "curl -s -XPOST localhost:12000/graphql -H \"content-type: application/json\" -d '{\"query\":\"{ greeting(name: \\\"Ada\\\") }\"}'",
+              "out": [
+                "{\"data\":{\"greeting\":\"Hello, Ada\"}}"
+              ]
+            },
+            {
+              "cmd": "curl -s -XPOST localhost:12000/graphql -H \"content-type: application/json\" -d '{\"query\":\"{ nope }\"}'",
+              "out": [
+                "{\"errors\":[{\"message\":\"Cannot query field 'nope' on type 'Query'\",\"locations\":[{\"line\":1,\"column\":3}]}]}"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "An unknown field is not a `400`: the query failed but the transport succeeded, so the answer is `200` with an `errors` document. A request without a JSON content type fails before the query is parsed, and that is `415`.",
+            "zh": "未知字段不是 `400`：查询失败了，但传输成功了，所以答案是 `200` 加一份 `errors` 文档。不带 JSON content type 的请求在解析查询之前就失败，那是 `415`。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Add a field `shout(name: String!): String!` that upper-cases the greeting. Fetch `/openapi.json` afterwards and find which of the two surfaces learned about it.",
+              "zh": "加一个 `shout(name: String!): String!` 字段，把问候变成大写。之后取 `/openapi.json`，看看两个门面里哪一个知道了它的存在。"
+            },
+            {
+              "en": "Ask for `{ greeting }` without the argument. The schema says `String!`, so the answer is an error document — read the message before you fix the query.",
+              "zh": "请求 `{ greeting }` 但不给参数。schema 写的是 `String!`，所以回来的是一份错误文档 —— 先读那条消息，再改查询。"
+            },
+            {
+              "en": "Change `App::describe`'s title and re-read the document. Nothing else in the repository mentions the title; find the one place it is written.",
+              "zh": "改掉 `App::describe` 的标题再看文档。仓库里没有别处提到这个标题 —— 找出它被写下的那一处。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Fetch an OpenAPI document from a running service and read a path out of it.",
+              "zh": "从运行中的服务取一份 OpenAPI 文档，并读出其中一条路径。"
+            },
+            {
+              "en": "Explain why the document needs no separate file.",
+              "zh": "解释文档为什么不需要另存一份文件。"
+            },
+            {
+              "en": "Mount a GraphQL schema on an existing application and call it with curl.",
+              "zh": "把 GraphQL schema 挂到已有应用上，并用 curl 调用。"
+            },
+            {
+              "en": "Tell a `415` from an `errors` document, and say which layer decided each.",
+              "zh": "分清 `415` 与 `errors` 文档，并说出各自是哪一层决定的。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

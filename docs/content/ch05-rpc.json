@@ -1,0 +1,244 @@
+{
+  "num": "05",
+  "title": {
+    "en": "A third surface",
+    "zh": "第三个门面"
+  },
+  "lead": {
+    "en": "The same greeting over gRPC: one proto file, one handler that turns bytes into bytes, and Server Reflection so a client can discover the service before it calls.",
+    "zh": "同一句问候走 gRPC：一份 proto、一个把字节变成字节的处理函数，加上 Server Reflection，让客户端先发现服务再调用。"
+  },
+  "foot": {
+    "en": "Chapter 05 of 10",
+    "zh": "第 05 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "proto",
+      "title": {
+        "en": "The contract",
+        "zh": "契约"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The proto file is the contract, and it is read twice: by people, and by the descriptor the server registers for reflection.",
+            "zh": "proto 文件是契约，被读两次：人读一次，服务为反射注册的描述符再读一次。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "spec",
+              "file": "src/spec/greet.proto",
+              "lang": "moonbit",
+              "code": "syntax = \"proto3\";\n\npackage greet;\n\n// The gRPC leg of the greet end-to-end slice: a Greeter served over moonrpc's\n// self-built h2c transport with Server Reflection, so a reflection client\n// (grpcurl, or the in-process Channel client the test uses) can list, describe,\n// and call it.\nservice Greeter {\n  rpc SayHello (HelloRequest) returns (HelloReply);\n}\n\nmessage HelloRequest {\n  string name = 1;\n}\n\nmessage HelloReply {\n  string message = 1;\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "This repository builds the descriptor by hand, three small constructors per message, rather than running `protoc` at build time. The test asserts that the descriptor and the encoded bytes agree, so the two readings of the contract cannot drift apart unnoticed.",
+            "zh": "本仓库手写描述符 —— 每个消息三个小构造子 —— 而不是在构建时跑 `protoc`。测试断言描述符与编码后的字节一致，于是契约的两种读法不会悄悄分家。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "handler",
+      "title": {
+        "en": "One handler",
+        "zh": "一个处理函数"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A gRPC method is bytes to bytes. The handler reads the request, greets, and writes the reply; a malformed request decodes to an empty name rather than an error, which is proto3's default and not a decision this code makes.",
+            "zh": "gRPC 方法就是字节到字节。处理函数读请求、问候、写回复；请求损坏时解出的名字是空串而不是报错 —— 这是 proto3 的默认值，不是这段代码的决定。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/rpc/greeter.mbt",
+              "lang": "moonbit",
+              "code": "fn say_hello(request : Bytes) -> Bytes {\n  let name = parse_hello_request(request) catch { _ => \"\" }\n  hello_reply(\"Hello, \" + name)\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The reader is a loop over tags, and an unknown field number is skipped rather than refused. That is what lets a message grow: an old server reads a new client's request and ignores what it does not know.",
+            "zh": "读取器是一个按 tag 的循环，不认识的字段号会被跳过而不是拒收。消息因此才能长大：旧服务读新客户端的请求，忽略自己不认识的部分。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "serve",
+      "title": {
+        "en": "Serving",
+        "zh": "提供服务"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Five statements: a server, the method path, a reflection service, the descriptor in it, and the accept loop. The handler is registered by path, the way gRPC addresses a call.",
+            "zh": "五条语句：服务器、方法路径、反射服务、把描述符放进去、进入接受循环。处理函数按路径注册 —— gRPC 就是这样寻址一次调用的。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/rpc/greeter.mbt",
+              "lang": "moonbit",
+              "code": "  let server = @net.GrpcServer::new()\n  server.register(\"/greet.Greeter/SayHello\", say_hello)\n  let refl = @moonrpc.ReflectionService::new()\n  refl.add_file(greet_descriptor())\n  server.register_reflection(refl)\n  server.serve(host~, port~)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "discover",
+      "title": {
+        "en": "Discover, then call",
+        "zh": "先发现，再调用"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Reflection is what a client needs to call a service it was not handed the proto for. `grpcurl` uses it for `list`, `describe` and the call itself; this repository's own client uses the same three steps over a real socket.",
+            "zh": "客户端没有拿到 proto 时，就靠反射来调用服务。`grpcurl` 用它做 `list`、`describe` 和调用本身；本仓库自己的客户端也在真实 socket 上走同样三步。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "grpcurl -plaintext localhost:12001 list",
+              "out": [
+                "greet.Greeter"
+              ]
+            },
+            {
+              "cmd": "grpcurl -plaintext localhost:12001 describe greet.Greeter",
+              "out": [
+                "service Greeter {",
+                "  rpc SayHello ( .greet.HelloRequest ) returns ( .greet.HelloReply );",
+                "}"
+              ]
+            },
+            {
+              "cmd": "grpcurl -plaintext -d '{\"name\":\"Ada\"}' localhost:12001 greet.Greeter/SayHello",
+              "out": [
+                "{",
+                "  \"message\": \"Hello, Ada\"",
+                "}"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The tests drive that path with `Channel::connect`: a server-streaming call for reflection, then a unary call for `SayHello`. The leg is exercised end to end, not only compiled.",
+            "zh": "测试用 `Channel::connect` 走这条路：先做一次服务端流式调用拿反射，再做一次一元调用打 `SayHello`。这条腿是端到端跑过的，不只是编过。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "title": {
+        "en": "When the method is not there",
+        "zh": "方法不在的时候"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "An unknown method is `UNIMPLEMENTED` (12): a status on the call, not a broken connection. The next call on the same channel still works, which is the difference between a refusal and a crash.",
+            "zh": "未知方法是 `UNIMPLEMENTED`（12）：这是调用上的状态，不是连接坏了。同一条通道上的下一次调用照样成功 —— 这就是「拒绝」和「崩了」的区别。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/rpc/greeter_test.mbt",
+              "lang": "moonbit",
+              "code": "    let missing = ch.unary(\"/greet.Greeter/Shout\", @rpc.hello_request(\"Ada\"))\n    assert_eq(missing.grpc_status, 12)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Add a field `times = 2` to `HelloRequest`, regenerate the descriptor by hand, and call it with `grpcurl` without touching the server. The old reader skips the field it does not know.",
+              "zh": "给 `HelloRequest` 加一个 `times = 2` 字段，手改描述符，然后用 `grpcurl` 调它 —— 服务端一行不改。旧的读取器会跳过自己不认识的字段。"
+            },
+            {
+              "en": "Add `Shout` to the service and remove it again. The status goes from `12` to `0` and back; the client code does not change.",
+              "zh": "在服务里加 `Shout`，再删掉。状态从 `12` 变成 `0` 又变回去，而客户端代码一行没动。"
+            },
+            {
+              "en": "Call a method on the wrong service name (`greet.Greeter2/SayHello`) and read the status. Then find the line in `serve_greet_grpc` that decides it.",
+              "zh": "用错的服务名调用（`greet.Greeter2/SayHello`），读返回状态。然后到 `serve_greet_grpc` 里找出决定它的那一行。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Read a proto file and say which message a method takes and returns.",
+              "zh": "读懂 proto，说出一个方法收哪个消息、回哪个消息。"
+            },
+            {
+              "en": "Explain what Server Reflection saves a client from doing.",
+              "zh": "解释 Server Reflection 省掉了客户端的哪一步。"
+            },
+            {
+              "en": "Tell a gRPC status from an HTTP status, and give one example of each.",
+              "zh": "分清 gRPC 状态与 HTTP 状态，各举一例。"
+            },
+            {
+              "en": "Serve the same service from a binary and call it from outside that process.",
+              "zh": "用二进制把服务跑起来，并从进程外调用它。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
