@@ -736,6 +736,28 @@ td code { font-family: var(--mono); font-size: 0.9em; }
 
 @keyframes draw { to { stroke-dashoffset: 0; } }
 
+/* the diagram is drawn once, but it is unreadable at phone width, where the same
+   path is easier to follow as a list */
+.line-list { display: none; margin: 10px 0 4px; padding: 0; list-style: none; }
+
+.line-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+  font: 500 12.5px/1.5 var(--mono);
+}
+
+.line-list li:last-child { border-bottom: 0; }
+.line-list__n { color: var(--ink); }
+.line-list__e { margin-left: auto; color: var(--faint); }
+
+@media (width <= 620px) {
+  .line svg { display: none; }
+  .line-list { display: grid; }
+}
+
 .curriculum { padding: clamp(48px, 7vw, 80px) 0 0; }
 
 .curriculum__head {

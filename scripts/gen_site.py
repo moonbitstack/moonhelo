@@ -555,6 +555,12 @@ def render_cover(site: dict, page: dict) -> str:
       <g><line x1="904" y1="44" x2="904" y2="76"/><circle cx="904" cy="60" r="4.5"/><text x="904" y="102" text-anchor="middle">{page["figure"]["nodes"][3]}</text></g>
       <g class="edge"><text x="198" y="36" text-anchor="middle">{page["figure"]["edges"][0]}</text><text x="480" y="36" text-anchor="middle">{page["figure"]["edges"][1]}</text><text x="762" y="36" text-anchor="middle">{page["figure"]["edges"][2]}</text></g>
     </svg>
+    <ol class="line-list">
+      <li><span class="line-list__n">spec</span><span class="line-list__e">{page["figure"]["edges"][0]}</span></li>
+      <li><span class="line-list__n">app</span><span class="line-list__e">{page["figure"]["edges"][1]}</span></li>
+      <li><span class="line-list__n">session</span><span class="line-list__e">{page["figure"]["edges"][2]}</span></li>
+      <li><span class="line-list__n">socket</span></li>
+    </ol>
   </figure>
 
   <section class="curriculum">
