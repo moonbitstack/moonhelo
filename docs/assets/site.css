@@ -776,6 +776,16 @@ td code { font-family: var(--mono); font-size: 0.9em; }
 .pager__link:hover { border-color: var(--accent); }
 .pager__link.next { text-align: right; }
 
+/* the next chapter exists but has not been written: a card with no door */
+.pager__link.is-soon {
+  color: var(--muted);
+  border-style: dashed;
+  cursor: default;
+}
+
+.pager__link.is-soon:hover { border-color: var(--rule); }
+.pager__link.is-soon .pager__title { font-weight: 400; }
+
 .pager__dir {
   font: 600 10.5px/1.6 var(--mono);
   letter-spacing: 0.1em;

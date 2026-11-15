@@ -343,6 +343,8 @@ def render_sections(page: dict) -> str:
 # shell
 # --------------------------------------------------------------------------
 
+BRAND = {"en": "hello moonbit stack", "zh": "Hello MoonBit Stack"}
+
 UI = {
     "course": {"en": "Course", "zh": "课程"},
     "examples": {"en": "Examples", "zh": "示例"},
@@ -352,6 +354,7 @@ UI = {
     "next": {"en": "Next", "zh": "下一章"},
     "courselink": {"en": "The course", "zh": "课程首页"},
     "elements": {"en": "Elements", "zh": "元素"},
+    "soon": {"en": "not written yet", "zh": "待写"},
     "progress": {"en": "Your progress", "zh": "阅读进度"},
     "edit": {"en": "Edit this page", "zh": "改进这一页"},
     "know": {"en": "You can now", "zh": "你现在会了"},
@@ -436,7 +439,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
   </button>
   <a class="brand" href="{css_prefix}index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span>moonhelo</span>
+    {bi(BRAND, "span", "brand__name")}
   </a>
   <nav class="topnav" aria-label="Site">
     <a href="{css_prefix}index.html"{" aria-current=\"page\"" if page.get("is_cover") else ""}>{ui("course")}</a>
@@ -531,12 +534,23 @@ def pager(site: dict, page: dict, prefix: str) -> str:
             f'<a class="pager__link" href="{prefix}index.html"><span class="pager__dir">{ui("prev")}</span>'
             f'<span class="pager__title">{ui("courselink")}</span></a>'
         )
+    # the next page is the next chapter in the course, written or not: when the
+    # course stops at the last written chapter, the reader is told what comes next
+    # instead of finding the pager empty on one side
+    order = [c["slug"] for c in site["chapters"]]
+    at = order.index(page["slug"])
+    nxt = site["chapters"][at + 1] if at + 1 < len(site["chapters"]) else None
     right = ""
-    if i + 1 < len(chapters):
-        nxt = chapters[i + 1]
+    if nxt and nxt.get("ready"):
         right = (
             f'<a class="pager__link next" href="{prefix}{nxt["slug"]}.html"><span class="pager__dir">{ui("next")}</span>'
             f'<span class="pager__title">{bi(nxt["title"])}</span></a>'
+        )
+    elif nxt:
+        right = (
+            f'<span class="pager__link next is-soon"><span class="pager__dir">{ui("next")}'
+            f" · {ui('soon')}</span>"
+            f'<span class="pager__title">{bi(nxt["title"])}</span></span>'
         )
     return f'<nav class="pager" aria-label="Chapters">{left}{right}</nav>'
 
