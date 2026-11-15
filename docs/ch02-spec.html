@@ -46,7 +46,7 @@
       <p class="crumb"><span lang="en" data-lang="en">Chapter 02</span><span lang="zh" data-lang="zh">第 02 章</span></p>
       <h1><span class="h1__t" lang="en" data-lang="en">One spec, one model</span><span class="h1__t" lang="zh" data-lang="zh">一份描述，一个模型</span></h1>
       <p class="lead"><span lang="en" data-lang="en">Before there is a table there is a description of a table. One file lists the routes and the fields; a generator turns the fields into the model the service persists through, and the build proves the two have not drifted.</span><span lang="zh" data-lang="zh">有表之前，先有一份表的描述。一个文件列出路由和字段；生成器把字段变成服务用来持久化的模型，而构建会证明两者没有走散。</span></p>
-<section id="spec"><h2><span class="n">01</span><span lang="en" data-lang="en">The file</span><span lang="zh" data-lang="zh">那份文件</span></h2><p><span lang="en" data-lang="en"><code class="ic">src/spec/greet.api</code> is the whole description: one <code class="ic">service</code> block with three routes, one <code class="ic">type</code> block with two fields. There is no MoonBit in it — it is the shape of the service, not its implementation.</span><span lang="zh" data-lang="zh"><code class="ic">src/spec/greet.api</code> 就是全部描述：一个 <code class="ic">service</code> 块带三条路由，一个 <code class="ic">type</code> 块带两个字段。里面没有一行 MoonBit —— 它是服务的形状，不是实现。</span></p><div class="code" data-code><div class="pane" data-style="spec"><div class="pane__bar"><span class="pane__file">src/spec/greet.api</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="moonbit"><span class="c">// greet — the end-to-end slice of the moon* full-stack web suite.</span>
+<section id="spec"><h2><span class="n">01</span><span lang="en" data-lang="en">The file</span><span lang="zh" data-lang="zh">那份文件</span></h2><p><span lang="en" data-lang="en"><code class="ic">src/spec/greet.api</code> is the whole description: one <code class="ic">service</code> block with three routes, one <code class="ic">type</code> block with two fields. There is no MoonBit in it — it is the shape of the service, not its implementation.</span><span lang="zh" data-lang="zh"><code class="ic">src/spec/greet.api</code> 就是全部描述：一个 <code class="ic">service</code> 块带三条路由，一个 <code class="ic">type</code> 块带两个字段。里面没有一行 MoonBit —— 它是服务的形状，不是实现。</span></p><div class="code" data-code><div class="pane" data-style="spec"><div class="pane__bar"><span class="pane__file">src/spec/greet.api</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="api"><span class="c">// greet — the end-to-end slice of the moon* full-stack web suite.</span>
 <span class="c">//</span>
 <span class="c">// One goctl-style .api spec drives the whole chain: mctl (moonctl) turns the</span>
 <span class="c">// service block into a moonapi scaffold and the type block into a moonorm model,</span>
@@ -54,12 +54,12 @@
 <span class="c">// middleware, moonorm persists to SQLite, and mooncat serves it over native HTTP.</span>
 
 service greet {
-  get  /ping        ping        <span class="s">&quot;health check&quot;</span>
-  post /users       create_user <span class="s">&quot;create a user&quot;</span>
-  get  /users/:id   get_user    <span class="s">&quot;fetch a user by id&quot;</span>
+  get  /ping        ping        &quot;health check&quot;
+  post /users       create_user &quot;create a user&quot;
+  get  /users/:id   get_user    &quot;fetch a user by id&quot;
 }
 
-<span class="k">type</span> <span class="t">User</span> {
+type User {
   id:   int
   name: string
 }</code></pre></div></div><p><span lang="en" data-lang="en">mctl reads both blocks. The type block becomes a moonorm model; the service block becomes a moonapi scaffold. This repository keeps the model and writes the routes itself, because the routes carry the business logic — the goctl habit of generating the skeleton and filling in the middle.</span><span lang="zh" data-lang="zh">mctl 两个块都读。类型块变成 moonorm 模型，服务块变成 moonapi 脚手架。本仓库留下模型、路由自己写，因为路由里是业务逻辑 —— 也就是 goctl 的习惯：生成骨架，自己填中间。</span></p></section>

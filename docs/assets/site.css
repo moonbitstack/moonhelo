@@ -532,12 +532,25 @@ pre code { font: inherit; white-space: pre; }
 .k { color: var(--accent); }
 .t { color: var(--ink); font-weight: 500; }
 .s { color: var(--second); }
-.c { color: var(--faint); font-style: italic; }
+/* comments carry meaning in a spec file, so they stay readable */
+.c { color: var(--muted); font-style: italic; }
 .p { color: var(--second); }
 .n { color: var(--ink); }
 .o { color: var(--accent); font-weight: 500; }
 .out { color: var(--muted); }
 pre .p + span { color: var(--ink); }
+
+/* a recorded transcript wraps: a line of output that runs past the block is a
+   line the reader has to scroll sideways to finish, which is not reading */
+.term pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.term pre .out,
+.term pre span {
+  padding-left: 0;
+}
 
 /* ---------- asides ---------- */
 

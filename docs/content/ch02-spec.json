@@ -33,7 +33,7 @@
             {
               "style": "spec",
               "file": "src/spec/greet.api",
-              "lang": "moonbit",
+              "lang": "api",
               "code": "// greet — the end-to-end slice of the moon* full-stack web suite.\n//\n// One goctl-style .api spec drives the whole chain: mctl (moonctl) turns the\n// service block into a moonapi scaffold and the type block into a moonorm model,\n// the handlers are filled in against that model, moonzero assembles the app with\n// middleware, moonorm persists to SQLite, and mooncat serves it over native HTTP.\n\nservice greet {\n  get  /ping        ping        \"health check\"\n  post /users       create_user \"create a user\"\n  get  /users/:id   get_user    \"fetch a user by id\"\n}\n\ntype User {\n  id:   int\n  name: string\n}"
             }
           ]

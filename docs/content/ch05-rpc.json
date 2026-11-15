@@ -33,7 +33,7 @@
             {
               "style": "spec",
               "file": "src/spec/greet.proto",
-              "lang": "moonbit",
+              "lang": "proto",
               "code": "syntax = \"proto3\";\n\npackage greet;\n\n// The gRPC leg of the greet end-to-end slice: a Greeter served over moonrpc's\n// self-built h2c transport with Server Reflection, so a reflection client\n// (grpcurl, or the in-process Channel client the test uses) can list, describe,\n// and call it.\nservice Greeter {\n  rpc SayHello (HelloRequest) returns (HelloReply);\n}\n\nmessage HelloRequest {\n  string name = 1;\n}\n\nmessage HelloReply {\n  string message = 1;\n}"
             }
           ]

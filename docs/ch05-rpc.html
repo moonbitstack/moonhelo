@@ -46,7 +46,7 @@
       <p class="crumb"><span lang="en" data-lang="en">Chapter 05</span><span lang="zh" data-lang="zh">第 05 章</span></p>
       <h1><span class="h1__t" lang="en" data-lang="en">A third surface</span><span class="h1__t" lang="zh" data-lang="zh">第三个门面</span></h1>
       <p class="lead"><span lang="en" data-lang="en">The same greeting over gRPC: one proto file, one handler that turns bytes into bytes, and Server Reflection so a client can discover the service before it calls.</span><span lang="zh" data-lang="zh">同一句问候走 gRPC：一份 proto、一个把字节变成字节的处理函数，加上 Server Reflection，让客户端先发现服务再调用。</span></p>
-<section id="proto"><h2><span class="n">01</span><span lang="en" data-lang="en">The contract</span><span lang="zh" data-lang="zh">契约</span></h2><p><span lang="en" data-lang="en">The proto file is the contract, and it is read twice: by people, and by the descriptor the server registers for reflection.</span><span lang="zh" data-lang="zh">proto 文件是契约，被读两次：人读一次，服务为反射注册的描述符再读一次。</span></p><div class="code" data-code><div class="pane" data-style="spec"><div class="pane__bar"><span class="pane__file">src/spec/greet.proto</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="moonbit">syntax = <span class="s">&quot;proto3&quot;</span>;
+<section id="proto"><h2><span class="n">01</span><span lang="en" data-lang="en">The contract</span><span lang="zh" data-lang="zh">契约</span></h2><p><span lang="en" data-lang="en">The proto file is the contract, and it is read twice: by people, and by the descriptor the server registers for reflection.</span><span lang="zh" data-lang="zh">proto 文件是契约，被读两次：人读一次，服务为反射注册的描述符再读一次。</span></p><div class="code" data-code><div class="pane" data-style="spec"><div class="pane__bar"><span class="pane__file">src/spec/greet.proto</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="proto">syntax = &quot;proto3&quot;;
 
 package greet;
 
@@ -54,16 +54,16 @@ package greet;
 <span class="c">// self-built h2c transport with Server Reflection, so a reflection client</span>
 <span class="c">// (grpcurl, or the in-process Channel client the test uses) can list, describe,</span>
 <span class="c">// and call it.</span>
-service <span class="t">Greeter</span> {
-  rpc <span class="t">SayHello</span> (<span class="t">HelloRequest</span>) returns (<span class="t">HelloReply</span>);
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply);
 }
 
-message <span class="t">HelloRequest</span> {
-  string name = <span class="n">1</span>;
+message HelloRequest {
+  string name = 1;
 }
 
-message <span class="t">HelloReply</span> {
-  string message = <span class="n">1</span>;
+message HelloReply {
+  string message = 1;
 }</code></pre></div></div><p><span lang="en" data-lang="en">This repository builds the descriptor by hand, three small constructors per message, rather than running <code class="ic">protoc</code> at build time. The test asserts that the descriptor and the encoded bytes agree, so the two readings of the contract cannot drift apart unnoticed.</span><span lang="zh" data-lang="zh">本仓库手写描述符 —— 每个消息三个小构造子 —— 而不是在构建时跑 <code class="ic">protoc</code>。测试断言描述符与编码后的字节一致，于是契约的两种读法不会悄悄分家。</span></p></section>
 <section id="handler"><h2><span class="n">02</span><span lang="en" data-lang="en">One handler</span><span lang="zh" data-lang="zh">一个处理函数</span></h2><p><span lang="en" data-lang="en">A gRPC method is bytes to bytes. The handler reads the request, greets, and writes the reply; a malformed request decodes to an empty name rather than an error, which is proto3&#x27;s default and not a decision this code makes.</span><span lang="zh" data-lang="zh">gRPC 方法就是字节到字节。处理函数读请求、问候、写回复；请求损坏时解出的名字是空串而不是报错 —— 这是 proto3 的默认值，不是这段代码的决定。</span></p><div class="code" data-code><div class="pane" data-style="function"><div class="pane__bar"><span class="pane__file">src/rpc/greeter.mbt</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="moonbit"><span class="k">fn</span> say_hello(request : <span class="t">Bytes</span>) -&gt; <span class="t">Bytes</span> {
   <span class="k">let</span> name = parse_hello_request(request) <span class="k">catch</span> { _ =&gt; <span class="s">&quot;&quot;</span> }

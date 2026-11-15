@@ -87,7 +87,35 @@ def raw(node: dict, tag: str, cls: str = "") -> str:
 def highlight(code: str, lang: str) -> str:
     if lang == "shell":
         return highlight_shell(code)
+    if lang in ("api", "proto"):
+        return highlight_flat(code)
     return highlight_moonbit(code)
+
+
+def highlight_flat(code: str) -> str:
+    """A spec file is not MoonBit: tint its comments and strings, colour nothing
+    else. Guessing at keywords here would put a language's syntax on a file that
+    does not have it."""
+    out = []
+    for line in code.splitlines(keepends=True):
+        body = line.rstrip("\n")
+        cut = -1
+        quote = ""
+        for i, ch in enumerate(body):
+            if quote:
+                if ch == quote:
+                    quote = ""
+            elif ch in "\"'":
+                quote = ch
+            elif body.startswith("//", i):
+                cut = i
+                break
+        if cut >= 0:
+            out.append(html.escape(body[:cut]) + span("c", body[cut:]))
+        else:
+            out.append(html.escape(body))
+        out.append("\n")
+    return "".join(out).rstrip("\n")
 
 
 def span(cls: str, text: str) -> str:
