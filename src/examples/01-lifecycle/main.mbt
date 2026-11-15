@@ -18,8 +18,10 @@ async fn main {
   app.get("/greet", _ctx => @moonapi.text(200, "Bonjour, heke1228!"))
   app.on_startup(_state => log.push("open db"))
   app.on_startup(_state => log.push("warm cache"))
-  app.on_shutdown(_state => log.push("drop cache"))
+  // Shutdown hooks run in reverse of registration, so they are registered in the
+  // order the resources were opened: the cache goes first, the database last.
   app.on_shutdown(_state => log.push("close db"))
+  app.on_shutdown(_state => log.push("drop cache"))
   let client = @testing.Client::new(app.to_asgi())
   let started = client.lifespan(() => log.join(" -> "))
   println("moonapi : " + started)
