@@ -71,8 +71,8 @@ $ curl -s -XPOST localhost:12000/graphql \
 {"data":{"greeting":"Hello, Ada"}}
 ```
 
-The gRPC leg is a second server, on 12001. The test drives it the way `grpcurl`
-does — reflection first, then the call — over a real socket:
+The same binary binds `greet.Greeter` on 12001 over HTTP/2 cleartext, so one
+process serves both ports. The test drives that leg the way `grpcurl` does — reflection first, then the call — over a real socket:
 
 ```moonbit
 let app = @moonapi.App::new()

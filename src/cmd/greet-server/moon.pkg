@@ -6,6 +6,7 @@ supported_targets = "native"
 pkgtype(kind: "executable")
 
 import {
+  "moonbitstack/moonhelo/rpc",
   "moonbitstack/moonhelo/server",
   "moonbitlang/async",
 }
