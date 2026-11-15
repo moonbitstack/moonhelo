@@ -20,25 +20,93 @@
     },
   };
 
-  // ---------- language ----------
+  // ---------- language: a listbox this stylesheet draws ----------
 
   const languages = ["en", "zh"];
-  const select = document.querySelector("[data-lang-select]");
+  const langMenu = document.querySelector("[data-lang-menu]");
+  const langToggle = document.querySelector("[data-lang-toggle]");
+  const langLabel = document.querySelector("[data-lang-current]");
+  const langList = langMenu ? langMenu.querySelector(".lang__list") : null;
+  const langOptions = langMenu ? [...langMenu.querySelectorAll("[data-lang-option]")] : [];
   let lang = store.get("moonhelo.lang", "en");
   if (!languages.includes(lang)) lang = "en";
 
   const applyLang = (next) => {
     root.dataset.lang = next;
     root.lang = next === "zh" ? "zh-CN" : "en-US";
-    if (select) select.value = next;
+    if (langLabel) langLabel.textContent = next;
+    for (const option of langOptions) {
+      option.setAttribute("aria-selected", String(option.dataset.langOption === next));
+    }
   };
   applyLang(lang);
 
-  if (select) {
-    select.addEventListener("change", () => {
-      lang = select.value;
+  if (langMenu) {
+    const isOpen = () => langToggle.getAttribute("aria-expanded") === "true";
+
+    const setOpen = (open, focusFirst) => {
+      langToggle.setAttribute("aria-expanded", String(open));
+      langList.hidden = !open;
+      if (!open) return;
+      const chosen =
+        langOptions.find((o) => o.getAttribute("aria-selected") === "true") || langOptions[0];
+      if (focusFirst) chosen.focus();
+    };
+
+    const choose = (option) => {
+      lang = option.dataset.langOption;
       store.set("moonhelo.lang", lang);
       applyLang(lang);
+      setOpen(false);
+      langToggle.focus();
+    };
+
+    langToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setOpen(!isOpen(), true);
+    });
+
+    langToggle.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setOpen(true, true);
+      }
+    });
+
+    for (const option of langOptions) {
+      option.addEventListener("click", () => choose(option));
+      option.addEventListener("keydown", (event) => {
+        const at = langOptions.indexOf(option);
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const step = event.key === "ArrowDown" ? 1 : -1;
+          const next = (at + step + langOptions.length) % langOptions.length;
+          langOptions[next].focus();
+        } else if (event.key === "Home" || event.key === "End") {
+          event.preventDefault();
+          langOptions[event.key === "Home" ? 0 : langOptions.length - 1].focus();
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          choose(option);
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          setOpen(false);
+          langToggle.focus();
+        } else if (event.key === "Tab") {
+          setOpen(false);
+        }
+      });
+    }
+
+    document.addEventListener("click", (event) => {
+      if (isOpen() && !langMenu.contains(event.target)) setOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && isOpen()) {
+        setOpen(false);
+        langToggle.focus();
+      }
     });
   }
 

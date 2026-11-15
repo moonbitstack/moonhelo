@@ -205,39 +205,93 @@ html[data-lang="zh"] .lead { line-height: 1.75; }
   margin-left: auto;
 }
 
-/* one dropdown, the same shape as the icon buttons beside it */
+/* the language menu: a button shaped like its neighbours, and a list this
+   stylesheet draws. A native <select> popup is painted by the platform, which
+   means a system-blue row in the middle of a paper page and nothing to do about
+   it; only a list of our own can be in our ink. */
+
 .lang {
   position: relative;
   display: inline-flex;
-  align-items: center;
 }
 
-.lang select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 6px 24px 6px 9px;
+.lang__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px 5px 9px;
   border: 1px solid var(--rule);
   border-radius: 7px;
   background: transparent;
   color: var(--ink);
   font: 500 12.5px/1.2 var(--mono);
   cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
 }
 
-.lang select:hover { border-color: var(--rule-strong); }
-
-.lang select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-.lang option { background: var(--paper); color: var(--ink); }
+.lang__btn:hover { border-color: var(--rule-strong); }
+.lang__btn[aria-expanded="true"] { border-color: var(--accent); background: var(--wash); }
 
 .lang__chev {
-  position: absolute;
-  right: 7px;
+  width: 10px;
+  height: 10px;
   color: var(--muted);
-  pointer-events: none;
+  transition: transform 0.16s;
+}
+
+.lang__btn[aria-expanded="true"] .lang__chev { transform: rotate(180deg); }
+
+.lang__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  min-width: 100%;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: 9px;
+  /* one step above the page, and a shadow that is dark in both themes: a shadow
+     mixed from the ink glows in the dark theme instead of falling */
+  background: var(--panel);
+  box-shadow: 0 12px 26px color-mix(in srgb, #000 34%, transparent);
+}
+
+.lang__list[hidden] { display: none; }
+
+.lang__opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 6px 8px 6px 9px;
+  border-radius: 5px;
+  font: 500 12.5px/1.4 var(--mono);
+  color: var(--muted);
+  cursor: pointer;
+  outline: none;
+}
+
+.lang__opt:hover { background: var(--wash); color: var(--ink); }
+
+/* the row under the keyboard shows a bar, not the page's outline ring: a ring
+   around one row of a list reads as a second border */
+.lang__opt:focus-visible {
+  outline: none;
+  background: var(--wash);
+  color: var(--ink);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.lang__opt[aria-selected="true"] { color: var(--ink); }
+
+.lang__opt[aria-selected="true"]::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .icon-btn {
@@ -1216,9 +1270,6 @@ select {
   background-position: right 9px center;
   background-size: 10px;
 }
-
-/* the language switcher carries its own overlay chevron, so not this one */
-.lang select { background-image: none; }
 
 option { background: var(--paper); color: var(--ink); }
 

@@ -201,6 +201,17 @@
             "zh": "列表框"
           },
           "html": "<select size=\"4\" class=\"wide\" aria-label=\"Targets\"><option>native</option><option>wasm</option><option>wasm-gc</option><option>js</option><option>llvm</option><option>c</option><option>wasm1</option><option>wasm2</option></select>"
+        },
+        {
+          "type": "note",
+          "title": {
+            "en": "Why the top bar does not use one",
+            "zh": "所以顶栏没有用它"
+          },
+          "text": {
+            "en": "The list a `<select>` opens is painted by the operating system, down to the colour of the highlighted row, and cannot be brought into this palette. The language control is therefore a button and a listbox this stylesheet draws. The selects below are what a form should use where the platform's list is acceptable.",
+            "zh": "`<select>` 展开的列表由操作系统绘制，连高亮行的颜色都是系统的，无法纳入这套配色。所以顶栏的语言控件是一个按钮加一个自绘列表框。下面的 select 仍然适合那些“系统列表可以接受”的表单。"
+          }
         }
       ]
     },

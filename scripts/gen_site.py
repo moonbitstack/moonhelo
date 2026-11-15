@@ -444,13 +444,16 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
     <a href="{css_prefix}elements.html"{" aria-current=\"page\"" if page.get("is_elements") else ""}>{ui("elements")}</a>
   </nav>
   <div class="topbar__end">
-    <span class="lang">
-      <select data-lang-select aria-label="Language">
-        <option value="en">en</option>
-        <option value="zh">zh</option>
-      </select>
-      <svg class="lang__chev" width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </span>
+    <div class="lang" data-lang-menu>
+      <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+        <span data-lang-current>en</span>
+        <svg class="lang__chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <ul class="lang__list" role="listbox" aria-label="Language" hidden>
+        <li class="lang__opt" role="option" data-lang-option="en" aria-selected="true" tabindex="-1">en</li>
+        <li class="lang__opt" role="option" data-lang-option="zh" aria-selected="false" tabindex="-1">zh</li>
+      </ul>
+    </div>
     <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch theme">{SUN}{MOON}</button>
     <a class="icon-btn" href="{site["repo"]}" aria-label="Source on GitHub">{GITHUB}</a>
   </div>
