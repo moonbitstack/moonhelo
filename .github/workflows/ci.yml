@@ -6,30 +6,46 @@ on:
     branches:
       - master
 
-permissions:
-  contents: read
-
 jobs:
-  greet-e2e:
-    name: greet end-to-end (native, published moon* stack)
-    runs-on: ubuntu-26.04
+  greet:
+    name: greet end-to-end (${{ matrix.os }})
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, macos-26, windows-2025]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - name: install moon
+      - name: install-unix
+        if: ${{ runner.os != 'Windows' }}
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: install-windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
       - name: post install
         run: |
           moon version --all
           moon update
 
-      - name: mctl gen (run the published moonctl over spec/greet.api)
-        run: moon run --target native gen
+      # The service is native-only, so every step names its target: this module
+      # has no build for wasm, js or wasm-gc, and pretending otherwise would only
+      # report failures of a target it never had.
+      - name: mctl gen (the published moonctl over the spec)
+        run: |
+          moon run src/gen --target native
+          moon fmt
+          git diff --exit-code
 
       - name: moon check
         run: moon check --target native --deny-warn
@@ -37,13 +53,23 @@ jobs:
       - name: moon build
         run: moon build --target native
 
-      - name: moon test (HTTP @http e2e + SQLite persistence + gRPC reflection/SayHello over h2c)
+      - name: moon test (REST over a socket, SQLite persistence, GraphQL, gRPC reflection)
         run: moon test --target native
 
+      - name: examples run
+        if: runner.os == 'Linux'
+        run: |
+          for dir in src/examples/*/; do
+            if grep -q 'kind: "executable"' "$dir/moon.pkg"; then
+              moon run "$dir" --target native
+            fi
+          done
+
       - name: e2e over the wire (a real HTTP client curls the running server)
+        if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          moon run --target native cmd/greet-server &
+          moon run src/cmd/greet-server --target native &
           SRV=$!
           for i in $(seq 1 30); do
             if curl -sf http://127.0.0.1:12000/ping >/dev/null 2>&1; then break; fi
@@ -68,7 +94,8 @@ jobs:
           echo "$GQL" | grep -q '"greeting":"Hello, Curl"'
           kill "$SRV" || true
 
-      - name: lint (fmt is clean)
-        run: |
-          moon fmt
-          git diff --exit-code
+      # A reader pastes the blocks of the README into a project, so they have to
+      # compile as written, against this commit's source.
+      - name: the code in the docs compiles
+        if: runner.os == 'Linux'
+        run: python3 scripts/check_snippets.py
