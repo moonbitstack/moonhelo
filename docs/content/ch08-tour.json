@@ -1,0 +1,319 @@
+{
+  "num": "08",
+  "title": {
+    "en": "The whole stack, once",
+    "zh": "全家桶，一次走完"
+  },
+  "lead": {
+    "en": "Nine libraries, one greeting, no socket and no database. Each layer contributes a line to the output, and reading the nine lines in order is the shortest tour of what the stack is.",
+    "zh": "九个库、一句问候、不开端口、不连数据库。每一层在输出里贡献一行，按顺序读完这九行，就是这一栈最短的导览。"
+  },
+  "foot": {
+    "en": "Chapter 08 of 10",
+    "zh": "第 08 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "run",
+      "title": {
+        "en": "Run it",
+        "zh": "跑起来"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "One program, everything in process. It is the chapter you can hand to someone who has ten minutes and wants to know what this family of libraries is for.",
+            "zh": "一个程序，全部在进程内。这一章适合交给只有十分钟、又想知道这一族库到底做什么的人。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/examples/00-nine-in-one --target native",
+              "out": [
+                "moonctl : parsed service 'greet' — 1 route, 1 type",
+                "moonasgi: scope GET /api/v1/greet/heke1228",
+                "moonzero: group /api/v1 mounted the route",
+                "moonapi : 200 Bonjour, heke1228!",
+                "moonapi : 200 then 304 — 0 octets the second time",
+                "mooncat : would serve on http://127.0.0.1:12000",
+                "moonorm : SELECT id, name FROM greets WHERE name = ?",
+                "moonrpc : gRPC message 23 octets",
+                "moongql : {\"data\":{\"greet\":\"Bonjour, heke1228!\"}}",
+                "moonmuse: prompt 'Greet heke1228 in one sentence.'",
+                "moonmuse: Bonjour, heke1228!"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lines",
+      "title": {
+        "en": "Line by line",
+        "zh": "逐行看"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Eleven lines, nine libraries, and one of them speaks twice because a conditional request is answered twice.",
+            "zh": "十一行、九个库；其中一个说了两次，因为一次条件请求被回答了两次。"
+          }
+        },
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "Line",
+              "zh": "那一行"
+            },
+            {
+              "en": "Library",
+              "zh": "库"
+            },
+            {
+              "en": "What it did",
+              "zh": "做了什么"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "`moonctl` parsed the service",
+                "zh": "`moonctl` 解析了服务"
+              },
+              {
+                "en": "moonctl",
+                "zh": "moonctl"
+              },
+              {
+                "en": "Read the `.api` text into a spec: one service, one route, one type.",
+                "zh": "把 `.api` 文本读成 spec：一个服务、一条路由、一个类型。"
+              }
+            ],
+            [
+              {
+                "en": "`moonasgi` scope",
+                "zh": "`moonasgi` 的 scope"
+              },
+              {
+                "en": "moonasgi",
+                "zh": "moonasgi"
+              },
+              {
+                "en": "Built the request value the whole stack speaks, without a socket.",
+                "zh": "造出整栈都说的那个请求值，不用 socket。"
+              }
+            ],
+            [
+              {
+                "en": "`moonzero` group",
+                "zh": "`moonzero` 分组"
+              },
+              {
+                "en": "moonzero",
+                "zh": "moonzero"
+              },
+              {
+                "en": "Mounted `/api/v1` once and made every route inside it relative.",
+                "zh": "把 `/api/v1` 挂一次，里面的路由都变成相对路径。"
+              }
+            ],
+            [
+              {
+                "en": "`moonapi` 200",
+                "zh": "`moonapi` 200"
+              },
+              {
+                "en": "moonapi",
+                "zh": "moonapi"
+              },
+              {
+                "en": "Matched the path, bound `name`, produced the body.",
+                "zh": "匹配路径、绑定 `name`、产出响应体。"
+              }
+            ],
+            [
+              {
+                "en": "`moonapi` 200 then 304",
+                "zh": "`moonapi` 200 然后 304"
+              },
+              {
+                "en": "moonapi",
+                "zh": "moonapi"
+              },
+              {
+                "en": "Weighed the conditional headers and answered with a status instead of a body.",
+                "zh": "比较条件头，用一个状态代替响应体作答。"
+              }
+            ],
+            [
+              {
+                "en": "`mooncat` would serve",
+                "zh": "`mooncat` 将服务在"
+              },
+              {
+                "en": "mooncat",
+                "zh": "mooncat"
+              },
+              {
+                "en": "Rendered the address it would bind — the only line that is not a run.",
+                "zh": "渲染出它会绑定的地址 —— 唯一一行不是真的跑。"
+              }
+            ],
+            [
+              {
+                "en": "`moonorm` SELECT",
+                "zh": "`moonorm` 的 SELECT"
+              },
+              {
+                "en": "moonorm",
+                "zh": "moonorm"
+              },
+              {
+                "en": "Built the statement and its parameters; `?` is where the value goes.",
+                "zh": "拼出语句和参数；`?` 就是值要去的位置。"
+              }
+            ],
+            [
+              {
+                "en": "`moonrpc` message",
+                "zh": "`moonrpc` 消息"
+              },
+              {
+                "en": "moonrpc",
+                "zh": "moonrpc"
+              },
+              {
+                "en": "Encoded the greeting as a length-prefixed gRPC message.",
+                "zh": "把问候编成长度前缀的 gRPC 消息。"
+              }
+            ],
+            [
+              {
+                "en": "`moongql` data",
+                "zh": "`moongql` 的 data"
+              },
+              {
+                "en": "moongql",
+                "zh": "moongql"
+              },
+              {
+                "en": "Executed a query against the schema and returned the document.",
+                "zh": "对着 schema 执行查询，返回文档。"
+              }
+            ],
+            [
+              {
+                "en": "`moonmuse` prompt",
+                "zh": "`moonmuse` 的提示词"
+              },
+              {
+                "en": "moonmuse",
+                "zh": "moonmuse"
+              },
+              {
+                "en": "Rendered the template — the text a model would receive.",
+                "zh": "渲染模板 —— 模型会收到的文本。"
+              }
+            ],
+            [
+              {
+                "en": "`moonmuse` reply",
+                "zh": "`moonmuse` 的回复"
+              },
+              {
+                "en": "moonmuse",
+                "zh": "moonmuse"
+              },
+              {
+                "en": "Answered through a scripted provider: same call, no network, no key.",
+                "zh": "由脚本化提供者作答：同样的调用，不联网、不要密钥。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "what",
+      "title": {
+        "en": "What this proves",
+        "zh": "这证明了什么"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "That the layers are separable. Nothing here needed a port, a database file or an API key, because each library exposes a value you can build and hand to the next one by hand.",
+            "zh": "各层是可分的。这里不需要端口、数据库文件或 API 密钥，因为每个库都暴露一个可构造的值，你可以手动交给下一个。"
+          }
+        },
+        {
+          "type": "note",
+          "title": {
+            "en": "Where the demo is thinner than the service",
+            "zh": "这个演示比真实服务薄的地方"
+          },
+          "text": {
+            "en": "The nine-in-one program stops at the seam where a real deployment would keep going: the SQL is built but not executed, the gRPC message is encoded but not sent, the prompt is answered by a scripted provider. Chapters 1 to 7 are the parts that do run.",
+            "zh": "全家桶停在真实部署会继续往前走的那条缝上：SQL 拼出来但没执行，gRPC 消息编好但没发出去，提示词由脚本化提供者作答。真正跑起来的部分在第 1 到第 7 章。"
+          }
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "Read it as a map rather than a demo. Every line names the library that produced it, which is the whole reason it exists.",
+            "zh": "把它当地图读，而不是当演示。每一行都点出了产出它的库 —— 这正是它存在的全部理由。"
+          }
+        },
+        {
+          "type": "try",
+          "title": {
+            "en": "Two changes",
+            "zh": "两处改动"
+          },
+          "items": [
+            {
+              "en": "Delete one of the nine blocks and run it again. The program still builds, and the output loses exactly one line — the layers do not depend on each other in the order you expect.",
+              "zh": "删掉九块里的一块再跑。程序照样能编，输出只少一行 —— 各层之间的依赖并不像你预期的那样成链。"
+            },
+            {
+              "en": "Change `who` and read which lines move. The spec does not; everything downstream does.",
+              "zh": "改掉 `who`，看哪几行动了。spec 不动，下游全动。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Name the library behind each line of the output.",
+              "zh": "说出输出里每一行背后是哪个库。"
+            },
+            {
+              "en": "Explain what one request passes through, in order.",
+              "zh": "按顺序说出一次请求经过了什么。"
+            },
+            {
+              "en": "Say which parts of the demo would need a socket, a file or a key to become real.",
+              "zh": "说出演示里哪些部分要变成真的需要端口、文件或密钥。"
+            },
+            {
+              "en": "Use the program as a map when you forget which library does what.",
+              "zh": "忘记哪个库干什么时，把这个程序当地图用。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

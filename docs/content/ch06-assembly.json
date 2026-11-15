@@ -1,0 +1,168 @@
+{
+  "num": "06",
+  "title": {
+    "en": "Assembly",
+    "zh": "装配"
+  },
+  "lead": {
+    "en": "Routing answers a request; a service is what you deploy. moonzero puts the application inside that, and the seam between the two is one function: `to_asgi`.",
+    "zh": "路由负责回答请求，服务才是你要部署的东西。moonzero 把应用装进服务里，两者之间的缝就是一个函数：`to_asgi`。"
+  },
+  "foot": {
+    "en": "Chapter 06 of 10",
+    "zh": "第 06 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "assemble",
+      "title": {
+        "en": "Three statements",
+        "zh": "三条语句"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "`assemble` is the whole assembly: a name for the service, the server around the routed application, the layer the deployment expects, and the lowering to the interface the transport accepts.",
+            "zh": "`assemble` 就是全部装配：给服务一个名字、把路由后的应用包进服务器、装上部署需要的层，再降到传输接受的那个接口。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/server/service.mbt",
+              "lang": "moonbit",
+              "code": "pub fn assemble(sess : @moonorm.Session) -> @moonasgi.AsgiApp {\n  let conf = @zero.ServiceConf::new(name=\"greet\")\n  @zero.Server::new(conf, build_app(sess)).use_(@zero.logging).to_asgi()\n}"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "`to_asgi` is the boundary. Above it are moonzero's types — configuration, groups, middleware with go-zero's names. Below it is an `AsgiApp`, which is all mooncat has ever asked for.",
+            "zh": "`to_asgi` 是那条边界。上面是 moonzero 的类型 —— 配置、分组、带 go-zero 名字的中间件；下面是一个 `AsgiApp`，mooncat 要的从来只是这个。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "log",
+      "title": {
+        "en": "One line per call",
+        "zh": "一次调用一行"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The logging layer writes through the process logger, and the process logger hides everything below `Severe` until it is told otherwise. A freshly started service therefore looks silent — that is a level, not a missing feature.",
+            "zh": "日志层写进进程日志器，而进程日志器在没被交代之前会藏起 `Severe` 以下的一切。所以刚启动的服务看起来是安静的 —— 那是级别，不是缺功能。"
+          }
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/examples/04-access-log --target native",
+              "out": [
+                "{\"@timestamp\":1794721826224,\"level\":\"info\",\"content\":\"GET /ping\"}",
+                "{\"@timestamp\":1794721826225,\"level\":\"info\",\"content\":\"GET /nope\"}"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The line is written by the outer layer after the route has answered, so it describes a finished request. A 404 is logged too: a request that arrived and found nothing is exactly what an access log is for.",
+            "zh": "这一行由外层在路由回答之后写出，所以它描述的是一次已完成的请求。404 也会被记下：一个到达了却没找到东西的请求，正是访问日志存在的理由。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "groups",
+      "title": {
+        "en": "Groups and prefixes",
+        "zh": "分组与前缀"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "A group takes the prefix once and every route inside it is relative. The application does not know the prefix, and the group does not know the route's handler — which is what lets the same handler be mounted twice under two prefixes.",
+            "zh": "分组只接受一次前缀，里面的路由都写相对路径。应用不知道前缀，分组也不知道路由的处理函数 —— 于是同一个处理函数可以挂在两个前缀下。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/00-nine-in-one/main.mbt",
+              "lang": "moonbit",
+              "code": "  let app = @moonapi.App::new()\n  let api = @zero.Group::new(app, \"/api/v1\")\n  api.get(\"/greet/{name}\", ctx => {\n    @moonapi.text(200, \"Bonjour, \" + ctx.param(\"name\").unwrap_or(\"?\") + \"!\")\n  })"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Drop `.use_(@zero.logging)` and run the access-log example again. The two lines disappear; the responses do not change, which is the point of a middleware.",
+              "zh": "去掉 `.use_(@zero.logging)`，再跑一次访问日志示例。两行消失，响应不变 —— 这正是中间件的意思。"
+            },
+            {
+              "en": "Register a second layer after the first and print the order the lines arrive in. The last one registered is the outermost.",
+              "zh": "在第一个之后再加一层，打印两行到达的顺序。最后注册的那层在最外面。"
+            },
+            {
+              "en": "Mount the `/api/v1` group twice, under two prefixes, in the nine-in-one example. One handler, two addresses, no second registration.",
+              "zh": "在全家桶示例里把 `/api/v1` 分组挂两次、用两个前缀。一个处理函数，两个地址，没有第二次注册。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Say which statement in `assemble` is the boundary between the two libraries.",
+              "zh": "说出 `assemble` 里哪一条语句是两个库之间的边界。"
+            },
+            {
+              "en": "Read an access log line and say which layer wrote it and when.",
+              "zh": "读懂一行访问日志，说出是哪一层、在什么时候写的。"
+            },
+            {
+              "en": "Explain why a silent service is a log level rather than an error.",
+              "zh": "解释服务安静是日志级别，而不是出了错。"
+            },
+            {
+              "en": "Mount one handler under two prefixes.",
+              "zh": "把一个处理函数挂在两个前缀下。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

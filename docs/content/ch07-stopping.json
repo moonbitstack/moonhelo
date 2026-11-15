@@ -1,0 +1,277 @@
+{
+  "num": "07",
+  "title": {
+    "en": "Stopping well",
+    "zh": "好好停下"
+  },
+  "lead": {
+    "en": "A service that starts must stop. Three layers of this stack stop the same way in spirit and differently in form: hooks in reverse, a connection drained rather than cut, and a run that waits for an answer it does not have.",
+    "zh": "会启动的服务必须会停下。这一栈里的三层，停法的精神相同、形式不同：钩子倒序执行、连接被排空而不是被切断、以及一次运行停在原地等一个它还没有的答案。"
+  },
+  "foot": {
+    "en": "Chapter 07 of 10",
+    "zh": "第 07 章 / 共 10 章"
+  },
+  "sections": [
+    {
+      "id": "hooks",
+      "title": {
+        "en": "Hooks in reverse",
+        "zh": "钩子倒序"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Startup hooks run in the order they were registered; shutdown hooks run backwards. That single rule is enough to make teardown correct if you register each hook beside the thing it opens.",
+            "zh": "启动钩子按注册顺序执行，关闭钩子倒着来。只要你把每个钩子写在它打开的那个东西旁边，这一条规则就足以让拆解顺序正确。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/01-lifecycle/main.mbt",
+              "lang": "moonbit",
+              "code": "  let app = @moonapi.App::new()\n  app.get(\"/greet\", _ctx => @moonapi.text(200, \"Bonjour, heke1228!\"))\n  app.on_startup(_state => log.push(\"open db\"))\n  app.on_startup(_state => log.push(\"warm cache\"))\n  // Shutdown hooks run in reverse of registration, so they are registered in the\n  // order the resources were opened: the cache goes first, the database last.\n  app.on_shutdown(_state => log.push(\"close db\"))\n  app.on_shutdown(_state => log.push(\"drop cache\"))"
+            }
+          ]
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/examples/01-lifecycle --target native",
+              "out": [
+                "moonapi : open db -> warm cache",
+                "moonapi : open db -> warm cache -> drop cache -> close db",
+                "moonrpc : 1 GOAWAY frame naming stream 0, 0 calls still running",
+                "moonstate: stopped, asking \"release the greeting?\"",
+                "moonstate: resumed -> open db -> confirmed \"release it\""
+              ]
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The log is the proof: the cache is dropped before the database is closed, because that is the reverse of how they were opened.",
+            "zh": "日志就是证据：缓存先放下，数据库后关闭 —— 正好是它们被打开的顺序的逆序。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "drain",
+      "title": {
+        "en": "A connection, drained",
+        "zh": "连接，排空"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Cutting a connection loses the calls in flight. A GOAWAY frame names the last stream the server accepted, so a client knows which calls were processed and which are safe to send elsewhere.",
+            "zh": "直接切断连接会丢掉在途的调用。GOAWAY 帧报出服务器接受的最后一个流，客户端因此知道哪些调用已被处理、哪些可以安全地发到别处。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/01-lifecycle/main.mbt",
+              "lang": "moonbit",
+              "code": "  let server = @moonrpc.H2Server::new()\n  server.register(\"/greet.Greeter/SayHello\", req => req)\n  let frames = server.goaway(server.highest_stream())"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "The frame count is one, the stream number is what the server last took, and the running calls are what the client must still wait for. Three numbers, and a client can make a decision.",
+            "zh": "帧数是一，流号是服务器最后接受的那个，还在跑的调用数就是客户端仍要等的东西。三个数字，客户端就能做决定。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "interrupt",
+      "title": {
+        "en": "A run that waits",
+        "zh": "会等的运行"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "The third way to stop is not stopping at all: a graph reaches a node that needs an answer from outside, and it parks there with everything it has written so far in a checkpoint.",
+            "zh": "第三种停法其实不是停：图走到一个需要外部答案的节点，就停在原地，把已经写下的东西都留在检查点里。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/01-lifecycle/main.mbt",
+              "lang": "moonbit",
+              "code": "  let graph = greet_graph()\n  let thread = \"greet-lifecycle\"\n  let stopped = try {\n    ignore(graph.run({ text: None, }, thread~))\n    \"finished without stopping\"\n  } catch {\n    @moonstate.GraphError::Interrupted(value~, ..) => value.stringify()\n    _ => \"the run failed for another reason\"\n  }"
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/01-lifecycle/main.mbt",
+              "lang": "moonbit",
+              "code": "  let done = graph.resume_with(thread, Json(\"release it\"))\n  println(\"moonstate: resumed -> \" + done.lines.join(\" -> \"))"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "`Interrupted` is a value, not an exception to be swallowed: the state is on the error, so a caller can log what the run was asking. The answer resumes the same thread — a second graph would not see the checkpoint.",
+            "zh": "`Interrupted` 是一个值，不是拿来吞掉的异常：状态就在错误上，调用方可以记下这次运行在问什么。答案续在同一条线程上 —— 换一张图就看不到那个检查点了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "why",
+      "title": {
+        "en": "What each one buys",
+        "zh": "各自换来什么"
+      },
+      "blocks": [
+        {
+          "type": "table",
+          "head": [
+            {
+              "en": "Layer",
+              "zh": "层"
+            },
+            {
+              "en": "Stops by",
+              "zh": "停法"
+            },
+            {
+              "en": "What the caller gets",
+              "zh": "调用方得到什么"
+            }
+          ],
+          "rows": [
+            [
+              {
+                "en": "moonapi",
+                "zh": "moonapi"
+              },
+              {
+                "en": "running shutdown hooks in reverse",
+                "zh": "倒序执行关闭钩子"
+              },
+              {
+                "en": "a release order that matches the acquisition order",
+                "zh": "与获取顺序相反的释放顺序"
+              }
+            ],
+            [
+              {
+                "en": "moonrpc",
+                "zh": "moonrpc"
+              },
+              {
+                "en": "sending GOAWAY with the last stream",
+                "zh": "带最后流号发 GOAWAY"
+              },
+              {
+                "en": "a list of calls that were processed and calls to re-issue",
+                "zh": "哪些调用处理过、哪些要重发"
+              }
+            ],
+            [
+              {
+                "en": "moonstate",
+                "zh": "moonstate"
+              },
+              {
+                "en": "parking at a node with a checkpoint",
+                "zh": "停在节点并留下检查点"
+              },
+              {
+                "en": "a question, and a run that continues after it is answered",
+                "zh": "一个问题，以及答完之后能续上的运行"
+              }
+            ]
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "None of the three blocks forever. Each hands the decision to the layer above, which is what makes a stop look like an ordinary code path instead of a timeout.",
+            "zh": "三者都不会永久阻塞。每一个都把决定交给上面一层 —— 于是「停下」看起来像一条普通代码路径，而不是一次超时。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "try",
+      "title": {
+        "en": "Try it",
+        "zh": "动手改"
+      },
+      "blocks": [
+        {
+          "type": "try",
+          "title": {
+            "en": "Three changes, easiest first",
+            "zh": "三处改动，由易到难"
+          },
+          "items": [
+            {
+              "en": "Swap the two shutdown hooks and run the example again. The log still reads correctly in reverse — and then tell me which of the two results you would rather debug at three in the morning.",
+              "zh": "把两个关闭钩子对调，再跑一次。日志按逆序读仍然通顺 —— 然后说说，凌晨三点你更愿意 debug 哪一个结果。"
+            },
+            {
+              "en": "Ask `goaway` for a stream number lower than the last one accepted. The frame says less than the truth; work out what a client would re-issue that it should not.",
+              "zh": "让 `goaway` 用一个比最后接受值更小的流号。帧里说的比事实少，想想客户端会因此重发哪些本不该重发的东西。"
+            },
+            {
+              "en": "Resume the graph twice. The second call finds no checkpoint in that thread; decide whether that should be an error or a no-op, and say why.",
+              "zh": "把同一张图续跑两次。第二次在那条线程上找不到检查点；判断这该是错误还是空操作，并说出理由。"
+            }
+          ]
+        },
+        {
+          "type": "know",
+          "title": {
+            "en": "You can now",
+            "zh": "你现在会了"
+          },
+          "items": [
+            {
+              "en": "Say why shutdown hooks run in reverse, and register a pair correctly.",
+              "zh": "说出关闭钩子为什么倒序，并正确注册一对钩子。"
+            },
+            {
+              "en": "Explain what a client learns from a GOAWAY frame.",
+              "zh": "解释客户端从 GOAWAY 帧里知道了什么。"
+            },
+            {
+              "en": "Stop a run at a node and continue it from its checkpoint.",
+              "zh": "让运行停在某个节点，再从检查点继续。"
+            },
+            {
+              "en": "Pick the right one of the three for a given failure.",
+              "zh": "给定一种故障，从三者中选对的那一个。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
