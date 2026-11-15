@@ -13,8 +13,8 @@ pub(all) struct User {
 pub let user_model : @moonorm.Model[User] = @moonorm.Model::new(
   "user",
   [
-    @moonorm.column("id", @moonorm.IntType, primary_key=true),
-    @moonorm.column("name", @moonorm.TextType),
+    @moonorm.column("id", IntType, primary_key=true),
+    @moonorm.column("name", TextType),
   ],
   row => { id: row.int(0), name: row.text(1), },
   r => [("id", @moondb.Int(r.id)), ("name", @moondb.Text(r.name))],

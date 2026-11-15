@@ -1,13 +1,14 @@
+// Starting and stopping: the app's lifespan hooks, a drained gRPC connection,
+// and a run that stops between two nodes and continues from its checkpoint.
 supported_targets = "native"
 
+pkgtype(kind: "executable")
+
 import {
-  "moonbitstack/moonasgi",
   "moonbitstack/moonapi",
   "moonbitstack/moonrpc",
-  "moonbitstack/moonkoog/agent",
-  "moonbitstack/moonkoog/llm",
-  "moonbitstack/moonkoog/prompt",
+  "moonbitstack/moonstate",
+  "moonbitstack/moonasgi/testing",
   "moonbitlang/async",
+  "moonbitlang/core/json",
 }
-
-pkgtype(kind: "executable")

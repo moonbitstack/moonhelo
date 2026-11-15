@@ -1,9 +1,9 @@
-// The assembled greet service: moonapi routing with an ergonomic request-id
-// middleware, wrapped by a moonzero Server that adds go-zero-style request
-// logging, wired to a moonorm Session over a real SQLite database (moonsqlite),
-// and served by mooncat. The mctl-generated User model (genmodel) is the
-// persistence layer, so a request round-trips through the same declarative model
-// the spec produced. Native-only: it serves over async HTTP and links SQLite.
+// The assembled greet service: moonapi routing with a request-id middleware,
+// wrapped by a moonzero Server that adds go-zero-style request logging, wired to
+// a moonorm Session over a real SQLite database (moonsqlite), and served by
+// mooncat. The mctl-generated User model (genmodel) is the persistence layer, so
+// a request round-trips through the same declarative model the spec produced.
+// Native-only: it serves over async HTTP and links SQLite through FFI.
 supported_targets = "native"
 
 import {
@@ -15,12 +15,13 @@ import {
   "moonbitstack/moonsqlite" @sqlite,
   "moonbitstack/mooncat",
   "moonbitstack/moongql" @gql,
+  "moonbitstack/moonjson",
   "moonbitstack/moonhelo/genmodel",
-  "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
 }
 
-// The end-to-end test drives the running server with a real async HTTP client.
+// The end-to-end tests drive the running server with a real async HTTP client,
+// and write their database to the system temporary directory.
 import {
   "moonbitlang/async",
   "moonbitlang/async/http",

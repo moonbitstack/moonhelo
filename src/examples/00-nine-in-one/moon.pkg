@@ -1,15 +1,22 @@
+// Everything this example touches, in one runnable binary. Native-only: it
+// configures a native HTTP server and the whole module is a native application.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
 import {
   "moonbitstack/moonasgi",
   "moonbitstack/mooncat",
   "moonbitstack/moonapi",
   "moonbitstack/moonctl",
-  "moonbitstack/moonorm",
+  "moonbitstack/moonorm/query",
   "moonbitstack/moondb",
   "moonbitstack/moonrpc",
-  "moonbitstack/moongql",
-  "moonbitstack/moonzero",
-  "moonbitstack/moonkoog/prompt",
+  "moonbitstack/moongql" @gql,
+  "moonbitstack/moonzero" @zero,
+  "moonbitstack/moonmuse",
+  "moonbitstack/moonmuse/prompt",
+  "moonbitstack/moonmuse/fake",
+  "moonbitlang/async",
   "moonbitlang/core/encoding/utf8",
 }
-
-pkgtype(kind: "executable")

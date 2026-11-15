@@ -1,34 +1,29 @@
 ///|
-/// Starting and stopping, across the suite. Every long-lived thing in moon* can now
-/// be shut down without cutting anyone off, and each layer spells that differently:
-/// an app runs lifespan hooks, a gRPC connection is drained behind a GOAWAY naming
-/// the last stream it accepted, and an agent stops between nodes so a tool call in
-/// flight always finishes. All three run in-process here, no socket.
+/// Starting and stopping, across the suite. Every long-lived thing here can be
+/// shut down without cutting anyone off, and each layer spells that differently:
+/// an app runs lifespan hooks, a gRPC connection is drained behind a GOAWAY
+/// naming the last stream it accepted, and a graph stops between two nodes and
+/// continues from its checkpoint once the answer arrives. All three run
+/// in-process: no socket.
 ///
-///     moon run examples/01-lifecycle --target native
+///     moon run src/examples/01-lifecycle --target native
 #coverage.skip
 async fn main {
   let log : Array[String] = []
 
   // moonapi: startup hooks run in registration order and shutdown in reverse, so a
-  // resource is released before whatever it was opened from.
+  // resource is released before whatever it was opened from. The test client drives
+  // the ASGI lifespan around the work, which is what a server does at boot.
   let app = @moonapi.App::new()
   app.get("/greet", _ctx => @moonapi.text(200, "Bonjour, heke1228!"))
-  app.on_startup(() => log.push("open db"))
-  app.on_startup(() => log.push("warm cache"))
-  app.on_shutdown(() => log.push("drop cache"))
-  app.on_shutdown(() => log.push("close db"))
-  let scope = @moonasgi.Scope::Lifespan(@moonasgi.LifespanScope::new())
-  let replies = @moonasgi.run_lifespan(app.lifespan_handler(), scope, [
-    @moonasgi.Event::LifespanStartup,
-    @moonasgi.Event::LifespanShutdown,
-  ])
+  app.on_startup(_state => log.push("open db"))
+  app.on_startup(_state => log.push("warm cache"))
+  app.on_shutdown(_state => log.push("drop cache"))
+  app.on_shutdown(_state => log.push("close db"))
+  let client = @testing.Client::new(app.to_asgi())
+  let started = client.lifespan(() => log.join(" -> "))
+  println("moonapi : " + started)
   println("moonapi : " + log.join(" -> "))
-  println(
-    "moonapi : " +
-    replies.length().to_string() +
-    " lifespan replies, both complete",
-  )
 
   // moonrpc: a drained connection announces the last stream it accepted, so a client
   // knows what was processed and what is safe to re-issue somewhere else.
@@ -45,30 +40,63 @@ async fn main {
     " calls still running",
   )
 
-  // moonkoog: the run is asked to stop mid-graph. The node it is in finishes, the one
-  // after it never starts, and the text reached so far comes back on AgentStopped.
-  let client = @agent.MockClient::new([
-    @prompt.Message::assistant("Bonjour, heke1228!"),
-  ])
-  let agent = @agent.AIAgent::new(client, model=@llm.deepseek_v4_flash)
-  let handle = @agent.RunHandle::new()
-  let visited : Array[String] = []
-  let strategy = @agent.AIAgentStrategy::new("lifecycle")
-    .custom_node("halt", (_session, _v) => {
-      visited.push("halt")
-      handle.stop()
-      @agent.VText("stopped mid-run")
-    })
-    .custom_node("after", (_session, v) => {
-      visited.push("after")
-      v
-    })
-    .edge(@agent.start_node, "halt")
-    .edge("halt", "after")
-    .edge("after", @agent.finish_node)
-  let outcome = agent.run_strategy(strategy, "greet heke1228", stop=handle) catch {
-    @agent.AgentStopped(partial) => partial
-    _ => "unexpected error"
+  // moonstate: the run is asked a question it cannot answer yet, so it stops at
+  // that node and keeps everything written so far in its checkpoint. The answer
+  // resumes the same thread: the node reads it and the run finishes. One graph,
+  // one saver, two calls — a second graph would not see the checkpoint.
+  let graph = greet_graph()
+  let thread = "greet-lifecycle"
+  let stopped = try {
+    ignore(graph.run({ text: None, }, thread~))
+    "finished without stopping"
+  } catch {
+    @moonstate.GraphError::Interrupted(value~, ..) => value.stringify()
+    _ => "the run failed for another reason"
   }
-  println("moonkoog: " + outcome + " (ran: " + visited.join(", ") + ")")
+  println("moonstate: stopped, asking " + stopped)
+  let done = graph.resume_with(thread, Json("release it"))
+  println("moonstate: resumed -> " + done.lines.join(" -> "))
+}
+
+///|
+/// What a run carries: every line a node wrote, in the order they were merged.
+#derive(@json.ToJson, @json.FromJson)
+struct Ledger {
+  lines : Array[String]
+}
+
+///|
+/// What one node writes. `None` is a write that carries no line, which is how a
+/// run starts: a node touches only what it has something to say about.
+#derive(@json.ToJson, @json.FromJson)
+struct Line {
+  text : String?
+}
+
+///|
+/// Folding a write into the state: a node touches only its own field, so two
+/// nodes in one superstep merge without knowing about each other.
+fn merge_line(ledger : Ledger, line : Line) -> Ledger {
+  match line.text {
+    Some(text) => { lines: ledger.lines + [text], }
+    None => ledger
+  }
+}
+
+///|
+/// A two-node graph: `open` writes, `confirm` asks once and writes the answer on
+/// the second visit. The saver is what makes the second visit possible.
+fn greet_graph() -> @moonstate.Graph[Ledger, Line] raise {
+  @moonstate.Builder::new(merge=merge_line, initial={ lines: [], })
+  .entry("open")
+  .node("open", (_state, _run) => [@moonstate.Write({ text: Some("open db"), })])
+  .node("confirm", (_state, run) => {
+    match run.answer() {
+      Some(answer) =>
+        [@moonstate.Write({ text: Some("confirmed " + answer.stringify()), })]
+      None => [@moonstate.Interrupt(Json("release the greeting?"))]
+    }
+  })
+  .edge("open", "confirm")
+  .compile("lifecycle", saver=@moonstate.MemorySaver::new())
 }

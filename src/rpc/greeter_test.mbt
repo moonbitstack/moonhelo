@@ -14,7 +14,7 @@ async test "greet rpc: reflection lists+describes and SayHello answers over h2c"
     // reflection: ListServices sees greet.Greeter.
     let ls = ch.server_streaming(
       refl_path,
-      @moonrpc.encode_reflection_request(@moonrpc.ListServices("*")),
+      @moonrpc.encode_reflection_request(ListServices("*")),
     )
     let names = match @moonrpc.decode_reflection_response(ls.messages[0]) {
       ServiceList(n) => n
@@ -26,7 +26,7 @@ async test "greet rpc: reflection lists+describes and SayHello answers over h2c"
     let fc = ch.server_streaming(
       refl_path,
       @moonrpc.encode_reflection_request(
-        @moonrpc.FileContainingSymbol("greet.Greeter"),
+        FileContainingSymbol("greet.Greeter"),
       ),
     )
     let protos = match @moonrpc.decode_reflection_response(fc.messages[0]) {

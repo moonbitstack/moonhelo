@@ -1,23 +1,32 @@
 ///|
-/// Run the published mctl over spec/greet.api: write the moonorm model to genmodel/
-/// (compiled, and what the running server persists through), and also run the
-/// moonapi scaffold generator to prove it works. mctl 0.6.1 emits 0.10.5-safe
-/// arrow-closure route registration (`app.get(path, ctx => handler(ctx))`), so
-/// the scaffold type-checks; greet still hand-writes its routes because they
-/// carry the real business logic (the goctl fill-in-the-logic workflow), so only
-/// the model is generated into the build.
+/// Run the published mctl over spec/greet.api: write the moonorm model to
+/// genmodel/ (compiled, and what the running server persists through), and also
+/// run the moonapi scaffold generator to prove it works. greet still hand-writes
+/// its routes because they carry the real business logic (the goctl
+/// fill-in-the-logic workflow), so only the model is generated into the build.
+///
+/// Paths are relative to the module root, which is where `moon run` starts.
+const SPEC_PATH : String = "src/spec/greet.api"
+
+///|
+/// Where the generated model is written.
+const MODEL_PATH : String = "src/genmodel/greet_model.mbt"
+
+///|
 async fn main {
   try {
-    let spec = @moonctl.parse(@fs.read_file("src/spec/greet.api").text())
+    let spec = @moonctl.parse(@fs.read_file(SPEC_PATH).text())
     @fs.write_file(
-      "src/genmodel/greet_model.mbt",
+      MODEL_PATH,
       @moonctl.generate_model(spec),
       create_mode=CreateOrTruncate,
     )
-    println("gen: wrote genmodel/greet_model.mbt")
+    println("gen: wrote " + MODEL_PATH)
     let bytes = @moonctl.generate(spec).length()
     println(
-      "gen: mctl also produced a \{bytes}-byte moonapi scaffold (routes are hand-written for the business logic)",
+      "gen: mctl also produced a " +
+      bytes.to_string() +
+      "-byte moonapi scaffold (routes are hand-written for the business logic)",
     )
   } catch {
     e => println("gen: error: " + e.to_string())

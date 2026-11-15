@@ -1,8 +1,11 @@
 ///|
 /// Pull `name` out of a JSON request body, or `None` when the body is not an
-/// object with a string `name`. A missing/malformed name is the 422 path.
+/// object with a string `name`. A missing/malformed name is the 422 path; the
+/// body is untrusted input, so it is read in strict mode rather than repaired.
 fn parse_name(body : Bytes) -> String? {
-  let parsed = try @json.parse(@utf8.decode_lossy(body[:])) catch {
+  let parsed = try
+    @moonjson.loads(@utf8.decode_lossy(body), @moonjson.strict)
+  catch {
     _ => return None
   } noraise {
     v => v
@@ -19,7 +22,7 @@ fn parse_name(body : Bytes) -> String? {
 
 ///|
 /// Parse a decimal id path segment. Rejects anything that is not all digits so a
-/// bad `:id` answers 400 rather than reaching the database.
+/// bad `id` answers 400 rather than reaching the database.
 fn parse_int(s : String) -> Int32? {
   if s.length() == 0 {
     return None
@@ -38,18 +41,14 @@ fn parse_int(s : String) -> Int32? {
 ///|
 /// A `{id, name}` JSON object for a user.
 fn user_json(id : Int32, name : String) -> Json {
-  let m : Map[String, Json] = Map([
-    ("id", id.to_json()),
-    ("name", name.to_json()),
-  ])
-  m.to_json()
+  let m : Map[String, Json] = Map([("id", Json(id)), ("name", Json(name))])
+  Json(m)
 }
 
 ///|
 /// A `{detail}` JSON error response with an explicit status.
 fn error_json(status : Int32, detail : String) -> @moonasgi.Response {
-  let m : Map[String, Json] = Map([("detail", detail.to_json())])
-  @moonapi.json(status, m.to_json())
+  @moonapi.json(status, Json({ "detail": Json(detail) }))
 }
 
 ///|
@@ -75,9 +74,9 @@ fn handle_create_user(
 }
 
 ///|
-/// GET /users/:id: decode the id, read the row back through the mctl-generated
+/// GET /users/{id}: decode the id, read the row back through the mctl-generated
 /// `user_model`, and return the user or 404. Reading through the generated model
-/// is the "the generated code runs, not just compiles" half of the DoD.
+/// is the "the generated code runs, not just compiles" half of the example.
 fn handle_get_user(
   sess : @moonorm.Session,
   ctx : @moonapi.Context,
@@ -109,38 +108,39 @@ fn handle_get_user(
 
 ///|
 /// Build the greet moonapi app over an open Session: the request-id middleware,
-/// the three business routes, and a `/openapi.json` route serving the document
-/// walked from the routes registered before it. The real handlers replace the
-/// mctl stubs while keeping the generated model as the persistence layer.
+/// the three business routes, and the GraphQL leg on the same application. The
+/// real handlers replace the mctl stubs while keeping the generated model as the
+/// persistence layer.
 fn build_app(sess : @moonorm.Session) -> @moonapi.App {
   let app = @moonapi.App::new()
-  let request_id : @moonasgi.Middleware = fn(next) {
-    fn(req) {
-      let resp = next(req)
-      @moonasgi.Response::new(
-        resp.status,
-        [("x-request-id", "greet-1"), ..resp.headers],
-        resp.body,
-      )
-    }
-  }
-  app.middleware(request_id)
+  app.describe(
+    title="greet",
+    summary="the greet end-to-end slice",
+    api_version="0.1.0",
+  )
+  app.middleware(async fn(req, next) {
+    let resp = next(req)
+    @moonasgi.Response::new(
+      resp.status,
+      [("x-request-id", "greet-1"), ..resp.headers],
+      resp.body,
+    )
+  })
   app.get("/ping", _ctx => @moonapi.text(200, "pong"), summary="health check")
   app.post(
     "/users",
     ctx => handle_create_user(sess, ctx),
     summary="create a user",
+    status_code=201,
   )
   app.get(
-    "/users/:id",
+    "/users/{id}",
     ctx => handle_get_user(sess, ctx),
     summary="fetch a user by id",
   )
   let gql = gql_handler()
   app.post("/graphql", ctx => gql(ctx.request), summary="GraphQL query")
   app.get("/graphql", ctx => gql(ctx.request), summary="GraphiQL")
-  let doc = app.openapi(title="greet", api_version="0.1.0")
-  app.get("/openapi.json", _ctx => @moonapi.json(200, doc), summary="OpenAPI")
   app
 }
 

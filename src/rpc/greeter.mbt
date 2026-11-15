@@ -13,7 +13,7 @@ pub fn parse_hello_request(body : Bytes) -> String raise @moonrpc.PbError {
   let mut name = ""
   while !r.eof() {
     match r.read_tag() {
-      (1, @moonrpc.LengthDelim) => name = r.read_string()
+      (1, LengthDelim) => name = r.read_string()
       (_, w) => r.skip(w)
     }
   }
@@ -35,7 +35,7 @@ pub fn parse_hello_reply(body : Bytes) -> String raise @moonrpc.PbError {
   let mut message = ""
   while !r.eof() {
     match r.read_tag() {
-      (1, @moonrpc.LengthDelim) => message = r.read_string()
+      (1, LengthDelim) => message = r.read_string()
       (_, w) => r.skip(w)
     }
   }
@@ -58,24 +58,18 @@ fn greet_descriptor() -> @moonrpc.FileDescriptor {
     "greet.proto",
     "greet",
     messages=[
-      @moonrpc.MessageDescriptor::{
-        name: "HelloRequest",
-        fields: [
-          @moonrpc.FieldDescriptor::scalar("name", 1, @moonrpc.TypeString),
-        ],
-      },
-      @moonrpc.MessageDescriptor::{
-        name: "HelloReply",
-        fields: [
-          @moonrpc.FieldDescriptor::scalar("message", 1, @moonrpc.TypeString),
-        ],
-      },
+      @moonrpc.MessageDescriptor::new("HelloRequest", [
+        @moonrpc.FieldDescriptor::new("name", 1, TypeString),
+      ]),
+      @moonrpc.MessageDescriptor::new("HelloReply", [
+        @moonrpc.FieldDescriptor::new("message", 1, TypeString),
+      ]),
     ],
     services=[
-      @moonrpc.ServiceDescriptor::{
+      {
         name: "Greeter",
         methods: [
-          @moonrpc.MethodDescriptor::{
+          {
             name: "SayHello",
             input_type: ".greet.HelloRequest",
             output_type: ".greet.HelloReply",

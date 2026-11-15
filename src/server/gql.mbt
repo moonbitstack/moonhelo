@@ -5,8 +5,8 @@ fn gql_schema() -> @gql.Schema {
   let query = schema.object("Query")
   query.field_args(
     "greeting",
-    [("name", @gql.NonNull(@gql.Scalar("String")))],
-    @gql.NonNull(@gql.Scalar("String")),
+    [("name", NonNull(Scalar("String")))],
+    NonNull(Scalar("String")),
   )
   schema
 }
@@ -20,7 +20,7 @@ fn gql_resolvers() -> @gql.Resolvers {
       String(s) => s
       _ => ""
     }
-    ("Hello, " + name).to_json()
+    Json("Hello, " + name)
   })
   resolvers
 }
