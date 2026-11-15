@@ -2,17 +2,12 @@
 
 # MoonBit Stack Backend Hello World
 
-**the greet example, written once against the whole stack.**
+**a example greet project with a single repo.**
 
 [![Check and Test](https://github.com/moonbitstack/moonhelo/actions/workflows/ci.yml/badge.svg)](https://github.com/moonbitstack/moonhelo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
 </div>
-
-`moonhelo` is moon and `helo`, which is `hello` with the last two letters off. The
-example it carries is go-zero's `greet`: the service a reader meets first in
-moonzero, three routes and one table. That name is older than the repository's,
-which is why `src/spec/greet.api` still says `service greet`.
 
 One greeting service, written once, served four ways: a REST route, an OpenAPI
 document, a GraphQL field and a gRPC method. It exists so that the pieces of the

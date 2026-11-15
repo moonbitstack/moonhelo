@@ -199,9 +199,5 @@
   "colophon": {
     "en": "every output on these pages comes from a real run",
     "zh": "本站每个输出都来自真实运行"
-  },
-  "lineage": {
-    "en": "`moonhelo` is moon and `helo`, which is hello with the last two letters off. The example inside is go-zero's `greet`, which is why the spec still says `service greet`.",
-    "zh": "`moonhelo` 是 moon 加 `helo`，也就是把 hello 的后两个字母去掉。里面的示例沿用 go-zero 的 `greet`，所以 spec 里仍然写着 `service greet`。"
   }
 }
