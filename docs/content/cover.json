@@ -1,11 +1,11 @@
 {
   "kicker": {
-    "en": "MoonBit backend stack",
-    "zh": "MoonBit 后端全家栈"
+    "en": "the greet example",
+    "zh": "greet 示例"
   },
   "title": {
-    "en": "The greet service,<br>built in ten chapters.",
-    "zh": "greet 服务，<br>分十章搭起来。"
+    "en": "Getting started with the MoonBit backend stack",
+    "zh": "MoonBit 后端与微服务<br>快速入门"
   },
   "standfirst": {
     "en": "Every chapter adds one capability to the same running service. By the last one it answers over HTTP, GraphQL and gRPC, keeps its rows in SQLite, and carries tests that go red when any of that stops being true.",
@@ -89,8 +89,8 @@
       "{\"id\":1,\"name\":\"Ada\"}"
     ],
     "note": {
-      "en": "`x-request-id` is the middleware from chapter 1. `server: mooncat` is the transport signing its own work. The body is a row moonsqlite returned and moonorm decoded, on a connection the process opened at boot.",
-      "zh": "`x-request-id` 是第 1 章那个中间件加的。`server: mooncat` 是传输层写下的名字。正文是 moonsqlite 返回、moonorm 解码出来的一行，走的是进程启动时打开的那条连接。"
+      "en": "`x-request-id` is the chapter-01 middleware. `server: mooncat` is the transport signing its own work. The body is a row moonsqlite returned and moonorm decoded, on the connection the process opened at boot.",
+      "zh": "`x-request-id` 由中间件加上；`server: mooncat` 是传输层写下的名字。正文是 moonsqlite 返回、moonorm 解码出的一行，走的是进程启动时打开的那条连接。"
     }
   },
   "layersTitle": {

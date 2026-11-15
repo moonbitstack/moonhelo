@@ -901,8 +901,10 @@ html[data-lang="zh"] .facts span {
 html[data-lang="zh"] .masthead h1 {
   font-family: var(--sans);
   font-weight: 600;
-  font-size: clamp(28px, 3.9vw, 44px);
-  line-height: 1.28;
+  /* a CJK glyph fills its em box where a Latin one does not, so the Chinese
+     title sets a step smaller and keeps the same optical weight */
+  font-size: clamp(26px, 3.5vw, 40px);
+  line-height: 1.32;
   letter-spacing: 0;
 }
 

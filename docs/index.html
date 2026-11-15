@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>The greet service, built in ten chapters. — MoonBit Stack</title>
+<title>Getting started with the MoonBit backend stack — MoonBit Stack</title>
 <meta name="description" content="Every chapter adds one capability to the same running service. By the last one it answers over HTTP, GraphQL and gRPC, keeps its rows in SQLite, and carries tests that go red when any of that stops being true.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,8 +50,8 @@
     <div class="sheet__body">
       <div class="masthead">
         <div>
-          <p class="kicker"><span lang="en" data-lang="en">MoonBit backend stack</span><span lang="zh" data-lang="zh">MoonBit 后端全家栈</span></p>
-          <h1><span class="title-lines" lang="en" data-lang="en">The greet service,<br>built in ten chapters.</span><span class="title-lines" lang="zh" data-lang="zh">greet 服务，<br>分十章搭起来。</span></h1>
+          <p class="kicker"><span lang="en" data-lang="en">the greet example</span><span lang="zh" data-lang="zh">greet 示例</span></p>
+          <h1><span class="title-lines" lang="en" data-lang="en">Getting started with the MoonBit backend stack</span><span class="title-lines" lang="zh" data-lang="zh">MoonBit 后端与微服务<br>快速入门</span></h1>
           <p class="standfirst"><span lang="en" data-lang="en">Every chapter adds one capability to the same running service. By the last one it answers over HTTP, GraphQL and gRPC, keeps its rows in SQLite, and carries tests that go red when any of that stops being true.</span><span lang="zh" data-lang="zh">每章给同一个在跑的服务加一件事。到最后一章，它同时通过 HTTP、GraphQL 和 gRPC 回答，把行存进 SQLite，并带着测试：其中任何一处失效，测试就会红。</span></p>
           <ul class="facts"><li><span><span lang="en" data-lang="en">chapters</span><span lang="zh" data-lang="zh">章</span></span><b>10</b></li><li><span><span lang="en" data-lang="en">libraries</span><span lang="zh" data-lang="zh">库</span></span><b>9</b></li><li><span><span lang="en" data-lang="en">target</span><span lang="zh" data-lang="zh">目标</span></span><b>native</b></li><li><span><span lang="en" data-lang="en">license</span><span lang="zh" data-lang="zh">许可</span></span><b>Apache-2.0</b></li></ul>
           <p class="go">
@@ -65,7 +65,7 @@
 <span class="hdr">content-type:</span> application/json
 <span class="hdr">server:</span> mooncat
 
-<span class="body">{&quot;id&quot;:1,&quot;name&quot;:&quot;Ada&quot;}</span></pre></div><p class="exchange__note"><span lang="en" data-lang="en"><code class="ic">x-request-id</code> is the middleware from chapter 1. <code class="ic">server: mooncat</code> is the transport signing its own work. The body is a row moonsqlite returned and moonorm decoded, on a connection the process opened at boot.</span><span lang="zh" data-lang="zh"><code class="ic">x-request-id</code> 是第 1 章那个中间件加的。<code class="ic">server: mooncat</code> 是传输层写下的名字。正文是 moonsqlite 返回、moonorm 解码出来的一行，走的是进程启动时打开的那条连接。</span></p></div>
+<span class="body">{&quot;id&quot;:1,&quot;name&quot;:&quot;Ada&quot;}</span></pre></div><p class="exchange__note"><span lang="en" data-lang="en"><code class="ic">x-request-id</code> is the chapter-01 middleware. <code class="ic">server: mooncat</code> is the transport signing its own work. The body is a row moonsqlite returned and moonorm decoded, on the connection the process opened at boot.</span><span lang="zh" data-lang="zh"><code class="ic">x-request-id</code> 由中间件加上；<code class="ic">server: mooncat</code> 是传输层写下的名字。正文是 moonsqlite 返回、moonorm 解码出的一行，走的是进程启动时打开的那条连接。</span></p></div>
       </div>
     </div>
   </section>
