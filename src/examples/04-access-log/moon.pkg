@@ -1,0 +1,13 @@
+// The assembly seam and the access log: a routed application, wrapped by a
+// moonzero Server with its logging layer, lowered to the ASGI value the transport
+// takes, and driven in-process by the test client.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moonapi",
+  "moonbitstack/moonzero" @zero,
+  "moonbitstack/moonasgi/testing",
+  "moonbitlang/async",
+}

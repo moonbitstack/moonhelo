@@ -102,6 +102,7 @@ src/
     01-lifecycle/       startup, drain, and a run that stops and continues
     02-three-styles/    the same two routes as functions, as a type, as annotations
     03-three-ways-data/ the same row read through a written model, an annotated one, and generated SQL
+    04-access-log/      the assembly seam, and one access-log line per call
   gen/                  runs moonctl over the spec
   genmodel/             what moonctl wrote — committed, and regenerated in CI
   rpc/                  greet.Greeter over h2c, with Server Reflection
@@ -124,6 +125,7 @@ $ moon run src/examples/00-nine-in-one --target native
 $ moon run src/examples/01-lifecycle --target native
 $ moon run src/examples/02-three-styles --target native
 $ moon run src/examples/03-three-ways-data --target native
+$ moon run src/examples/04-access-log --target native
 ```
 
 The first carries one greeting through the spec, the request, the route group,
