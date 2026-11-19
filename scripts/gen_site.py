@@ -11,6 +11,7 @@ Usage: python scripts/gen_site.py [--check]
 """
 
 import argparse
+import hashlib
 import html
 import json
 import re
@@ -374,6 +375,12 @@ FAVICON = (
 # Code in JetBrains Mono; every other word in HarmonyOS Sans SC, split by
 # unicode range so a page fetches only the characters it shows. One sheet per
 # weight the stylesheet asks for.
+def stamp(name: str) -> str:
+    """The first characters of an asset's hash, so a page names the version it was
+    built with and a browser holding the last one fetches the new one."""
+    return hashlib.sha256((DOCS / "assets" / name).read_bytes()).hexdigest()[:10]
+
+
 FONTS = [
     "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap",
 ] + [
@@ -431,7 +438,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 {"".join(f'<link rel="stylesheet" href="{href}">{chr(10)}' for href in FONTS)}
-<link rel="stylesheet" href="{css_prefix}assets/site.css">
+<link rel="stylesheet" href="{css_prefix}assets/site.css?v={stamp("site.css")}">
 </head>
 <body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") else ""}>
 <a class="skip" href="#content">Skip to content</a>
@@ -594,7 +601,7 @@ def render_chapter(site: dict, page: dict) -> str:
   </main>
 {toc(page)}
 </div>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v={stamp("site.js")}"></script>
 </body>
 </html>
 """
@@ -784,7 +791,7 @@ def render_cover(site: dict, page: dict) -> str:
     <span>{bi(page["colophon"])}</span>
   </div>
 </main>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v={stamp("site.js")}"></script>
 </body>
 </html>
 """
