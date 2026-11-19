@@ -67,7 +67,8 @@
             {
               "cmd": "moon run src/gen --target native",
               "out": [
-                "gen: wrote src/genmodel/greet_model.mbt",
+                "gen: wrote src/genmodel/models.mbt",
+                "gen: wrote src/genmodel/migrate.mbt",
                 "gen: mctl also produced a 1284-byte moonapi scaffold (routes are hand-written for the business logic)"
               ]
             }
@@ -76,8 +77,8 @@
         {
           "type": "p",
           "text": {
-            "en": "The output is committed. CI runs the same command, then `moon fmt`, then `git diff --exit-code`: a spec change nobody regenerated is a red build, not a model that quietly describes last week's table.",
-            "zh": "生成物入库。CI 跑同一条命令，再 `moon fmt`，再 `git diff --exit-code`：改了描述却忘了重新生成，换来的是红的构建，而不是一个还在描述上周那张表的模型。"
+            "en": "The output is committed, and so is what the build expands it into. CI runs the same command, then `moon fmt`, then `git diff --exit-code`, and diffs again after the build: a spec change nobody regenerated is a red build, not a model that quietly describes last week's table.",
+            "zh": "生成物入库，构建展开出的文件也入库。CI 跑同一条命令，再 `moon fmt`，再 `git diff --exit-code`，构建之后再比一次：改了描述却忘了重新生成，换来的是红的构建，而不是一个还在描述上周那张表的模型。"
           }
         }
       ]
@@ -92,26 +93,33 @@
         {
           "type": "p",
           "text": {
-            "en": "One record, one model, two migration functions. The model is a name, a column list, and two closures: a row into the record, and the record into the columns an `INSERT` binds.",
-            "zh": "一个记录、一个模型、两个迁移函数。模型是一个名字、一份列清单、两个闭包：一行变成记录，记录变成 `INSERT` 要绑的列。"
+            "en": "Two files. `models.mbt` is the type block as a struct with two annotations, and `migrate.mbt` holds the two migration functions. The build reads the annotations and writes the model into `models.g.mbt`: the table's name, each field with its column type, and a closure that turns a row into the record.",
+            "zh": "两个文件。`models.mbt` 是类型块变成的结构体，带两个注解；`migrate.mbt` 是两个迁移函数。构建时读这些注解，把模型写进 `models.g.mbt`：表名、每个字段与它的列类型，以及把一行变成记录的闭包。"
           }
         },
         {
           "type": "code",
+          "default": "annotation",
           "variants": [
             {
-              "style": "spec",
-              "file": "src/genmodel/greet_model.mbt",
+              "style": "annotation",
+              "file": "src/genmodel/models.mbt",
               "lang": "moonbit",
-              "code": "pub let user_model : @moonorm.Model[User] = @moonorm.Model::new(\n  \"user\",\n  [\n    @moonorm.column(\"id\", IntType, primary_key=true),\n    @moonorm.column(\"name\", TextType),\n  ],\n  row => { id: row.int(0), name: row.text(1), },\n  r => [(\"id\", @moondb.Int(r.id)), (\"name\", @moondb.Text(r.name))],\n)"
+              "code": "#orm.table(name=\"user\")\npub(all) struct User {\n  #orm.column(primary_key=true, kind=\"int\")\n  id : Int32\n  name : String\n}"
+            },
+            {
+              "style": "function",
+              "file": "src/genmodel/models.g.mbt",
+              "lang": "moonbit",
+              "code": "let user_model : @moonorm.Model[User] = @moonorm.Model::from_fields(\n  \"user\",\n  [\n    @moonorm.field(\"id\", IntType, h => h.id, primary_key=true, nullable=false),\n    @moonorm.field(\"name\", TextType, h => h.name, nullable=false),\n  ],\n  r => { id: r.read(0), name: r.read(1) },\n)\n\npub fn User::model() -> @moonorm.Model[User] {\n  user_model\n}"
             }
           ]
         },
         {
           "type": "p",
           "text": {
-            "en": "Those two closures are what MoonBit cannot synthesise without reflection. The generator writes them out instead of hiding them behind an attribute, so a decoder bug is a line you can read and a test can point at.",
-            "zh": "这两个闭包正是 MoonBit 在没有反射时无法自动合成的东西。生成器把它们写出来，而不是藏在注解后面，所以解码出错时，你有一行可读的代码，测试也能指到它。"
+            "en": "The closure that decodes a row is what MoonBit cannot synthesise without reflection. The annotation says what you want and the expansion writes the code out where you can read it, so a decoder bug is a line a test can point at. The second tab is that expansion; moonctl's `generate_model` writes the same shape straight into one file, for a project that wants no build rule.",
+            "zh": "把一行解码成记录的闭包，正是 MoonBit 在没有反射时无法自动合成的。注解写出你要什么，展开把代码写在看得见的地方，所以解码出错时，测试能指到具体的一行。第二个页签就是展开的结果；不想要构建规则的项目，可以用 moonctl 的 `generate_model` 把同样的形状直接写进一个文件。"
           }
         }
       ]
@@ -137,7 +145,7 @@
               "style": "spec",
               "file": "src/server/service.mbt",
               "lang": "moonbit",
-              "code": "  let rows = try\n    sess.fetch_as(\n      @genmodel.user_model,\n      @genmodel.user_model.select().eq(\"id\", @moondb.Int(id)),\n    )"
+              "code": "  let rows = try\n    sess.fetch_as(\n      @genmodel.User::model(),\n      @genmodel.User::model().select().eq(\"id\", @moondb.Int(id)),\n    )"
             }
           ]
         },
@@ -165,16 +173,16 @@
           },
           "items": [
             {
-              "en": "Add `email : string` to the type block and run `moon run src/gen`. The diff touches the record, the model, the decoder and the insert projection — four places you did not type.",
-              "zh": "给类型块加 `email : string`，跑 `moon run src/gen`。diff 会动到记录、模型、解码器和插入投影 —— 四处你都没亲手写。"
+              "en": "Add `email : string` to the type block, run `moon run src/gen`, then build. The diff touches the struct, and after the build the expanded model: two files you did not type.",
+              "zh": "给类型块加 `email : string`，跑 `moon run src/gen`，再构建。diff 会动到结构体，构建之后还有展开出的模型：两个文件你都没亲手写。"
             },
             {
               "en": "Run the tests without touching the handler. They still pass, because nothing reads `email` yet. Add it to `user_json` and one test tells you the response shape moved.",
               "zh": "先不动处理函数，跑测试。它照样过，因为还没有人读 `email`。把它加进 `user_json`，会有一条测试告诉你响应形状变了。"
             },
             {
-              "en": "Edit `src/genmodel/greet_model.mbt` by hand and regenerate. Your edit is gone. The first line of the file said it would be.",
-              "zh": "手改 `src/genmodel/greet_model.mbt`，然后重新生成。改动没了 —— 文件第一行早就这么写了。"
+              "en": "Edit `src/genmodel/models.g.mbt` by hand and build. Your edit is gone. The first line of the file said it would be.",
+              "zh": "手改 `src/genmodel/models.g.mbt`，然后构建。改动没了，文件第一行早就这么写了。"
             }
           ]
         },

@@ -102,7 +102,7 @@
               "style": "function",
               "file": "src/server/service.mbt",
               "lang": "moonbit",
-              "code": "  let rows = try\n    sess.fetch_as(\n      @genmodel.user_model,\n      @genmodel.user_model.select().eq(\"id\", @moondb.Int(id)),\n    )"
+              "code": "  let rows = try\n    sess.fetch_as(\n      @genmodel.User::model(),\n      @genmodel.User::model().select().eq(\"id\", @moondb.Int(id)),\n    )"
             }
           ]
         },

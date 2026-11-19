@@ -91,8 +91,8 @@ fn handle_get_user(
   }
   let rows = try
     sess.fetch_as(
-      @genmodel.user_model,
-      @genmodel.user_model.select().eq("id", @moondb.Int(id)),
+      @genmodel.User::model(),
+      @genmodel.User::model().select().eq("id", @moondb.Int(id)),
     )
   catch {
     e => return error_json(500, "query failed: " + e.to_string())
