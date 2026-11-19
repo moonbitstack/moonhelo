@@ -10,7 +10,14 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/harmonyos-sans-sc-webfont-splitted@1.1.0/dist/Light.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/harmonyos-sans-sc-webfont-splitted@1.1.0/dist/Regular.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/harmonyos-sans-sc-webfont-splitted@1.1.0/dist/Medium.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/harmonyos-sans-sc-webfont-splitted@1.1.0/dist/Semibold.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/harmonyos-sans-sc-webfont-splitted@1.1.0/dist/Bold.css">
+
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -83,7 +90,47 @@
   </section>
 
   <section class="sheet">
-    <div class="sheet__gutter"><span class="sheet__num">02</span><span lang="en" data-lang="en">contents</span><span lang="zh" data-lang="zh">目录</span></div>
+    <div class="sheet__gutter"><span class="sheet__num">02</span><span lang="en" data-lang="en">setup</span><span lang="zh" data-lang="zh">准备</span></div>
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <h2 class="sheet__title"><span lang="en" data-lang="en">Before you start</span><span lang="zh" data-lang="zh">开始之前</span></h2>
+        <span class="sheet__hint"><span lang="en" data-lang="en">the toolchain, the code, one run</span><span lang="zh" data-lang="zh">工具链、代码、跑一次</span></span>
+      </div>
+      <p class="about"><span lang="en" data-lang="en">The service is a native program: it listens on a port and links SQLite. You need the MoonBit toolchain and a C compiler — gcc or clang, or Visual Studio&#x27;s on Windows.</span><span lang="zh" data-lang="zh">这个服务是原生程序：它监听端口，并链接 SQLite。要装好 MoonBit 工具链和一个 C 编译器：gcc 或 clang，Windows 上用 Visual Studio 自带的。</span></p>
+      <div class="code" data-code><div class="pane" data-style="function"><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="shell"><span class="c"># the toolchain: Linux and macOS, then Windows in PowerShell</span>
+<span class="p">$ </span>curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+<span class="out">&gt; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex</span>
+<span class="out"></span>
+<span class="c"># the code, its tests, and the service on port 12000</span>
+<span class="p">$ </span>git clone https://github.com/moonbitstack/moonhelo
+<span class="p">$ </span>cd moonhelo
+<span class="p">$ </span>moon test --target native
+<span class="p">$ </span>moon run src/cmd/greet-server --target native
+<span class="out"></span>
+<span class="c"># from a second terminal</span>
+<span class="p">$ </span>curl -s localhost:12000/ping
+<span class="out">pong</span></code></pre></div></div>
+      <p class="about"><span lang="en" data-lang="en">Chapter 01 starts from this running service and takes it apart.</span><span lang="zh" data-lang="zh">第 01 章就从这个跑起来的服务讲起，一层一层拆开看。</span></p>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet__gutter"><span class="sheet__num">03</span><span lang="en" data-lang="en">styles</span><span lang="zh" data-lang="zh">写法</span></div>
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <h2 class="sheet__title"><span lang="en" data-lang="en">Three ways to write it</span><span lang="zh" data-lang="zh">三种写法</span></h2>
+        <span class="sheet__hint"><span lang="en" data-lang="en">pick one, every page follows</span><span lang="zh" data-lang="zh">选一次，各章都照此显示</span></span>
+      </div>
+      <p class="about"><span lang="en" data-lang="en">Where a library offers more than one shape for the same thing, the sample shows each, with tabs above it. All three stay, because each suits a different size of service.</span><span lang="zh" data-lang="zh">同一件事库里有几种写法时，示例把每种都列出来，用上方的页签切换。三种写法都保留，是因为它们各适合不同规模的服务。</span></p>
+      <ol class="layers"><li class="layer"><span class="layer__n">01</span><span class="layer__lib"><span lang="en" data-lang="en">Function</span><span lang="zh" data-lang="zh">函数</span></span><span class="layer__did"><span lang="en" data-lang="en">Routes are calls on an app value, each handler next to its path. Start here: nothing to learn before the first route.</span><span lang="zh" data-lang="zh">路由就是在应用值上的调用，处理函数紧挨着它的路径。从这里起步，写第一条路由前不用先学别的。</span><span class="layer__lead" aria-hidden="true"></span><code class="layer__art">app.get(&quot;/ping&quot;, …)</code></span></li><li class="layer"><span class="layer__n">02</span><span class="layer__lib"><span lang="en" data-lang="en">Types</span><span lang="zh" data-lang="zh">类型</span></span><span class="layer__did"><span lang="en" data-lang="en">A route is a value that answers its path, so it can hold a connection or a cache for as long as it lives.</span><span lang="zh" data-lang="zh">路由是一个能应答路径的值，所以它能在存活期间一直持有连接或缓存。</span><span class="layer__lead" aria-hidden="true"></span><code class="layer__art">impl @moonapi.View for Greeter</code></span></li><li class="layer"><span class="layer__n">03</span><span class="layer__lib"><span lang="en" data-lang="en">Annotations</span><span lang="zh" data-lang="zh">注解</span></span><span class="layer__did"><span lang="en" data-lang="en"><code class="ic">#app.get</code> and <code class="ic">#orm.table</code> on plain functions and structs; the generator writes the registration and the model, which keeps forty routes readable.</span><span lang="zh" data-lang="zh">在普通函数和结构体上写 <code class="ic">#app.get</code>、<code class="ic">#orm.table</code>，注册代码和模型由生成器写出，路由到了四十条也照样好读。</span><span class="layer__lead" aria-hidden="true"></span><code class="layer__art">#app.get(&quot;/ping&quot;)</code></span></li><li class="layer"><span class="layer__n">04</span><span class="layer__lib"><span lang="en" data-lang="en">From a spec</span><span lang="zh" data-lang="zh">描述生成</span></span><span class="layer__did"><span lang="en" data-lang="en">Not a tab but a road through the whole course: one <code class="ic">.api</code> file, from which moonctl generates the routes, the types and the model. Chapter 02.</span><span lang="zh" data-lang="zh">不是页签，而是贯穿全书的一条路：一份 <code class="ic">.api</code> 文件，moonctl 据此生成路由、类型和模型。见第 02 章。</span><span class="layer__lead" aria-hidden="true"></span><code class="layer__art">greet.api</code></span></li></ol>
+      <div class="picker" role="group" aria-label="API style">
+        <span class="picker__label"><span lang="en" data-lang="en">Show code as</span><span lang="zh" data-lang="zh">代码显示为</span></span><button type="button" data-style="function" data-style-pick aria-pressed="false"><span lang="en" data-lang="en">Function</span><span lang="zh" data-lang="zh">函数</span></button><button type="button" data-style="type" data-style-pick aria-pressed="false"><span lang="en" data-lang="en">Types</span><span lang="zh" data-lang="zh">类型</span></button><button type="button" data-style="annotation" data-style-pick aria-pressed="false"><span lang="en" data-lang="en">Annotations</span><span lang="zh" data-lang="zh">注解</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet__gutter"><span class="sheet__num">04</span><span lang="en" data-lang="en">contents</span><span lang="zh" data-lang="zh">目录</span></div>
     <div class="sheet__body">
       <div class="sheet__head">
         <h2 class="sheet__title"><span lang="en" data-lang="en">The chapters</span><span lang="zh" data-lang="zh">课程目录</span></h2>

@@ -179,6 +179,10 @@
         tab.setAttribute("aria-selected", String(tab.dataset.style === chosen));
       }
     }
+    // the cover's picker sets the same preference, so it shows which one holds
+    for (const pick of document.querySelectorAll("[data-style-pick]")) {
+      pick.setAttribute("aria-pressed", String(pick.dataset.style === next));
+    }
   };
   applyStyle(style);
 

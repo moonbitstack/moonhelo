@@ -18,8 +18,9 @@
   /* the two glyphs a styled control needs, as tokens so the theme can swap ink */
   --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%236c685c' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M2.4 7.3 5.6 10.4 11.6 4' fill='none' stroke='%23fbfaf6' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  --sans: "Inter Tight", -apple-system, "Segoe UI", Roboto, sans-serif;
-  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  /* One face for every word, Latin and Chinese alike; code keeps its mono. */
+  --sans: "HarmonyOS Sans SC", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: var(--sans);
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --top: 57px;
 }
@@ -89,10 +90,9 @@ html[data-lang="zh"] [data-lang="en"] { display: none !important; }
 
 ::selection { background: color-mix(in srgb, var(--accent) 24%, transparent); }
 
-/* Chinese borrows these two stacks, and drops the Latin faces that lack the glyphs */
+/* the face covers Chinese too; the system's own come in only while it loads */
 html[data-lang="zh"] {
-  --sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", -apple-system, sans-serif;
-  --display: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --sans: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 }
 
 /* Chinese has no letter-spacing to lose and wants a little more leading */
@@ -399,9 +399,9 @@ html[data-lang="zh"] .lead { line-height: 1.75; }
   grid-template-columns: 26px minmax(0, 1fr) auto;
   align-items: baseline;
   gap: 4px;
-  padding: 6px 10px;
-  border-radius: 7px;
-  border-left: 2px solid transparent;
+  position: relative;
+  padding: 6px 10px 6px 12px;
+  border-radius: 0 7px 7px 0;
   color: var(--muted);
   text-decoration: none;
   font-size: 14.5px;
@@ -413,8 +413,22 @@ html[data-lang="zh"] .lead { line-height: 1.75; }
 .sidebar li a.on {
   color: var(--accent);
   background: var(--wash);
-  border-left-color: var(--accent);
   font-weight: 500;
+}
+
+/* The mark beside a chosen item or an aside: a bar whose outer edge runs the
+   full height and whose inner edge stops short, so it reads as a straight rule
+   against a box that is rounded only on the right. */
+.sidebar li a.on::before,
+.note::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--accent);
+  clip-path: polygon(0 0, 100% 2px, 100% calc(100% - 2px), 0 100%);
 }
 
 .sidebar .n {
@@ -541,6 +555,42 @@ li { margin-bottom: 0.4em; }
   border-bottom-color: var(--accent);
 }
 
+/* The cover's style picker: the tabs' type and colours, standing alone on the
+   page rather than over a sample, so it carries its own rule underneath. */
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 4px;
+  margin-top: 18px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.picker__label {
+  margin-right: 10px;
+  color: var(--muted);
+  font: 500 11.5px/1 var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.picker button {
+  padding: 8px 11px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: 500 11.5px/1 var(--mono);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.picker button:hover { color: var(--ink); }
+
+.picker button[aria-pressed="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 .pane__bar {
   display: flex;
   align-items: center;
@@ -624,10 +674,11 @@ pre .p + span { color: var(--ink); }
 /* ---------- asides ---------- */
 
 .note {
+  position: relative;
   margin: 1.5em 0;
-  padding: 14px 16px;
+  padding: 14px 16px 14px 18px;
   border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent);
+  border-left: 0;
   border-radius: 0 8px 8px 0;
   background: var(--wash);
   font-size: 15.5px;
@@ -760,6 +811,7 @@ td code { font-family: var(--mono); font-size: 0.9em; }
   color: var(--muted);
   text-decoration: none;
   font-size: 13.5px;
+  font-weight: 300;
   line-height: 1.4;
 }
 

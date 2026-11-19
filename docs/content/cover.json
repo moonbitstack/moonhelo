@@ -61,6 +61,14 @@
       "zh": "技术栈"
     },
     {
+      "en": "setup",
+      "zh": "准备"
+    },
+    {
+      "en": "styles",
+      "zh": "写法"
+    },
+    {
       "en": "contents",
       "zh": "目录"
     }
@@ -199,5 +207,95 @@
   "colophon": {
     "en": "every output on these pages comes from a real run",
     "zh": "本站每个输出都来自真实运行"
+  },
+  "setup": {
+    "title": {
+      "en": "Before you start",
+      "zh": "开始之前"
+    },
+    "hint": {
+      "en": "the toolchain, the code, one run",
+      "zh": "工具链、代码、跑一次"
+    },
+    "lead": {
+      "en": "The service is a native program: it listens on a port and links SQLite. You need the MoonBit toolchain and a C compiler — gcc or clang, or Visual Studio's on Windows.",
+      "zh": "这个服务是原生程序：它监听端口，并链接 SQLite。要装好 MoonBit 工具链和一个 C 编译器：gcc 或 clang，Windows 上用 Visual Studio 自带的。"
+    },
+    "code": {
+      "type": "code",
+      "variants": [
+        {
+          "style": "function",
+          "file": "shell",
+          "lang": "shell",
+          "check": "skip",
+          "code": "# the toolchain: Linux and macOS, then Windows in PowerShell\n$ curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash\n> irm https://cli.moonbitlang.com/install/powershell.ps1 | iex\n\n# the code, its tests, and the service on port 12000\n$ git clone https://github.com/moonbitstack/moonhelo\n$ cd moonhelo\n$ moon test --target native\n$ moon run src/cmd/greet-server --target native\n\n# from a second terminal\n$ curl -s localhost:12000/ping\npong"
+        }
+      ]
+    },
+    "next": {
+      "en": "Chapter 01 starts from this running service and takes it apart.",
+      "zh": "第 01 章就从这个跑起来的服务讲起，一层一层拆开看。"
+    }
+  },
+  "styles": {
+    "title": {
+      "en": "Three ways to write it",
+      "zh": "三种写法"
+    },
+    "hint": {
+      "en": "pick one, every page follows",
+      "zh": "选一次，各章都照此显示"
+    },
+    "lead": {
+      "en": "Where a library offers more than one shape for the same thing, the sample shows each, with tabs above it. All three stay, because each suits a different size of service.",
+      "zh": "同一件事库里有几种写法时，示例把每种都列出来，用上方的页签切换。三种写法都保留，是因为它们各适合不同规模的服务。"
+    },
+    "rows": [
+      {
+        "n": "01",
+        "style": "function",
+        "did": {
+          "en": "Routes are calls on an app value, each handler next to its path. Start here: nothing to learn before the first route.",
+          "zh": "路由就是在应用值上的调用，处理函数紧挨着它的路径。从这里起步，写第一条路由前不用先学别的。"
+        },
+        "artifact": "app.get(\"/ping\", …)"
+      },
+      {
+        "n": "02",
+        "style": "type",
+        "did": {
+          "en": "A route is a value that answers its path, so it can hold a connection or a cache for as long as it lives.",
+          "zh": "路由是一个能应答路径的值，所以它能在存活期间一直持有连接或缓存。"
+        },
+        "artifact": "impl @moonapi.View for Greeter"
+      },
+      {
+        "n": "03",
+        "style": "annotation",
+        "did": {
+          "en": "`#app.get` and `#orm.table` on plain functions and structs; the generator writes the registration and the model, which keeps forty routes readable.",
+          "zh": "在普通函数和结构体上写 `#app.get`、`#orm.table`，注册代码和模型由生成器写出，路由到了四十条也照样好读。"
+        },
+        "artifact": "#app.get(\"/ping\")"
+      },
+      {
+        "n": "04",
+        "style": "",
+        "label": {
+          "en": "From a spec",
+          "zh": "描述生成"
+        },
+        "did": {
+          "en": "Not a tab but a road through the whole course: one `.api` file, from which moonctl generates the routes, the types and the model. Chapter 02.",
+          "zh": "不是页签，而是贯穿全书的一条路：一份 `.api` 文件，moonctl 据此生成路由、类型和模型。见第 02 章。"
+        },
+        "artifact": "greet.api"
+      }
+    ],
+    "pick": {
+      "en": "Show code as",
+      "zh": "代码显示为"
+    }
   }
 }

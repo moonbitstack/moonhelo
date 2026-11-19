@@ -379,11 +379,15 @@ FAVICON = (
     "fill='%23f4f1ea'/%3E%3C/svg%3E"
 )
 
-FONTS = (
-    "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;"
-    "1,9..144,400..600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500"
-    "&display=swap"
-)
+# Code in JetBrains Mono; every other word in HarmonyOS Sans SC, split by
+# unicode range so a page fetches only the characters it shows. One sheet per
+# weight the stylesheet asks for.
+FONTS = [
+    "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap",
+] + [
+    f"https://cdn.jsdelivr.net/npm/harmonyos-sans-sc-webfont-splitted@1.1.0/dist/{weight}.css"
+    for weight in ("Light", "Regular", "Medium", "Semibold", "Bold")
+]
 
 GITHUB = (
     '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">'
@@ -433,7 +437,8 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 <link rel="icon" href="{FAVICON}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="{FONTS}">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+{"".join(f'<link rel="stylesheet" href="{href}">{chr(10)}' for href in FONTS)}
 <link rel="stylesheet" href="{css_prefix}assets/site.css">
 </head>
 <body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") and not page.get("standalone") else ""}>
@@ -692,6 +697,32 @@ def render_cover(site: dict, page: dict) -> str:
 
     first = next(c["slug"] for c in site["chapters"] if c.get("ready"))
 
+    setup = page["setup"]
+    styles = page["styles"]
+
+    def style_name(row: dict) -> str:
+        if row["style"]:
+            return "".join(
+                f'<span lang="{lang}" data-lang="{lang}">{STYLE_LABELS[row["style"]][lang]}</span>'
+                for lang in LANGS
+            )
+        return bi(row["label"])
+
+    style_rows = "".join(
+        f'<li class="layer"><span class="layer__n">{r["n"]}</span>'
+        f'<span class="layer__lib">{style_name(r)}</span>'
+        f'<span class="layer__did">{bi(r["did"])}'
+        f'<span class="layer__lead" aria-hidden="true"></span>'
+        f'<code class="layer__art">{html.escape(r["artifact"])}</code></span></li>'
+        for r in styles["rows"]
+    )
+    picks = "".join(
+        f'<button type="button" data-style="{r["style"]}" data-style-pick aria-pressed="false">'
+        f"{style_name(r)}</button>"
+        for r in styles["rows"]
+        if r["style"]
+    )
+
     body = f"""<!DOCTYPE html>
 {head(site, {**page, "is_cover": True})}
 <main id="content" class="cover">
@@ -728,6 +759,34 @@ def render_cover(site: dict, page: dict) -> str:
 
   <section class="sheet">
     <div class="sheet__gutter"><span class="sheet__num">02</span>{bi(page["gutter"][2])}</div>
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <h2 class="sheet__title">{bi(setup["title"])}</h2>
+        <span class="sheet__hint">{bi(setup["hint"])}</span>
+      </div>
+      <p class="about">{bi(setup["lead"])}</p>
+      {render_code(setup["code"])}
+      <p class="about">{bi(setup["next"])}</p>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet__gutter"><span class="sheet__num">03</span>{bi(page["gutter"][3])}</div>
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <h2 class="sheet__title">{bi(styles["title"])}</h2>
+        <span class="sheet__hint">{bi(styles["hint"])}</span>
+      </div>
+      <p class="about">{bi(styles["lead"])}</p>
+      <ol class="layers">{style_rows}</ol>
+      <div class="picker" role="group" aria-label="API style">
+        <span class="picker__label">{bi(styles["pick"])}</span>{picks}
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet__gutter"><span class="sheet__num">04</span>{bi(page["gutter"][4])}</div>
     <div class="sheet__body">
       <div class="sheet__head">
         <h2 class="sheet__title">{bi(page["contentsTitle"])}</h2>
