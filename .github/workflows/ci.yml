@@ -74,7 +74,7 @@ jobs:
             fi
           done
 
-      - name: e2e over the wire (a real HTTP client curls the running server)
+      - name: e2e over the wire (curl and a Python client call the running server)
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
@@ -101,6 +101,9 @@ jobs:
           GQL=$(curl -sf -X POST http://127.0.0.1:12000/graphql -H 'content-type: application/json' --data '{"query":"{ greeting(name: \"Curl\") }"}')
           echo "$GQL"
           echo "$GQL" | grep -q '"greeting":"Hello, Curl"'
+          echo "--- the same service from Python: HTTP, GraphQL, gRPC ---"
+          python3 -m pip install --quiet --break-system-packages grpcio grpcio-tools
+          python3 scripts/interop/python_clients.py
           kill "$SRV" || true
 
       # A reader pastes the blocks of the README into a project, so they have to

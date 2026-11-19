@@ -106,8 +106,9 @@ src/
     03-three-ways-data/ the same row read through a written model, an annotated one, and generated SQL
     04-access-log/      the assembly seam, and one access-log line per call
     05-production/      token, declared body, page, transaction, queue, stream, metrics
+    06-clients/         the service from outside: moonfetch over HTTP, an MCP client for the tool
   gen/                  runs moonctl over the spec
-  genmodel/             what moonctl wrote — committed, and regenerated in CI
+  genmodel/             the #orm.table struct moonctl wrote and what the build expands it into
   rpc/                  greet.Greeter over h2c, with Server Reflection
   server/               the application, its GraphQL field, and the end-to-end tests
   spec/                 the .api and .proto the two generators read
@@ -115,7 +116,8 @@ src/
 
 `docs/` holds the course that walks this repository chapter by chapter, rendered
 by `scripts/gen_site.py`; `scripts/check_snippets.py` compiles every MoonBit block
-in this file.
+in this file. `scripts/interop/python_clients.py` calls the running service from Python —
+HTTP and GraphQL with the standard library, gRPC with grpcio — and CI runs it beside curl.
 
 `src/spec/` holds data rather than code, and it sits under `src/` because the
 module root keeps only entry points and configuration; a reader looking for the
