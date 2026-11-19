@@ -40,7 +40,7 @@ source = "src"
 import {
   "moonbitstack/moonasgi@0.11.3",
   "moonbitstack/moonapi@0.18.3",
-  "moonbitstack/moonctl@0.13.1",
+  "moonbitstack/moonctl@0.13.2",
   "moonbitstack/moonorm@0.12.1",
   "moonbitstack/moondb@0.3.1",
   "moonbitstack/moonsqlite@0.4.1",
