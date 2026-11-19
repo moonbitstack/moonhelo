@@ -179,25 +179,6 @@ html[data-lang="zh"] .lead { line-height: 1.75; }
 
 .brand svg { display: block; }
 
-.topnav {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: 6px;
-}
-
-.topnav a {
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.topnav a:hover { color: var(--ink); background: var(--panel); }
-.topnav a[aria-current="page"] { color: var(--ink); }
-
 .topbar__end {
   display: flex;
   align-items: center;
@@ -969,8 +950,8 @@ html[data-lang="zh"] .masthead h1 {
 }
 
 .facts {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
   gap: 6px 26px;
   margin: 26px 0 0;
   padding: 0;
@@ -1210,6 +1191,19 @@ html[data-lang="zh"] .entry.soon .entry__t { font-style: normal; }
   line-height: 1.7;
 }
 
+/* ---------- what is read but not copied ----------
+   Numbers, labels, prompts and the chrome around the page are there to be read;
+   a selection dragged across the page carries the prose and the code alone. */
+
+.topbar, .sidebar, .toc, .pager, .foot, .colophon,
+.kicker, .crumb, .sheet__gutter, .sheet__hint, .facts, .go,
+.layer__n, .layer__lead, .layer__art, .entry__n, .entry__tags,
+.exchange__label, .pane__bar, .tabs, .picker, .copy, .prompt,
+h2 > .n, .note > b, .know > h3, .know__tick, .try > h3 {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* ---------- narrow ---------- */
 
 @media (width <= 1180px) {
@@ -1232,9 +1226,17 @@ html[data-lang="zh"] .entry.soon .entry__t { font-style: normal; }
     transition: transform 0.22s ease;
   }
   body[data-menu="open"] .sidebar { transform: translateX(0); box-shadow: 0 0 40px color-mix(in srgb, var(--ink) 18%, transparent); }
+  /* the page behind an open drawer dims and stays put; a tap on it closes the drawer */
+  body[data-menu="open"] { overflow: hidden; }
+  body[data-menu="open"]::after {
+    content: "";
+    position: fixed;
+    inset: var(--top) 0 0 0;
+    z-index: 34;
+    background: color-mix(in srgb, var(--ink) 22%, transparent);
+  }
   .menu { display: inline-flex; }
   .main { padding: 30px 20px 0; }
-  .topnav { display: none; }
   .masthead { grid-template-columns: minmax(0, 1fr); }
   .layer { grid-template-columns: 30px 100px minmax(0, 1fr); }
   .layer__did { display: block; }
@@ -1244,6 +1246,7 @@ html[data-lang="zh"] .entry.soon .entry__t { font-style: normal; }
 
 @media (width <= 560px) {
   body { font-size: 16px; }
+  .facts { grid-template-columns: repeat(2, max-content); }
   .brand span { display: none; }
   .masthead h1 { font-size: clamp(27px, 8.6vw, 36px); }
   .sheet { grid-template-columns: minmax(0, 1fr); }

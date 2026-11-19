@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Rows and sessions — MoonBit Stack</title>
+<title>Rows and sessions — Hello MoonBit Stack</title>
 <meta name="description" content="A model says what a table is. A session is what you run it with: it renders a statement for one dialect, binds the values, and hands back rows. This chapter writes one row and reads it back three ways.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,8 @@
   </button>
   <a class="brand" href="index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span class="brand__name" lang="en" data-lang="en">hello moonbit stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
+    <span class="brand__name" lang="en" data-lang="en">Hello MoonBit Stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="index.html"><span lang="en" data-lang="en">Course</span><span lang="zh" data-lang="zh">课程</span></a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
@@ -104,7 +101,7 @@ declare <span class="k">fn</span> find_note(db : &amp;<span class="p">@moondb</s
     <span class="t">None</span> =&gt; <span class="t">None</span>
   }
 }</code></pre></div></div><p><span lang="en" data-lang="en">That file is worth reading once: <code class="ic">#{id}</code> became a bound <code class="ic">?</code>, the row was read by column name, and a <code class="ic">T?</code> return meant <code class="ic">optional</code>. The generator made decisions, and every one of them is visible.</span><span lang="zh" data-lang="zh">这个文件值得读一遍：<code class="ic">#{id}</code> 变成了绑定的 <code class="ic">?</code>，行按列名读取，返回 <code class="ic">T?</code> 就意味着 <code class="ic">optional</code>。生成器做了决定，而且每个决定都看得见。</span></p></section>
-<section id="run"><h2><span class="n">05</span><span lang="en" data-lang="en">Run it</span><span lang="zh" data-lang="zh">跑起来</span></h2><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="p">$ </span>moon run src/examples/03-three-ways-data --target native
+<section id="run"><h2><span class="n">05</span><span lang="en" data-lang="en">Run it</span><span lang="zh" data-lang="zh">跑起来</span></h2><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="prompt">$ </span>moon run src/examples/03-three-ways-data --target native
 <span class="out">generated model : 1 first</span>
 <span class="out">written model   : 1 first</span>
 <span class="out">generated SQL   : first</span></code></pre></div><p><span lang="en" data-lang="en">One in-memory database, one row, three readers, three identical answers. The choice between the forms is about maintenance, not behaviour.</span><span lang="zh" data-lang="zh">一个内存数据库、一行数据、三个读取者、三个相同答案。写法之间的差别在维护成本，不在行为。</span></p></section>

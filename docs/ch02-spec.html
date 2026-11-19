@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>One spec, one model — MoonBit Stack</title>
+<title>One spec, one model — Hello MoonBit Stack</title>
 <meta name="description" content="Before there is a table there is a description of a table. One file lists the routes and the fields; a generator turns the fields into the model the service persists through, and the build proves the two have not drifted.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,8 @@
   </button>
   <a class="brand" href="index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span class="brand__name" lang="en" data-lang="en">hello moonbit stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
+    <span class="brand__name" lang="en" data-lang="en">Hello MoonBit Stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="index.html"><span lang="en" data-lang="en">Course</span><span lang="zh" data-lang="zh">课程</span></a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
@@ -73,7 +70,7 @@ type User {
   id:   int
   name: string
 }</code></pre></div></div><p><span lang="en" data-lang="en">mctl reads both blocks. The type block becomes a moonorm model; the service block becomes a moonapi scaffold. This repository keeps the model and writes the routes itself, because the routes carry the business logic — the goctl habit of generating the skeleton and filling in the middle.</span><span lang="zh" data-lang="zh">mctl 两个块都读。类型块变成 moonorm 模型，服务块变成 moonapi 脚手架。本仓库留下模型、路由自己写，因为路由里是业务逻辑 —— 也就是 goctl 的习惯：生成骨架，自己填中间。</span></p></section>
-<section id="run"><h2><span class="n">02</span><span lang="en" data-lang="en">Run the generator</span><span lang="zh" data-lang="zh">跑一次生成器</span></h2><p><span lang="en" data-lang="en"><code class="ic">src/gen</code> is a program rather than a shell script, so the paths live in one place and a failure is a message instead of a missing file.</span><span lang="zh" data-lang="zh"><code class="ic">src/gen</code> 是一个程序，不是 shell 脚本：路径集中在一处，失败时给出的是一条消息，而不是一个找不到的文件。</span></p><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="p">$ </span>moon run src/gen --target native
+<section id="run"><h2><span class="n">02</span><span lang="en" data-lang="en">Run the generator</span><span lang="zh" data-lang="zh">跑一次生成器</span></h2><p><span lang="en" data-lang="en"><code class="ic">src/gen</code> is a program rather than a shell script, so the paths live in one place and a failure is a message instead of a missing file.</span><span lang="zh" data-lang="zh"><code class="ic">src/gen</code> 是一个程序，不是 shell 脚本：路径集中在一处，失败时给出的是一条消息，而不是一个找不到的文件。</span></p><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="prompt">$ </span>moon run src/gen --target native
 <span class="out">gen: wrote src/genmodel/greet_model.mbt</span>
 <span class="out">gen: mctl also produced a 1284-byte moonapi scaffold (routes are hand-written for the business logic)</span></code></pre></div><p><span lang="en" data-lang="en">The output is committed. CI runs the same command, then <code class="ic">moon fmt</code>, then <code class="ic">git diff --exit-code</code>: a spec change nobody regenerated is a red build, not a model that quietly describes last week&#x27;s table.</span><span lang="zh" data-lang="zh">生成物入库。CI 跑同一条命令，再 <code class="ic">moon fmt</code>，再 <code class="ic">git diff --exit-code</code>：改了描述却忘了重新生成，换来的是红的构建，而不是一个还在描述上周那张表的模型。</span></p></section>
 <section id="model"><h2><span class="n">03</span><span lang="en" data-lang="en">What came out</span><span lang="zh" data-lang="zh">生成了什么</span></h2><p><span lang="en" data-lang="en">One record, one model, two migration functions. The model is a name, a column list, and two closures: a row into the record, and the record into the columns an <code class="ic">INSERT</code> binds.</span><span lang="zh" data-lang="zh">一个记录、一个模型、两个迁移函数。模型是一个名字、一份列清单、两个闭包：一行变成记录，记录变成 <code class="ic">INSERT</code> 要绑的列。</span></p><div class="code" data-code><div class="pane" data-style="spec"><div class="pane__bar"><span class="pane__file">src/genmodel/greet_model.mbt</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="moonbit"><span class="k">pub</span> <span class="k">let</span> user_model : <span class="p">@moonorm</span>.<span class="t">Model</span>[<span class="t">User</span>] = <span class="p">@moonorm</span>.<span class="t">Model</span>::new(

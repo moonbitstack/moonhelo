@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Stopping well — MoonBit Stack</title>
+<title>Stopping well — Hello MoonBit Stack</title>
 <meta name="description" content="A service that starts must stop. Three layers of this stack stop the same way in spirit and differently in form: hooks in reverse, a connection drained rather than cut, and a run that waits for an answer it does not have.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,8 @@
   </button>
   <a class="brand" href="index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span class="brand__name" lang="en" data-lang="en">hello moonbit stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
+    <span class="brand__name" lang="en" data-lang="en">Hello MoonBit Stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="index.html"><span lang="en" data-lang="en">Course</span><span lang="zh" data-lang="zh">课程</span></a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
@@ -63,7 +60,7 @@
   <span class="c">// Shutdown hooks run in reverse of registration, so they are registered in the</span>
   <span class="c">// order the resources were opened: the cache goes first, the database last.</span>
   app.on_shutdown(_state =&gt; log.push(<span class="s">&quot;close db&quot;</span>))
-  app.on_shutdown(_state =&gt; log.push(<span class="s">&quot;drop cache&quot;</span>))</code></pre></div></div><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="p">$ </span>moon run src/examples/01-lifecycle --target native
+  app.on_shutdown(_state =&gt; log.push(<span class="s">&quot;drop cache&quot;</span>))</code></pre></div></div><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="prompt">$ </span>moon run src/examples/01-lifecycle --target native
 <span class="out">moonapi : open db -&gt; warm cache</span>
 <span class="out">moonapi : open db -&gt; warm cache -&gt; drop cache -&gt; close db</span>
 <span class="out">moonrpc : 1 GOAWAY frame naming stream 0, 0 calls still running</span>

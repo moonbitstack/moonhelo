@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>The whole stack, once — MoonBit Stack</title>
+<title>The whole stack, once — Hello MoonBit Stack</title>
 <meta name="description" content="Nine libraries, one greeting, no socket and no database. Each layer contributes a line to the output, and reading the nine lines in order is the shortest tour of what the stack is.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,8 @@
   </button>
   <a class="brand" href="index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span class="brand__name" lang="en" data-lang="en">hello moonbit stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
+    <span class="brand__name" lang="en" data-lang="en">Hello MoonBit Stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="index.html"><span lang="en" data-lang="en">Course</span><span lang="zh" data-lang="zh">课程</span></a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
@@ -56,7 +53,7 @@
       <p class="crumb"><span lang="en" data-lang="en">Chapter 08</span><span lang="zh" data-lang="zh">第 08 章</span></p>
       <h1><span class="h1__t" lang="en" data-lang="en">The whole stack, once</span><span class="h1__t" lang="zh" data-lang="zh">全家桶，一次走完</span></h1>
       <p class="lead"><span lang="en" data-lang="en">Nine libraries, one greeting, no socket and no database. Each layer contributes a line to the output, and reading the nine lines in order is the shortest tour of what the stack is.</span><span lang="zh" data-lang="zh">九个库、一句问候、不开端口、不连数据库。每一层在输出里贡献一行，按顺序读完这九行，就是这一栈最短的导览。</span></p>
-<section id="run"><h2><span class="n">01</span><span lang="en" data-lang="en">Run it</span><span lang="zh" data-lang="zh">跑起来</span></h2><p><span lang="en" data-lang="en">One program, everything in process. It is the chapter you can hand to someone who has ten minutes and wants to know what this family of libraries is for.</span><span lang="zh" data-lang="zh">一个程序，全部在进程内。这一章适合交给只有十分钟、又想知道这一族库到底做什么的人。</span></p><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="p">$ </span>moon run src/examples/00-nine-in-one --target native
+<section id="run"><h2><span class="n">01</span><span lang="en" data-lang="en">Run it</span><span lang="zh" data-lang="zh">跑起来</span></h2><p><span lang="en" data-lang="en">One program, everything in process. It is the chapter you can hand to someone who has ten minutes and wants to know what this family of libraries is for.</span><span lang="zh" data-lang="zh">一个程序，全部在进程内。这一章适合交给只有十分钟、又想知道这一族库到底做什么的人。</span></p><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="prompt">$ </span>moon run src/examples/00-nine-in-one --target native
 <span class="out">moonctl : parsed service &#x27;greet&#x27; — 1 route, 1 type</span>
 <span class="out">moonasgi: scope GET /api/v1/greet/heke1228</span>
 <span class="out">moonzero: group /api/v1 mounted the route</span>

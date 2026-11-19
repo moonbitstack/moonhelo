@@ -212,16 +212,21 @@
 
   const menu = document.querySelector("[data-menu]");
   if (menu) {
-    menu.addEventListener("click", () => {
-      const open = document.body.dataset.menu === "open";
-      document.body.dataset.menu = open ? "" : "open";
-      menu.setAttribute("aria-expanded", String(!open));
-    });
+    const setOpen = (open) => {
+      document.body.dataset.menu = open ? "open" : "";
+      menu.setAttribute("aria-expanded", String(open));
+    };
+    const isOpen = () => document.body.dataset.menu === "open";
+    menu.addEventListener("click", () => setOpen(!isOpen()));
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        document.body.dataset.menu = "";
-        menu.setAttribute("aria-expanded", "false");
+      if (e.key === "Escape" && isOpen()) {
+        setOpen(false);
+        menu.focus();
       }
+    });
+    // A tap anywhere outside the drawer closes it, the dimmed page included.
+    document.addEventListener("click", (e) => {
+      if (isOpen() && !e.target.closest(".sidebar, [data-menu]")) setOpen(false);
     });
   }
 

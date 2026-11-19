@@ -131,7 +131,9 @@ def highlight_shell(code: str) -> str:
     for line in code.splitlines(keepends=True):
         body = line.rstrip("\n")
         if body.startswith("$ "):
-            out.append(span("p", "$ ") + html.escape(body[2:]))
+            out.append(span("prompt", "$ ") + html.escape(body[2:]))
+        elif body.startswith("> "):
+            out.append(span("prompt", "> ") + html.escape(body[2:]))
         elif body.startswith("# ") or body.startswith("---"):
             out.append(span("c", body))
         else:
@@ -259,7 +261,7 @@ def render_term(block: dict) -> str:
     rows = []
     for step in block.get("steps", []):
         cmd = html.escape(step["cmd"])
-        rows.append(f'<span class="p">$ </span>{cmd}')
+        rows.append(f'<span class="prompt">$ </span>{cmd}')
         for line in step.get("out", []):
             rows.append(f'<span class="out">{html.escape(line)}</span>')
     body = "\n".join(rows)
@@ -340,10 +342,9 @@ def render_sections(page: dict) -> str:
 # shell
 # --------------------------------------------------------------------------
 
-BRAND = {"en": "hello moonbit stack", "zh": "Hello MoonBit Stack"}
+BRAND = {"en": "Hello MoonBit Stack", "zh": "Hello MoonBit Stack"}
 
 UI = {
-    "course": {"en": "Course", "zh": "课程"},
     "onthispage": {"en": "On this page", "zh": "本页目录"},
     "copy": {"en": "Copy", "zh": "复制"},
     "prev": {"en": "Previous", "zh": "上一章"},
@@ -442,9 +443,6 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
     {bi(BRAND, "span", "brand__name")}
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="{css_prefix}index.html"{" aria-current=\"page\"" if page.get("is_cover") else ""}>{ui("course")}</a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">

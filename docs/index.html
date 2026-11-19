@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Getting started with the MoonBit backend stack — MoonBit Stack</title>
+<title>Getting started with the MoonBit backend stack — Hello MoonBit Stack</title>
 <meta name="description" content="Every chapter adds one capability to the same running service. By the last one it answers over HTTP, GraphQL and gRPC, keeps its rows in SQLite, and carries tests that fail when any of that stops being true.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,8 @@
   </button>
   <a class="brand" href="index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span class="brand__name" lang="en" data-lang="en">hello moonbit stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
+    <span class="brand__name" lang="en" data-lang="en">Hello MoonBit Stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="index.html" aria-current="page"><span lang="en" data-lang="en">Course</span><span lang="zh" data-lang="zh">课程</span></a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
@@ -96,17 +93,17 @@
       </div>
       <p class="about"><span lang="en" data-lang="en">The service is a native program: it listens on a port and links SQLite. You need the MoonBit toolchain and a C compiler — gcc or clang, or Visual Studio&#x27;s on Windows.</span><span lang="zh" data-lang="zh">这个服务是原生程序：它监听端口，并链接 SQLite。要装好 MoonBit 工具链和一个 C 编译器：gcc 或 clang，Windows 上用 Visual Studio 自带的。</span></p>
       <div class="code" data-code><div class="pane" data-style="function"><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy>Copy</button></div><pre tabindex="0"><code data-lang="shell"><span class="c"># the toolchain: Linux and macOS, then Windows in PowerShell</span>
-<span class="p">$ </span>curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-<span class="out">&gt; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex</span>
+<span class="prompt">$ </span>curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+<span class="prompt">&gt; </span>irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
 <span class="out"></span>
 <span class="c"># the code, its tests, and the service on port 12000</span>
-<span class="p">$ </span>git clone https://github.com/moonbitstack/moonhelo
-<span class="p">$ </span>cd moonhelo
-<span class="p">$ </span>moon test --target native
-<span class="p">$ </span>moon run src/cmd/greet-server --target native
+<span class="prompt">$ </span>git clone https://github.com/moonbitstack/moonhelo
+<span class="prompt">$ </span>cd moonhelo
+<span class="prompt">$ </span>moon test --target native
+<span class="prompt">$ </span>moon run src/cmd/greet-server --target native
 <span class="out"></span>
 <span class="c"># from a second terminal</span>
-<span class="p">$ </span>curl -s localhost:12000/ping
+<span class="prompt">$ </span>curl -s localhost:12000/ping
 <span class="out">pong</span></code></pre></div></div>
       <p class="about"><span lang="en" data-lang="en">Chapter 01 starts from this running service and takes it apart.</span><span lang="zh" data-lang="zh">第 01 章就从这个跑起来的服务讲起，一层一层拆开看。</span></p>
     </div>

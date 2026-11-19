@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>A third surface — MoonBit Stack</title>
+<title>A third surface — Hello MoonBit Stack</title>
 <meta name="description" content="The same greeting over gRPC: one proto file, one handler that turns bytes into bytes, and Server Reflection so a client can discover the service before it calls.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b57'/%3E%3Cpath d='M9 21L16 11l7 10' fill='none' stroke='%23f4f1ea' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='11' r='2.6' fill='%23f4f1ea'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,8 @@
   </button>
   <a class="brand" href="index.html">
     <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M9 21L16 11l7 10" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="11" r="2.6" fill="var(--accent-ink)"/></svg>
-    <span class="brand__name" lang="en" data-lang="en">hello moonbit stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
+    <span class="brand__name" lang="en" data-lang="en">Hello MoonBit Stack</span><span class="brand__name" lang="zh" data-lang="zh">Hello MoonBit Stack</span>
   </a>
-  <nav class="topnav" aria-label="Site">
-    <a href="index.html"><span lang="en" data-lang="en">Course</span><span lang="zh" data-lang="zh">课程</span></a>
-  </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
       <button class="lang__btn" type="button" data-lang-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
@@ -85,13 +82,13 @@ message HelloReply {
   refl.add_file(greet_descriptor())
   server.register_reflection(refl)
   server.serve(host~, port~)</code></pre></div></div></section>
-<section id="discover"><h2><span class="n">04</span><span lang="en" data-lang="en">Discover, then call</span><span lang="zh" data-lang="zh">先发现，再调用</span></h2><p><span lang="en" data-lang="en">Reflection is what a client needs to call a service it was not handed the proto for. <code class="ic">grpcurl</code> uses it for <code class="ic">list</code>, <code class="ic">describe</code> and the call itself; this repository&#x27;s own client uses the same three steps over a real socket.</span><span lang="zh" data-lang="zh">客户端没有拿到 proto 时，就靠反射来调用服务。<code class="ic">grpcurl</code> 用它做 <code class="ic">list</code>、<code class="ic">describe</code> 和调用本身；本仓库自己的客户端也在真实 socket 上走同样三步。</span></p><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="p">$ </span>grpcurl -plaintext localhost:12001 list
+<section id="discover"><h2><span class="n">04</span><span lang="en" data-lang="en">Discover, then call</span><span lang="zh" data-lang="zh">先发现，再调用</span></h2><p><span lang="en" data-lang="en">Reflection is what a client needs to call a service it was not handed the proto for. <code class="ic">grpcurl</code> uses it for <code class="ic">list</code>, <code class="ic">describe</code> and the call itself; this repository&#x27;s own client uses the same three steps over a real socket.</span><span lang="zh" data-lang="zh">客户端没有拿到 proto 时，就靠反射来调用服务。<code class="ic">grpcurl</code> 用它做 <code class="ic">list</code>、<code class="ic">describe</code> 和调用本身；本仓库自己的客户端也在真实 socket 上走同样三步。</span></p><div class="code term" data-code><div class="pane__bar"><span class="pane__file">shell</span><button class="copy" type="button" data-copy><span lang="en" data-lang="en">Copy</span><span lang="zh" data-lang="zh">复制</span></button></div><pre tabindex="0"><code data-lang="shell"><span class="prompt">$ </span>grpcurl -plaintext localhost:12001 list
 <span class="out">greet.Greeter</span>
-<span class="p">$ </span>grpcurl -plaintext localhost:12001 describe greet.Greeter
+<span class="prompt">$ </span>grpcurl -plaintext localhost:12001 describe greet.Greeter
 <span class="out">service Greeter {</span>
 <span class="out">  rpc SayHello ( .greet.HelloRequest ) returns ( .greet.HelloReply );</span>
 <span class="out">}</span>
-<span class="p">$ </span>grpcurl -plaintext -d &#x27;{&quot;name&quot;:&quot;Ada&quot;}&#x27; localhost:12001 greet.Greeter/SayHello
+<span class="prompt">$ </span>grpcurl -plaintext -d &#x27;{&quot;name&quot;:&quot;Ada&quot;}&#x27; localhost:12001 greet.Greeter/SayHello
 <span class="out">{</span>
 <span class="out">  &quot;message&quot;: &quot;Hello, Ada&quot;</span>
 <span class="out">}</span></code></pre></div><p><span lang="en" data-lang="en">The tests drive that path with <code class="ic">Channel::connect</code>: a server-streaming call for reflection, then a unary call for <code class="ic">SayHello</code>. The leg is exercised end to end, not only compiled.</span><span lang="zh" data-lang="zh">测试用 <code class="ic">Channel::connect</code> 走这条路：先做一次服务端流式调用拿反射，再做一次一元调用打 <code class="ic">SayHello</code>。这条腿是端到端跑过的，不只是编过。</span></p></section>
