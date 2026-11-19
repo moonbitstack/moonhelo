@@ -317,6 +317,68 @@
       ]
     },
     {
+      "id": "outside",
+      "title": {
+        "en": "From the outside",
+        "zh": "从外面调"
+      },
+      "blocks": [
+        {
+          "type": "p",
+          "text": {
+            "en": "Every chapter called the service from inside the module. `src/examples/06-clients` calls it the way another program would, over a real socket, and adds a layer on the way: an MCP endpoint on the same listener, so an agent can ask for the same greeting.",
+            "zh": "前面各章都是在模块内部调这个服务。`src/examples/06-clients` 照别的程序的方式，经真实的套接字从外面调；顺带加了一层：在同一个监听上挂一个 MCP 端点，让智能体也能要到同一句问候。"
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/06-clients/main.mbt",
+              "lang": "moonbit",
+              "code": "  let app = @dispatch.mount(\n    [(\"/mcp\", greeter().to_asgi(path=\"/\", docs=None))],\n    fallback=@server.assemble(sess),\n  )"
+            }
+          ]
+        },
+        {
+          "type": "p",
+          "text": {
+            "en": "`@dispatch.mount` picks an application by path prefix: `/mcp` goes to the MCP server, everything else to the service the chapters built, which does not change by a line. The clients are moonfetch for HTTP and GraphQL and moonmcp's own client for the tool:",
+            "zh": "`@dispatch.mount` 按路径前缀选应用：`/mcp` 交给 MCP 服务，其余交给前面各章搭起来的服务，那边一行不改。客户端是 moonfetch（HTTP 与 GraphQL）和 moonmcp 自带的客户端（调工具）："
+          }
+        },
+        {
+          "type": "code",
+          "variants": [
+            {
+              "style": "function",
+              "file": "src/examples/06-clients/main.mbt",
+              "lang": "moonbit",
+              "code": "    let mcp = @client.Client::connect(@http.Http::new(base + \"/mcp\"))\n    let answer = mcp.call_tool(\"greet\", arguments={ \"name\": \"Ada\" })"
+            }
+          ]
+        },
+        {
+          "type": "term",
+          "steps": [
+            {
+              "cmd": "moon run src/examples/06-clients --target native",
+              "out": [
+                "INFO:     Application startup complete.",
+                "INFO:     Started server process on http://127.0.0.1:12000",
+                "GET  /ping     -> 200 pong",
+                "POST /users    -> 201 {\"id\":1,\"name\":\"Ada\"}",
+                "GET  /users/1  -> 200 {\"id\":1,\"name\":\"Ada\"}",
+                "POST /graphql  -> 200 {\"data\":{\"greeting\":\"Hello, Ada\"}}",
+                "MCP  greet     -> Hello, Ada"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "next",
       "title": {
         "en": "Where to go next",
@@ -346,8 +408,8 @@
                 "zh": "让 agent 调用这个服务"
               },
               {
-                "en": "moonmcp",
-                "zh": "moonmcp"
+                "en": "moonmcp, `src/examples/06-clients`",
+                "zh": "moonmcp，`src/examples/06-clients`"
               },
               {
                 "en": "the same handlers, described as tools",
@@ -415,8 +477,8 @@
         {
           "type": "p",
           "text": {
-            "en": "The repository is the rest of the map: `src/examples/` has one program per idea, `src/server/` is the service the chapters build, and `README.md` lists the eleven libraries in the order a request meets them. Every code block in this course is compiled in CI, so a page that drifts from the source fails the build before it reaches you.",
-            "zh": "仓库就是地图的其余部分：`src/examples/` 一个想法一个程序，`src/server/` 是各章搭起来的那个服务，`README.md` 按请求经过的顺序列着十一个库。这门课里每个代码块都在 CI 里编译，所以页面一旦和源码脱节，在到你手里之前构建就已经红了。"
+            "en": "The repository is the rest of the map: `src/examples/` has one program per idea, `src/server/` is the service the chapters build, and `README.md` lists the thirteen libraries in the order a request meets them. Every code block in this course is compiled in CI, so a page that drifts from the source fails the build before it reaches you.",
+            "zh": "仓库就是地图的其余部分：`src/examples/` 一个想法一个程序，`src/server/` 是各章搭起来的那个服务，`README.md` 按请求经过的顺序列着十三个库。这门课里每个代码块都在 CI 里编译，所以页面一旦和源码脱节，在到你手里之前构建就已经红了。"
           }
         },
         {
