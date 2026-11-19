@@ -1,0 +1,23 @@
+// The service from the outside: moonfetch calls the REST routes and the GraphQL
+// field over a real socket, and moonmcp's client calls the greet tool the same
+// listener serves at /mcp.
+supported_targets = "native"
+
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moonhelo/server",
+  "moonbitstack/moonhelo/genmodel",
+  "moonbitstack/moonorm",
+  "moonbitstack/moonsqlite" @sqlite,
+  "moonbitstack/mooncat",
+  "moonbitstack/mooncat/config",
+  "moonbitstack/mooncat/serve",
+  "moonbitstack/moonzero" @zero,
+  "moonbitstack/moonasgi/dispatch",
+  "moonbitstack/moonfetch",
+  "moonbitstack/moonmcp",
+  "moonbitstack/moonmcp/client",
+  "moonbitstack/moonmcp/client/http",
+  "moonbitlang/async",
+}

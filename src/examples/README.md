@@ -1,6 +1,6 @@
 # Examples
 
-Five runnable tours of the stack, each a `moon run` away. All are native-only,
+Seven runnable tours of the stack, each a `moon run` away. All are native-only,
 like the rest of the module: they configure a native server, and the whole
 application links SQLite.
 
@@ -11,3 +11,5 @@ application links SQLite.
 | 02 | [three-styles](02-three-styles/) | the same two routes registered three ways — as functions, as a value that answers the path, and as `#app.get` annotations the generator turns into `register(app)` — with a test that asserts all three answer the same bytes | `moon run src/examples/02-three-styles --target native` |
 | 03 | [three-ways-data](03-three-ways-data/) | one table reached three ways — a model written by hand, a model generated from `#orm.table`, and a `SELECT` generated from `#sql.select` — with a test that reads the same row through all three and compares | `moon run src/examples/03-three-ways-data --target native` |
 | 04 | [access-log](04-access-log/) | the assembly seam: a routed app wrapped by a moonzero Server with its logging layer, lowered to the `AsgiApp` the transport takes, with one access-log line per call — including the 404 | `moon run src/examples/04-access-log --target native` |
+| 05 | [production](05-production/) | what chapter 09 adds, in one run: a paged list, a body refused by its validation, a request refused for its token, a transfer the ledger takes and one it refuses, a stream, background work handed to a consumer, and a metrics scrape | `moon run src/examples/05-production --target native` |
+| 06 | [clients](06-clients/) | the service from outside, over a real socket on port 12000: moonfetch calls the REST routes and the GraphQL field, and moonmcp's client calls the greet tool that the same listener serves under `/mcp` | `moon run src/examples/06-clients --target native` |

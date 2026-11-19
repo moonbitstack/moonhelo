@@ -47,6 +47,8 @@ flowchart LR
 | call | [moonrpc](https://github.com/moonbitstack/moonrpc) | serves `greet.Greeter` over HTTP/2 cleartext with Server Reflection, and the client the test drives it with |
 | ask a model | [moonmuse](https://github.com/moonbitstack/moonmuse) | a prompt rendered from a template and answered by a scripted provider, in `src/examples/00-nine-in-one` |
 | stop and resume | [moonstate](https://github.com/moonbitstack/moonstate) | a run that stops between two nodes and continues from its checkpoint, in `src/examples/01-lifecycle` |
+| call from outside | [moonfetch](https://github.com/moonbitstack/moonfetch) | the REST routes and the GraphQL field called over a real socket, in `src/examples/06-clients` |
+| offer to a model | [moonmcp](https://github.com/moonbitstack/moonmcp) | the greeting as an MCP tool, served under `/mcp` by the same listener and called by moonmcp's client, in `src/examples/06-clients` |
 
 The routes are written by hand and the model is generated, which is the ordinary
 workflow around a code generator: the spec produces the types and the storage
@@ -127,6 +129,8 @@ $ moon run src/examples/01-lifecycle --target native
 $ moon run src/examples/02-three-styles --target native
 $ moon run src/examples/03-three-ways-data --target native
 $ moon run src/examples/04-access-log --target native
+$ moon run src/examples/05-production --target native
+$ moon run src/examples/06-clients --target native
 ```
 
 The first carries one greeting through the spec, the request, the route group,
