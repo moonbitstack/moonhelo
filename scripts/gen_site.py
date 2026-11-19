@@ -318,13 +318,6 @@ def render_block(block: dict) -> str:
             f'<div class="know"><h3>{bi(block["title"])}</h3>'
             f'<ul>{items}</ul></div>'
         )
-    if kind == "specimen":
-        return (
-            '<div class="specimen">'
-            f'<div class="specimen__label">{bi(block["label"])}</div>'
-            f'<div class="specimen__body">{block["html"]}</div>'
-            "</div>"
-        )
     if kind == "list":
         items = "".join(f"<li>{bi(i)}</li>" for i in block["items"])
         return f"<ul>{items}</ul>"
@@ -351,13 +344,11 @@ BRAND = {"en": "hello moonbit stack", "zh": "Hello MoonBit Stack"}
 
 UI = {
     "course": {"en": "Course", "zh": "课程"},
-    "examples": {"en": "Examples", "zh": "示例"},
     "onthispage": {"en": "On this page", "zh": "本页目录"},
     "copy": {"en": "Copy", "zh": "复制"},
     "prev": {"en": "Previous", "zh": "上一章"},
     "next": {"en": "Next", "zh": "下一章"},
     "courselink": {"en": "The course", "zh": "课程首页"},
-    "elements": {"en": "Elements", "zh": "控件"},
     "soon": {"en": "not written yet", "zh": "待写"},
     "progress": {"en": "Your progress", "zh": "阅读进度"},
     "edit": {"en": "Edit this page", "zh": "编辑此页"},
@@ -441,7 +432,7 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
 {"".join(f'<link rel="stylesheet" href="{href}">{chr(10)}' for href in FONTS)}
 <link rel="stylesheet" href="{css_prefix}assets/site.css">
 </head>
-<body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") and not page.get("standalone") else ""}>
+<body{" data-slug=\"" + page["slug"] + "\"" if page.get("slug") else ""}>
 <a class="skip" href="#content">Skip to content</a>
 <header class="topbar">
   <button class="icon-btn menu" type="button" data-menu aria-label="Contents" aria-expanded="false">
@@ -453,8 +444,6 @@ def head(site: dict, page: dict, css_prefix: str = "") -> str:
   </a>
   <nav class="topnav" aria-label="Site">
     <a href="{css_prefix}index.html"{" aria-current=\"page\"" if page.get("is_cover") else ""}>{ui("course")}</a>
-    <a href="{site["repo"]}/tree/master/src/examples">{ui("examples")}</a>
-    <a href="{css_prefix}elements.html"{" aria-current=\"page\"" if page.get("is_elements") else ""}>{ui("elements")}</a>
   </nav>
   <div class="topbar__end">
     <div class="lang" data-lang-menu>
@@ -525,8 +514,6 @@ def toc(page: dict) -> str:
 
 
 def pager(site: dict, page: dict, prefix: str) -> str:
-    if page.get("standalone"):
-        return ""
     chapters = [c for c in site["chapters"] if c.get("ready")]
     slugs = [c["slug"] for c in chapters]
     if page.get("slug") not in slugs:
@@ -585,10 +572,7 @@ def footer(site: dict, page: dict, prefix: str = "") -> str:
 # --------------------------------------------------------------------------
 
 def crumb(page: dict) -> str:
-    """A chapter says which chapter it is; a page that is not a chapter says
-    nothing rather than inventing a number for itself."""
-    if page.get("standalone"):
-        return ""
+    """A chapter says which chapter it is."""
     return (
         f'<p class="crumb"><span lang="en" data-lang="en">Chapter {page["num"]}</span>'
         f'<span lang="zh" data-lang="zh">第 {page["num"]} 章</span></p>'
@@ -822,12 +806,6 @@ def main() -> int:
         page = json.loads(path.read_text(encoding="utf-8"))
         page["slug"] = path.stem
         pages[f"{path.stem}.html"] = render_chapter(site, page)
-
-    elements = json.loads((CONTENT / "elements.json").read_text(encoding="utf-8"))
-    elements["slug"] = "elements"
-    elements["standalone"] = True
-    elements["is_elements"] = True
-    pages["elements.html"] = render_chapter(site, elements)
 
     changed = []
     for name, text in pages.items():

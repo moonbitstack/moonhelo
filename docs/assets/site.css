@@ -1271,8 +1271,8 @@ html[data-lang="zh"] .entry.soon .entry__t { font-style: normal; }
 
    A page can grow a form without knowing this stylesheet exists, so the ink,
    radius and focus ring are set on the elements themselves rather than on a class
-   somebody has to remember to add. The `elements` page renders one of each; a
-   control that is styled but unused is cheaper than a control that arrives naked. */
+   somebody has to remember to add. A control that is styled but unused is
+   cheaper than a control that arrives naked. */
 
 :root { accent-color: var(--accent); }
 
@@ -1542,8 +1542,7 @@ fieldset {
   border-radius: 10px;
 }
 
-/* labels inside a group keep their distance: the column gap of the specimen body
-   stops at the fieldset's edge */
+/* labels inside a group keep their distance from one another */
 fieldset label.inline + label.inline { margin-left: 14px; }
 
 legend {
@@ -1610,34 +1609,4 @@ label.inline {
   background: var(--wash);
   border-color: transparent;
   color: var(--accent);
-}
-
-/* ---------- the elements page ---------- */
-
-.specimen {
-  display: grid;
-  grid-template-columns: 168px minmax(0, 1fr);
-  gap: 18px;
-  align-items: start;
-  padding: 14px 0;
-  border-top: 1px solid var(--rule);
-}
-
-.specimen:first-of-type { border-top: 0; }
-
-.specimen__label {
-  padding-top: 8px;
-  font: 500 11.5px/1.6 var(--mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--faint);
-}
-
-.specimen__body { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; }
-.specimen__body > .wide { flex: 1 1 16rem; min-width: 0; }
-.specimen__body > .note { margin: 0; }
-
-@media (width <= 620px) {
-  .specimen { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  .specimen__label { padding-top: 0; }
 }
