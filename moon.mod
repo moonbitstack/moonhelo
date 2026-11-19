@@ -38,34 +38,36 @@ description = "The end-to-end greet slice of the MoonBit backend stack: one .api
 source = "src"
 
 import {
-  "moonbitstack/moonasgi@0.11.2",
-  "moonbitstack/moonapi@0.18.2",
-  "moonbitstack/moonctl@0.13.0",
-  "moonbitstack/moonorm@0.12.0",
-  "moonbitstack/moondb@0.3.0",
-  "moonbitstack/moonsqlite@0.4.0",
-  "moonbitstack/mooncat@0.21.0",
-  "moonbitstack/moonzero@0.15.0",
-  "moonbitstack/moonrpc@0.22.2",
-  "moonbitstack/moongql@0.11.0",
-  "moonbitstack/moonhttp@0.16.0",
-  "moonbitstack/moonjson@0.5.0",
-  "moonbitstack/moonmuse@0.2.0",
-  "moonbitstack/moonstate@0.2.0",
+  "moonbitstack/moonasgi@0.11.3",
+  "moonbitstack/moonapi@0.18.3",
+  "moonbitstack/moonctl@0.13.1",
+  "moonbitstack/moonorm@0.12.1",
+  "moonbitstack/moondb@0.3.1",
+  "moonbitstack/moonsqlite@0.4.1",
+  "moonbitstack/mooncat@0.21.1",
+  "moonbitstack/moonzero@0.15.1",
+  "moonbitstack/moonrpc@0.22.3",
+  "moonbitstack/moongql@0.11.1",
+  "moonbitstack/moonhttp@0.16.1",
+  "moonbitstack/moonjson@0.5.1",
+  "moonbitstack/moonmuse@0.2.1",
+  "moonbitstack/moonfetch@0.2.1",
+  "moonbitstack/moonmcp@0.2.2",
+  "moonbitstack/moonstate@0.2.2",
   "moonbitlang/async@0.22.5",
 }
 
 rule(
   name: "orm",
-  command: "moonx moonbitstack/moonorm/cmd/orm@0.12.0 -C \"$mod_dir\" \"$input\" -o \"$output\"",
+  command: "moonx moonbitstack/moonorm/cmd/orm@0.12.1 -C \"$mod_dir\" \"$input\" -o \"$output\"",
 )
 
 rule(
   name: "sql",
-  command: "moonx moonbitstack/moonorm/cmd/sql@0.12.0 -C \"$mod_dir\" \"$input\" -o \"$output\"",
+  command: "moonx moonbitstack/moonorm/cmd/sql@0.12.1 -C \"$mod_dir\" \"$input\" -o \"$output\"",
 )
 
 rule(
   name: "routes",
-  command: "moonx moonbitstack/moonapi/cmd/routes@0.18.2 -C \"$mod_dir\" \"$input\" -o \"$output\"",
+  command: "moonx moonbitstack/moonapi/cmd/routes@0.18.3 -C \"$mod_dir\" \"$input\" -o \"$output\"",
 )
