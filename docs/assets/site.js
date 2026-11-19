@@ -226,7 +226,8 @@
     });
     // A tap anywhere outside the drawer closes it, the dimmed page included.
     document.addEventListener("click", (e) => {
-      if (isOpen() && !e.target.closest(".sidebar, [data-menu]")) setOpen(false);
+      // `menu.contains`, not a selector: the open drawer marks the body itself.
+      if (isOpen() && !menu.contains(e.target) && !e.target.closest(".sidebar")) setOpen(false);
     });
   }
 
